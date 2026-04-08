@@ -66,3 +66,15 @@ function saveState(opts = {}) {
 }
 
 state = loadState();
+
+const hadMetaUser = state?._meta?.user ?? null;
+const hadMetaUpdatedAtMs = state?._meta?.updatedAtMs ?? 0;
+
+ensureMeta();
+
+if (hadMetaUser !== state._meta.user || typeof hadMetaUpdatedAtMs !== "number" || hadMetaUpdatedAtMs <= 0) {
+  if (state._meta.updatedAtMs <= 0) {
+    state._meta.updatedAtMs = Date.now();
+  }
+  persistLocal();
+}
