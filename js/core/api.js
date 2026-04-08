@@ -74,33 +74,35 @@ async function bootstrapFromServer() {
   const server = await apiGetState();
   const serverState = server.state;
   const serverMs = server.updatedAtMs || 0;
-
   const localObj = readLocalState();
   const localMs = localObj?._meta?.updatedAtMs || 0;
 
   if (!serverState) {
     if (localObj) {
-      state = localObj;
+      state = sanitizeState(localObj);
       ensureMeta();
+
       if (!state._meta.updatedAtMs) {
         state._meta.updatedAtMs = Date.now();
-        persistLocal();
       }
+
+      persistLocal();
       await apiPutState("bootstrap_no_server_state");
     }
     return;
   }
 
   if (!localObj || serverMs > localMs) {
-    state = serverState;
+    state = sanitizeState(serverState);
     ensureMeta();
     state._meta.updatedAtMs = serverMs || Date.now();
     persistLocal();
     return;
   }
 
-  state = localObj;
+  state = sanitizeState(localObj);
   ensureMeta();
+  persistLocal();
   await apiPutState("bootstrap_local_newer");
 }
 
