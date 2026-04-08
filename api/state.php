@@ -1,15 +1,33 @@
 <?php
+
 declare(strict_types=1);
 
 require __DIR__ . '/../config.php';
 
 session_start();
 
-function read_json_body(): array {
-  $raw = file_get_contents('php://input');
-  if ($raw === false || $raw === '') return [];
-  $data = json_decode($raw, true);
-  return is_array($data) ? $data : [];
+function read_json_body(): array
+{
+    $raw = file_get_contents('php://input');
+
+    if ($raw === false || $raw === '') {
+        return [];
+    }
+
+    $data = json_decode($raw, true);
+
+    return is_array($data) ? $data : [];
+}
+
+function csrf_header_ok(): bool
+{
+    $sessionToken = $_SESSION['csrf'] ?? '';
+    $headerToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+
+    return is_string($sessionToken)
+        && $sessionToken !== ''
+        && is_string($headerToken)
+        && hash_equals($sessionToken, $headerToken);
 }
 
 $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
@@ -43,12 +61,18 @@ if ($method === 'GET') {
 }
 
 if ($method === 'POST') {
-  $body = read_json_body();
-  $state = $body['state'] ?? null;
 
-  if (!is_array($state)) {
-    json_response(['ok' => false, 'error' => 'bad_state'], 400);
-  }
+    if (!csrf_header_ok()) {
+        json_response(['ok' => false, 'error' => 'csrf'], 403);
+    }
+
+    $body = read_json_body();
+
+    $state = $body['state'] ?? null;
+
+    if (!is_array($state)) {
+        json_response(['ok' => false, 'error' => 'bad_state'], 400);
+    }
 
   $json = json_encode($state, JSON_UNESCAPED_UNICODE);
 

@@ -49,6 +49,7 @@ if (isset($_GET['register_err'])) {
   data-auth-user="<?= htmlspecialchars((string)($authUser ?? ''), ENT_QUOTES, 'UTF-8') ?>"
   data-api-state-url="./api/state.php"
   data-register-ok="<?= $registerOk ? '1' : '0' ?>"
+  data-csrf="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>"
 >
   <div class="app">
     <div class="sidebar">
@@ -98,9 +99,13 @@ if (isset($_GET['register_err'])) {
           </div>
 
           <div class="authActions">
-            <?php if ($authUser): ?>
-              <a class="calBtn" href="api/auth.php?action=logout">Wyloguj</a>
-            <?php else: ?>
+              <?php if ($authUser): ?>
+                <form method="post" action="api/auth.php" style="display:inline;">
+                  <input type="hidden" name="mode" value="logout">
+                  <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES) ?>">
+                  <button class="calBtn" type="submit">Wyloguj</button>
+                </form>
+              <?php else: ?>
               <button class="habBtn" id="openLoginBtn" type="button">Zaloguj</button>
               <button class="calBtn" id="openRegisterBtn" type="button">Rejestruj</button>
             <?php endif; ?>
@@ -574,7 +579,6 @@ if (isset($_GET['register_err'])) {
   <script src="js/modules/auth.js"></script>
   <script src="js/modules/calendar.js"></script>
   <script src="js/modules/habits.js"></script>
-  <script src="js/bootstrap.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

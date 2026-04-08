@@ -1144,7 +1144,21 @@ if (navHabits) navHabits.addEventListener("dblclick", () => { setNavActive(navHa
 if (navExpenses) navExpenses.addEventListener("dblclick", (e) => { e.preventDefault(); setNavActive(navExpenses); focusWishlistQuickAdd(); });
 
 (async () => {
-  await bootstrapFromServer();
+  if (AUTH_USER && REGISTER_OK) {
+    importAnonStateToUserStorage(AUTH_USER, { overwrite: false });
+
+    if (window.history?.replaceState) {
+      const cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+  }
+
+  try {
+    await bootstrapFromServer();
+  } catch (error) {
+    console.error("bootstrapFromServer failed:", error);
+  }
+
   ensureWishlist();
   ensurePomodoro();
   pomoRestoreRunning();
