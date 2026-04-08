@@ -18,8 +18,14 @@ async function apiPutState(reason) {
 
   const res = await fetch(API_STATE_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRF-Token": CSRF_TOKEN
+    },
+
     credentials: "same-origin",
+
     body: JSON.stringify(payload)
   });
 

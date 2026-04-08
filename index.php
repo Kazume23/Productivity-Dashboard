@@ -49,6 +49,7 @@ if (isset($_GET['register_err'])) {
   data-auth-user="<?= htmlspecialchars((string)($authUser ?? ''), ENT_QUOTES, 'UTF-8') ?>"
   data-api-state-url="./api/state.php"
   data-register-ok="<?= $registerOk ? '1' : '0' ?>"
+  data-csrf="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>"
 >
   <div class="app">
     <div class="sidebar">
