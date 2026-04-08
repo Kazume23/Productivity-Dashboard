@@ -32,7 +32,6 @@ function pdo_db(): PDO {
     PDO::ATTR_EMULATE_PREPARES => false,
   ]);
   ensure_schema($pdo);
-  ensure_admin($pdo);
   return $pdo;
 }
 
@@ -65,13 +64,4 @@ function ensure_schema(PDO $pdo): void {
   ");
 }
 
-function ensure_admin(PDO $pdo): void {
-  $stmt = $pdo->prepare('SELECT id FROM users WHERE username = ? LIMIT 1');
-  $stmt->execute(['admin']);
-  $row = $stmt->fetch();
-  if ($row) return;
 
-  $hash = password_hash('admin', PASSWORD_DEFAULT);
-  $ins = $pdo->prepare('INSERT INTO users (username, password_hash) VALUES (?, ?)');
-  $ins->execute(['admin', $hash]);
-}
