@@ -1,20 +1,47 @@
+let authInitialized = false;
+
 function initAuth() {
+  if (authInitialized) return;
+  authInitialized = true;
+
   const registerOverlay = $("registerOverlay");
   const openRegisterBtn = $("openRegisterBtn");
   const closeRegisterBtn = $("closeRegisterBtn");
   const cancelRegister = $("cancelRegister");
 
+  const loginOverlay = $("loginOverlay");
+  const openLoginBtn = $("openLoginBtn");
+  const closeLoginBtn = $("loginClose");
+  const cancelLogin = $("loginCancel");
+
+  const isOpen = (overlay) =>
+    !!overlay && overlay.getAttribute("aria-hidden") === "false";
+
+  const openRegister = () => {
+    if (!registerOverlay) return;
+    showOverlay(registerOverlay);
+    const u = $("regUsername");
+    if (u) setTimeout(() => u.focus(), 0);
+  };
+
+  const closeRegister = () => {
+    if (!registerOverlay) return;
+    hideOverlay(registerOverlay);
+  };
+
+  const openLogin = () => {
+    if (!loginOverlay) return;
+    showOverlay(loginOverlay);
+    const u = $("loginUser");
+    if (u) setTimeout(() => u.focus(), 0);
+  };
+
+  const closeLogin = () => {
+    if (!loginOverlay) return;
+    hideOverlay(loginOverlay);
+  };
+
   if (registerOverlay) {
-    const openRegister = () => {
-      showOverlay(registerOverlay);
-      const u = $("regUsername");
-      if (u) setTimeout(() => u.focus(), 0);
-    };
-
-    const closeRegister = () => {
-      hideOverlay(registerOverlay);
-    };
-
     if (openRegisterBtn) openRegisterBtn.addEventListener("click", openRegister);
     if (closeRegisterBtn) closeRegisterBtn.addEventListener("click", closeRegister);
     if (cancelRegister) cancelRegister.addEventListener("click", closeRegister);
@@ -23,33 +50,12 @@ function initAuth() {
       if (e.target === registerOverlay) closeRegister();
     });
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && registerOverlay.getAttribute("aria-hidden") === "false") {
-        closeRegister();
-      }
-    });
-
-    if (registerOverlay.getAttribute("aria-hidden") === "false") {
+    if (isOpen(registerOverlay)) {
       showOverlay(registerOverlay);
     }
   }
 
-  const loginOverlay = $("loginOverlay");
-  const openLoginBtn = $("openLoginBtn");
-  const closeLoginBtn = $("loginClose");
-  const cancelLogin = $("loginCancel");
-
   if (loginOverlay) {
-    const openLogin = () => {
-      showOverlay(loginOverlay);
-      const u = $("loginUser");
-      if (u) setTimeout(() => u.focus(), 0);
-    };
-
-    const closeLogin = () => {
-      hideOverlay(loginOverlay);
-    };
-
     if (openLoginBtn) openLoginBtn.addEventListener("click", openLogin);
     if (closeLoginBtn) closeLoginBtn.addEventListener("click", closeLogin);
     if (cancelLogin) cancelLogin.addEventListener("click", closeLogin);
@@ -58,12 +64,21 @@ function initAuth() {
       if (e.target === loginOverlay) closeLogin();
     });
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeLogin();
-    });
-
-    if (loginOverlay.getAttribute("aria-hidden") === "false") {
+    if (isOpen(loginOverlay)) {
       showOverlay(loginOverlay);
     }
   }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+
+    if (isOpen(registerOverlay)) {
+      closeRegister();
+      return;
+    }
+
+    if (isOpen(loginOverlay)) {
+      closeLogin();
+    }
+  });
 }
