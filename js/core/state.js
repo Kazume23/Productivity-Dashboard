@@ -65,6 +65,8 @@ function saveState(opts = {}) {
   }
 }
 
+const initialRawState = readLocalState();
+
 state = loadState();
 
 const hadMetaUser = state?._meta?.user ?? null;
@@ -72,7 +74,13 @@ const hadMetaUpdatedAtMs = state?._meta?.updatedAtMs ?? 0;
 
 ensureMeta();
 
-if (hadMetaUser !== state._meta.user || typeof hadMetaUpdatedAtMs !== "number" || hadMetaUpdatedAtMs <= 0) {
+const shouldSeedAnonymousStorage = !AUTH_USER && !initialRawState;
+const metaChanged =
+  hadMetaUser !== state._meta.user ||
+  typeof hadMetaUpdatedAtMs !== "number" ||
+  hadMetaUpdatedAtMs <= 0;
+
+if (shouldSeedAnonymousStorage || metaChanged) {
   if (state._meta.updatedAtMs <= 0) {
     state._meta.updatedAtMs = Date.now();
   }
