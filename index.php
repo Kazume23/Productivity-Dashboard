@@ -98,9 +98,13 @@ if (isset($_GET['register_err'])) {
           </div>
 
           <div class="authActions">
-            <?php if ($authUser): ?>
-              <a class="calBtn" href="api/auth.php?action=logout">Wyloguj</a>
-            <?php else: ?>
+              <?php if ($authUser): ?>
+                <form method="post" action="api/auth.php" style="display:inline;">
+                  <input type="hidden" name="mode" value="logout">
+                  <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES) ?>">
+                  <button class="calBtn" type="submit">Wyloguj</button>
+                </form>
+              <?php else: ?>
               <button class="habBtn" id="openLoginBtn" type="button">Zaloguj</button>
               <button class="calBtn" id="openRegisterBtn" type="button">Rejestruj</button>
             <?php endif; ?>

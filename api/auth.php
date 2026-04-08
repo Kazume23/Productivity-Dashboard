@@ -16,18 +16,6 @@ function csrf_ok(): bool {
   return hash_equals($_SESSION['csrf'], $token);
 }
 
-$action = $_GET['action'] ?? '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'logout') {
-  $_SESSION = [];
-  if (ini_get('session.use_cookies')) {
-    $params = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], (bool)$params['secure'], (bool)$params['httponly']);
-  }
-  session_destroy();
-  redirect_to_index();
-}
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   redirect_to_index();
 }
@@ -37,7 +25,28 @@ if (!is_string($mode)) $mode = 'login';
 
 if (!csrf_ok()) {
   if ($mode === 'register') redirect_to_index('?register_err=csrf');
+  if ($mode === 'logout') redirect_to_index();
   redirect_to_index('?login_err=csrf');
+}
+
+if ($mode === 'logout') {
+  $_SESSION = [];
+
+  if (ini_get('session.use_cookies')) {
+    $params = session_get_cookie_params();
+    setcookie(
+      session_name(),
+      '',
+      time() - 42000,
+      $params['path'],
+      $params['domain'],
+      (bool)$params['secure'],
+      (bool)$params['httponly']
+    );
+  }
+
+  session_destroy();
+  redirect_to_index();
 }
 
 $username = trim((string)($_POST['username'] ?? ''));
