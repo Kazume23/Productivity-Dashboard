@@ -453,17 +453,25 @@ function renderDonut(done, fail, empty) {
   ].filter(p => p.v > 0);
 
   if (!chartSvg) return;
+
   chartSvg.innerHTML = "";
 
   const cx = 110;
   const cy = 110;
   const r = 86;
 
+  const strokeMap = {
+    empty: "#9ca3af",
+    fail: "#ef4444",
+    done: "#22c55e"
+  };
+
   const ring = document.createElementNS("http://www.w3.org/2000/svg", "circle");
   ring.setAttribute("cx", cx);
   ring.setAttribute("cy", cy);
   ring.setAttribute("r", r);
   ring.setAttribute("fill", "none");
+  ring.setAttribute("stroke", "#d1d5db");
   ring.setAttribute("stroke-width", "18");
   chartSvg.appendChild(ring);
 
@@ -480,6 +488,7 @@ function renderDonut(done, fail, empty) {
   }
 
   let angle = 0;
+
   for (const p of parts) {
     const span = (p.v / total) * 360;
     const startAngle = angle;
@@ -488,6 +497,7 @@ function renderDonut(done, fail, empty) {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", arcPath(cx, cy, r, startAngle, endAngle));
     path.setAttribute("fill", "none");
+    path.setAttribute("stroke", strokeMap[p.cls] || "#9ca3af");
     path.setAttribute("stroke-width", "18");
     path.setAttribute("stroke-linecap", "round");
     path.classList.add("chart-part", p.cls);
