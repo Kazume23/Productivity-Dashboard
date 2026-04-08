@@ -17,6 +17,8 @@ if (isset($_GET['login_err'])) {
 }
 
 $registerErr = '';
+$registerOk = isset($_GET['register_ok']) && (string)$_GET['register_ok'] === '1';
+
 if (isset($_GET['register_err'])) {
   $code = (string)$_GET['register_err'];
   if ($code === 'csrf') $registerErr = 'Sesja wygasła, spróbuj ponownie';
@@ -46,6 +48,7 @@ if (isset($_GET['register_err'])) {
 <body
   data-auth-user="<?= htmlspecialchars((string)($authUser ?? ''), ENT_QUOTES, 'UTF-8') ?>"
   data-api-state-url="./api/state.php"
+  data-register-ok="<?= $registerOk ? '1' : '0' ?>"
 >
   <div class="app">
     <div class="sidebar">

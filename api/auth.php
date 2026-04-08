@@ -80,7 +80,7 @@ if ($mode === 'register') {
   $_SESSION['user_id'] = $userId;
   $_SESSION['username'] = $username;
 
-  redirect_to_index();
+  redirect_to_index('?register_ok=1');
 }
 
 $stmt = $pdo->prepare('SELECT id, password_hash FROM users WHERE username = ? LIMIT 1');
