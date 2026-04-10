@@ -471,9 +471,28 @@ function renderDonut(done, fail, empty) {
   ring.setAttribute("cy", cy);
   ring.setAttribute("r", r);
   ring.setAttribute("fill", "none");
-  ring.setAttribute("stroke", "#d1d5db");
   ring.setAttribute("stroke-width", "18");
   chartSvg.appendChild(ring);
+
+  if (done === 0 && fail === 0 && empty > 0) {
+    const inner = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    inner.setAttribute("cx", cx);
+    inner.setAttribute("cy", cy);
+    inner.setAttribute("r", 58);
+    inner.classList.add("chart-inner");
+    chartSvg.appendChild(inner);
+
+    const center = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    center.setAttribute("x", cx);
+    center.setAttribute("y", cy + 6);
+    center.setAttribute("text-anchor", "middle");
+    center.setAttribute("font-size", "16");
+    center.classList.add("chart-text");
+    center.textContent = "0%";
+    chartSvg.appendChild(center);
+
+    return;
+  }
 
   if (total <= 0) {
     const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
