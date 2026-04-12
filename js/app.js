@@ -446,11 +446,6 @@ function arcPath(cx, cy, r, startAngle, endAngle) {
 
 function renderDonut(done, fail, empty) {
   const total = done + fail + empty;
-  const parts = [
-    { v: empty, cls: "empty" },
-    { v: fail, cls: "fail" },
-    { v: done, cls: "done" }
-  ].filter(p => p.v > 0);
 
   if (!chartSvg) return;
 
@@ -460,21 +455,18 @@ function renderDonut(done, fail, empty) {
   const cy = 110;
   const r = 86;
 
-  const strokeMap = {
-    empty: "#9ca3af",
-    fail: "#ef4444",
-    done: "#22c55e"
-  };
-
   const ring = document.createElementNS("http://www.w3.org/2000/svg", "circle");
   ring.setAttribute("cx", cx);
   ring.setAttribute("cy", cy);
   ring.setAttribute("r", r);
   ring.setAttribute("fill", "none");
   ring.setAttribute("stroke-width", "18");
+  ring.setAttribute("shape-rendering", "geometricPrecision");
+  ring.setAttribute("stroke-linecap", "butt");
+  ring.classList.add("chart-part", "empty");
   chartSvg.appendChild(ring);
 
-  if (done === 0 && fail === 0 && empty > 0) {
+  if (total <= 0) {
     const inner = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     inner.setAttribute("cx", cx);
     inner.setAttribute("cy", cy);
@@ -494,19 +486,12 @@ function renderDonut(done, fail, empty) {
     return;
   }
 
-  if (total <= 0) {
-    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    t.setAttribute("x", cx);
-    t.setAttribute("y", cy + 6);
-    t.setAttribute("text-anchor", "middle");
-    t.setAttribute("font-size", "14");
-    t.classList.add("chart-text");
-    t.textContent = "Brak danych";
-    chartSvg.appendChild(t);
-    return;
-  }
+  let angle = (empty / total) * 360;
 
-  let angle = 0;
+  const parts = [
+    { v: fail, cls: "fail" },
+    { v: done, cls: "done" }
+  ].filter(p => p.v > 0);
 
   for (const p of parts) {
     const span = (p.v / total) * 360;
@@ -516,9 +501,9 @@ function renderDonut(done, fail, empty) {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", arcPath(cx, cy, r, startAngle, endAngle));
     path.setAttribute("fill", "none");
-    path.setAttribute("stroke", strokeMap[p.cls] || "#9ca3af");
     path.setAttribute("stroke-width", "18");
     path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("shape-rendering", "geometricPrecision");
     path.classList.add("chart-part", p.cls);
     chartSvg.appendChild(path);
 
@@ -541,7 +526,6 @@ function renderDonut(done, fail, empty) {
   center.textContent = `${Math.round((done / total) * 100)}%`;
   chartSvg.appendChild(center);
 }
-
 function syncChartTabs() {
   const isWeek = state.chartMode === "week";
   chartWeekBtn?.classList.toggle("isActive", isWeek);
