@@ -1,6 +1,7 @@
 const THEME_KEY = "edward_theme_v1";
 const baseId = "baseStyles";
 const themeIds = ["themeStyles", "themelight", "themepink"];
+let themeListenerBound = false;
 
 function applyTheme(themeId) {
   const base = document.getElementById(baseId);
@@ -42,8 +43,12 @@ function initTheme() {
   const saved = getSavedTheme();
   applyTheme(saved === "base" ? null : saved);
 
+  if (themeListenerBound) return;
+
   const themeBtn = $("themeBtn");
   if (themeBtn) {
     themeBtn.addEventListener("click", cycleTheme);
   }
+
+  themeListenerBound = true;
 }
