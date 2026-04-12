@@ -1049,6 +1049,24 @@ document.addEventListener("keydown", (e) => {
 });
 
 if (todoSave) todoSave.addEventListener("click", () => { addTodo(todoDateInput.value, todoText.value, todoPriority.value); closeTodoModal(); });
+if (chartWeekBtn) {
+  chartWeekBtn.addEventListener("click", () => {
+    if (state.chartMode !== "week") {
+      state.chartMode = "week";
+      saveState();
+    }
+    renderChart();
+  });
+}
+if (chartMonthBtn) {
+  chartMonthBtn.addEventListener("click", () => {
+    if (state.chartMode !== "month") {
+      state.chartMode = "month";
+      saveState();
+    }
+    renderChart();
+  });
+}
 if (chartDetailsBtn) chartDetailsBtn.addEventListener("click", () => { renderChartModal(computeChartStats()); openChartModal(); });
 if (chartClose) chartClose.addEventListener("click", closeChartModal);
 if (chartOverlay) {
@@ -1147,10 +1165,14 @@ if (navHabits) navHabits.addEventListener("dblclick", () => { setNavActive(navHa
 if (navExpenses) navExpenses.addEventListener("dblclick", (e) => { e.preventDefault(); setNavActive(navExpenses); focusWishlistQuickAdd(); });
 
 (async () => {
-  if (AUTH_USER && REGISTER_OK) {
-    importAnonStateToUserStorage(AUTH_USER, { overwrite: false });
+  if (AUTH_USER) {
+    const hasUserState = !!readUserState(AUTH_USER);
 
-    if (window.history?.replaceState) {
+    if (!hasUserState) {
+      importAnonStateToUserStorage(AUTH_USER, { overwrite: false });
+    }
+
+    if (REGISTER_OK && window.history?.replaceState) {
       const cleanUrl = window.location.pathname + window.location.hash;
       window.history.replaceState({}, document.title, cleanUrl);
     }

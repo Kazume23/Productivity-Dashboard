@@ -15,11 +15,26 @@ function touchMeta() {
 }
 
 function sanitizeState(s) {
-  if (!s.habits) s.habits = [];
-  if (!s.entries) s.entries = {};
-  if (!s.todos) s.todos = [];
-  if (!s.expenses) s.expenses = [];
-  if (!s.wishlist) s.wishlist = [];
+  if (!Array.isArray(s.habits)) s.habits = [];
+
+  if (!s.entries || typeof s.entries !== "object" || Array.isArray(s.entries)) {
+    s.entries = {};
+  }
+
+  const normalizedEntries = {};
+  for (const [key, rawVal] of Object.entries(s.entries)) {
+    if (!key.includes("|")) continue;
+
+    const v = Number(rawVal);
+    if (v === 1 || v === -1) {
+      normalizedEntries[key] = v;
+    }
+  }
+  s.entries = normalizedEntries;
+
+  if (!Array.isArray(s.todos)) s.todos = [];
+  if (!Array.isArray(s.expenses)) s.expenses = [];
+  if (!Array.isArray(s.wishlist)) s.wishlist = [];
   if (!s.selectedDate) s.selectedDate = toISO(startOfDay(new Date()));
 
   if (typeof s.viewMonth !== "number") {

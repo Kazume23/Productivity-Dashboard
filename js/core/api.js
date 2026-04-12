@@ -10,8 +10,9 @@ async function apiGetState() {
 
   const data = await res.json();
 
-  if (!data || !data.ok) {
-    throw new Error("apiGetState_failed");
+  if (!res.ok || !data || !data.ok) {
+    const code = data?.error || `http_${res.status}`;
+    throw new Error(`apiGetState_failed:${code}`);
   }
 
   return data;
@@ -19,6 +20,7 @@ async function apiGetState() {
 
 async function apiPutState(reason) {
   if (!AUTH_USER) throw new Error("offline_no_server");
+  if (!CSRF_TOKEN) throw new Error("missing_csrf");
 
   ensureMeta();
 
@@ -30,7 +32,8 @@ async function apiPutState(reason) {
   const res = await fetch(API_STATE_URL, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "X-CSRF-TOKEN": CSRF_TOKEN
     },
     credentials: "same-origin",
     body: JSON.stringify(payload)
@@ -38,8 +41,9 @@ async function apiPutState(reason) {
 
   const data = await res.json();
 
-  if (!data || !data.ok) {
-    throw new Error("apiPutState_failed");
+  if (!res.ok || !data || !data.ok) {
+    const code = data?.error || `http_${res.status}`;
+    throw new Error(`apiPutState_failed:${code}`);
   }
 
   return { ok: true, data };
@@ -77,6 +81,7 @@ async function flushServerSync(reason) {
     await apiPutState(reason);
     syncBackoffMs = 2000;
   } catch (e) {
+    console.warn("sync_failed", reason, e);
     syncPending = true;
 
     if (document.hidden) return;
@@ -182,19 +187,23 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("beforeunload", () => {
   try {
     if (!syncPending) return;
-    if (!navigator.sendBeacon) return;
 
     ensureMeta();
 
-    const payload = JSON.stringify({
+    const payload = {
       updatedAtMs: state._meta.updatedAtMs || Date.now(),
       state
-    });
+    };
 
-    const blob = new Blob([payload], {
-      type: "application/json"
+    fetch(API_STATE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-TOKEN": CSRF_TOKEN
+      },
+      credentials: "same-origin",
+      keepalive: true,
+      body: JSON.stringify(payload)
     });
-
-    navigator.sendBeacon(API_STATE_URL, blob);
   } catch (e) {}
 });
