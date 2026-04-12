@@ -1,0 +1,140 @@
+/* Habit tracker */
+.habHeader {
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-base);
+}
+
+.habHeaderLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.habTitle {
+  font-weight: 700;
+}
+
+.habRange {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.habAdd {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.habInput {
+  width: 240px;
+  background: var(--bg-control);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 8px 10px;
+  outline: none;
+}
+
+.habBtn {
+  background: var(--bg-control);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.habBtn:hover {
+  border-color: var(--border-hover);
+}
+
+.habTableWrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.habTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.habTable thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-panel);
+  z-index: 2;
+  border-bottom: 1px solid var(--border-base);
+  padding: 10px 8px;
+  font-size: 12px;
+}
+
+.thHabit {
+  text-align: left;
+  width: 280px;
+}
+
+.thDay {
+  text-align: center;
+}
+
+.thToday {
+  color: var(--accent);
+}
+
+.habTable tbody td {
+  border-bottom: 1px solid var(--border-row);
+  padding: 10px 8px;
+}
+
+.tdHabit {
+  padding-left: 12px;
+}
+
+.habitName {
+  display: inline-block;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--bg-control);
+  border: 1px solid transparent;
+  min-width: 200px;
+}
+
+.habitName:focus {
+  outline: none;
+  border-color: var(--border-strong);
+}
+
+.tdCell {
+  text-align: center;
+}
+
+.cellBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid var(--border-cell);
+  background: transparent;
+  cursor: pointer;
+}
+
+.cellBtn:hover {
+  border-color: var(--border-cell-hover);
+}
+
+.cellDone {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.cellFail {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+

@@ -1,0 +1,161 @@
+/* Sidebar login */
+.sidebarFooter{
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.authBox{
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.authTop{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.authTitle{
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.authStatus{
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.authActions{
+  display: flex;
+  gap: 8px;
+}
+
+.authActions .habBtn,
+.authActions .calBtn{
+  flex: 1;
+}
+
+.authError{
+  margin-top: 6px;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--danger-soft-border);
+  background: var(--danger-soft-bg);
+}
+
+/* Modal (register/login overlays) */
+.modalOverlay{
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-dark);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 9999;
+}
+
+.modalOverlay.isOpen,
+.modalOverlay[aria-hidden="false"]{
+  display: flex;
+}
+
+.modal{
+  width: min(520px, 100%);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: 0 18px 50px var(--overlay-dark);
+  overflow: hidden;
+}
+
+.modalHead{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 12px;
+  border-bottom: 1px solid var(--border-base);
+}
+
+.modalTitle{
+  font-weight: 700;
+}
+
+.modalHead .miniBtn{
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--bg-control);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalHead .miniBtn:hover{
+  border-color: var(--border-hover);
+}
+
+.modal form{
+  padding: 12px;
+}
+
+.modal .formRow{
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.modal .formRow label{
+  font-size: 12px;
+  opacity: 0.85;
+  font-weight: 700;
+}
+
+.modal .formRow input{
+  background: var(--bg-control);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 10px;
+  outline: none;
+}
+
+.modal .formRow input:focus{
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--focus-ring-soft);
+}
+
+.modalActions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.modal .authError{
+  margin-top: 10px;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--danger-soft-border);
+  background: var(--danger-soft-bg);
+}
+
+@media (max-width: 520px){
+  .modal .formRow{
+    grid-template-columns: 1fr;
+  }
+}
