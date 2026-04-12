@@ -57,11 +57,30 @@ function ensure_schema(PDO $pdo): void {
     CREATE TABLE IF NOT EXISTS user_state (
       user_id INT UNSIGNED NOT NULL,
       state_json LONGTEXT NULL,
+      version INT UNSIGNED NOT NULL DEFAULT 0,
       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       PRIMARY KEY (user_id),
       CONSTRAINT fk_user_state_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   ");
+
+  ensure_user_state_version_column($pdo);
+}
+
+function ensure_user_state_version_column(PDO $pdo): void {
+  $stmt = $pdo->prepare('
+    SELECT COUNT(*)
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = ?
+      AND TABLE_NAME = ?
+      AND COLUMN_NAME = ?
+  ');
+  $stmt->execute([DB_NAME, 'user_state', 'version']);
+
+  $exists = (int)$stmt->fetchColumn() > 0;
+  if ($exists) return;
+
+  $pdo->exec('ALTER TABLE user_state ADD COLUMN version INT UNSIGNED NOT NULL DEFAULT 0 AFTER state_json');
 }
 
 
