@@ -43,6 +43,8 @@ if (navTodo) navTodo.addEventListener("dblclick", () => { setNavActive(navTodo);
 if (navHabits) navHabits.addEventListener("dblclick", () => { setNavActive(navHabits); openHabitModal(); });
 if (navExpenses) navExpenses.addEventListener("dblclick", (e) => { e.preventDefault(); setNavActive(navExpenses); focusWishlistQuickAdd(); });
 
+initTheme();
+
 (async () => {
   if (AUTH_USER) {
     const hasUserState = !!readUserState(AUTH_USER);
@@ -67,7 +69,6 @@ if (navExpenses) navExpenses.addEventListener("dblclick", (e) => { e.preventDefa
   ensurePomodoro();
   pomoRestoreRunning();
 
-  initTheme();
   initAuth();
   initCalendar();
   initHabits();
