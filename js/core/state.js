@@ -7,6 +7,10 @@ function ensureMeta() {
   if (typeof state._meta.updatedAtMs !== "number") {
     state._meta.updatedAtMs = 0;
   }
+
+  if (typeof state._meta.version !== "number" || state._meta.version < 0) {
+    state._meta.version = 0;
+  }
 }
 
 function touchMeta() {
