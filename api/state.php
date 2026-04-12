@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 require __DIR__ . '/../config.php';
 
-session_start();
+start_secure_session();
+
+if (clear_session_if_expired(true)) {
+  json_response(['ok' => false, 'error' => 'session_expired'], 401);
+}
 
 function read_json_body(): array
 {

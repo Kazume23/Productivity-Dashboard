@@ -1,6 +1,12 @@
 <?php
 declare(strict_types=1);
-session_start();
+require_once __DIR__ . '/config.php';
+
+start_secure_session();
+$sessionExpired = clear_session_if_expired(true);
+if ($sessionExpired) {
+  start_secure_session();
+}
 
 if (empty($_SESSION['csrf'])) {
   $_SESSION['csrf'] = bin2hex(random_bytes(32));
@@ -12,8 +18,13 @@ $authUser = $_SESSION['username'] ?? null;
 $loginErr = '';
 if (isset($_GET['login_err'])) {
   $code = (string)$_GET['login_err'];
-  if ($code === 'csrf') $loginErr = 'Sesja wygasła, spróbuj ponownie';
+  if ($code === 'csrf' || $code === 'session') $loginErr = 'Sesja wygasła, spróbuj ponownie';
+  else if ($code === 'throttled') $loginErr = 'Zbyt wiele prób logowania. Spróbuj ponownie za chwilę';
   else $loginErr = 'Błędny login lub hasło';
+}
+
+if (!$loginErr && $sessionExpired) {
+  $loginErr = 'Sesja wygasła, spróbuj ponownie';
 }
 
 $registerErr = '';
@@ -24,7 +35,7 @@ if (isset($_GET['register_err'])) {
   if ($code === 'csrf') $registerErr = 'Sesja wygasła, spróbuj ponownie';
   else if ($code === 'taken') $registerErr = 'Login jest zajęty';
   else if ($code === 'invalid_user') $registerErr = 'Login musi mieć 3 do 50 znaków i zawierać tylko litery, cyfry lub podkreślnik';
-  else if ($code === 'weak_pass') $registerErr = 'Hasło musi mieć co najmniej 6 znaków';
+  else if ($code === 'weak_pass') $registerErr = 'Hasło musi mieć min. 10 znaków oraz zawierać małą i wielką literę oraz cyfrę';
   else if ($code === 'mismatch') $registerErr = 'Hasła nie są takie same';
   else $registerErr = 'Rejestracja nieudana';
 }
@@ -548,12 +559,12 @@ if (isset($_GET['register_err'])) {
 
         <div class="formRow">
           <label for="regPass1">Hasło</label>
-          <input id="regPass1" type="password" name="password" required autocomplete="new-password" minlength="6">
+          <input id="regPass1" type="password" name="password" required autocomplete="new-password" minlength="10" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{10,}" title="Minimum 10 znaków, mała i wielka litera oraz cyfra">
         </div>
 
         <div class="formRow">
           <label for="regPass2">Powtórz hasło</label>
-          <input id="regPass2" type="password" name="password2" required autocomplete="new-password" minlength="6">
+          <input id="regPass2" type="password" name="password2" required autocomplete="new-password" minlength="10">
         </div>
 
         <div class="modalActions">
