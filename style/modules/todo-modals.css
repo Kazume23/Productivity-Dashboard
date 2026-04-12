@@ -1,0 +1,293 @@
+.todoLeft {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.todoLeft>div {
+  flex: 1;
+  min-width: 0;
+}
+
+.todoBox {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  flex: 1;
+}
+
+.todoBox .panelBody {
+  overflow: auto;
+  min-height: 0;
+  scrollbar-width: none;  
+}
+
+.todoBox .panelBody::-webkit-scrollbar{
+  width: 0;
+  height: 0;
+}
+
+.pomoBox {
+  overflow: hidden;
+}
+
+.pomoEdit{
+  width:100%;
+  box-sizing:border-box;
+  background:var(--glass-04);
+  color:var(--text-primary);
+  border:1px solid var(--glass-12);
+  border-radius:10px;
+  padding:6px 10px;
+  font-size:28px;
+  font-weight:700;
+  text-align:center;
+  outline:none;
+}
+.pomoEdit:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 2px var(--focus-ring-soft);
+}
+
+
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-dark);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 9999;
+}
+
+.modalOverlay.isOpen {
+  display: flex;
+}
+
+.modal {
+  width: min(520px, 100%);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: 0 18px 50px var(--overlay-dark);
+  overflow: hidden;
+}
+
+.modalTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 12px;
+  border-bottom: 1px solid var(--border-base);
+}
+
+.modalTitle {
+  font-weight: 700;
+}
+
+.modalClose {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--bg-control);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 0;
+}
+
+.modalClose:hover {
+  border-color: var(--border-hover);
+}
+
+.modalBody {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#registerOverlay .formRow{
+  display:grid;
+  grid-template-columns: 120px 1fr;
+  align-items:center;
+  gap:10px;
+}
+
+#registerOverlay .formRow input{
+  min-width:0;
+}
+
+
+.modalLabel,
+#registerOverlay .formRow label {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.modalInput,
+.modalTextarea,
+#registerOverlay .formRow input {
+  background: var(--bg-control);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 10px;
+  outline: none;
+}
+
+.modalTextarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ToDo panel */
+.todoHeader {
+  padding: 10px 12px 6px 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.todoSelected {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.todoHint {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.todoEmpty {
+  padding: 12px;
+  opacity: 0.7;
+  font-size: 13px;
+}
+
+.todoGroupTitle {
+  margin: 10px 12px 6px 12px;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.todoGroupActive {
+  color: var(--accent);
+  opacity: 0.95;
+}
+
+.todoItem {
+  margin: 0 12px 8px 12px;
+  padding: 10px 10px;
+  border-radius: 10px;
+  background: var(--bg-control);
+  border: 1px solid var(--border-base);
+
+  display: grid;
+  grid-template-columns: 1fr 34px;
+  align-items: start;
+  gap: 10px;
+}
+
+.todoCheck {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.todoText {
+  font-size: 14px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.todoDone .todoText {
+  opacity: 0.65;
+  text-decoration: line-through;
+}
+
+.todoDel {
+  width: 34px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--bg-control);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+}
+
+.todoDel:hover {
+  border-color: var(--border-hover);
+}
+
+/* Habit delete */
+.habitRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.habitDel {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--bg-control);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
+}
+
+.habitDel:hover {
+  border-color: var(--danger);
+}
+
+.todoText {
+  white-space: normal;
+}
+
+.habDel {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--bg-control);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 18px;
+}
+
+.habDel:hover {
+  border-color: var(--danger);
+}
+
+.todoMeta {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+

@@ -1,0 +1,111 @@
+/* Kalendarz */
+.cal {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+.calHeader {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  padding: 10px;
+  gap: 10px;
+}
+
+.calTitle {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-align: center;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calRight {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.calBtn {
+  background: var(--bg-control);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.calBtn:hover {
+  border-color: var(--border-hover);
+}
+
+.calWeekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: 0 10px 10px 10px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--bg-divider);
+}
+
+.calWeekdays > div {
+  text-align: center;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--overlay-light);
+}
+
+.calGrid {
+  padding: 0 10px 10px 10px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+
+  flex: 1;
+  min-height: 0;
+
+  grid-auto-rows: minmax(30px, 1fr);
+
+  overflow: auto;
+}
+
+.calDay {
+  background: var(--bg-control);
+  color: var(--text-primary);
+  border: 1px solid var(--border-base);
+  border-radius: 10px;
+
+  height: auto;
+  min-height: 30px;
+
+  cursor: pointer;
+}
+
+.calDay:hover {
+  border-color: var(--border-hover);
+}
+
+.calMuted {
+  opacity: 0.45;
+}
+
+.calWeek {
+  border-color: var(--border-week);
+}
+
+.calSelected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--focus-ring-inset) inset;
+}
+
