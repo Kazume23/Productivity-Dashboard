@@ -579,6 +579,11 @@ if (isset($_GET['register_err'])) {
   <script src="js/modules/auth.js"></script>
   <script src="js/modules/calendar.js"></script>
   <script src="js/modules/habits.js"></script>
+  <script src="js/modules/dashboard/todo.js"></script>
+  <script src="js/modules/dashboard/expenses.js"></script>
+  <script src="js/modules/dashboard/chart.js"></script>
+  <script src="js/modules/dashboard/wishlist.js"></script>
+  <script src="js/modules/dashboard/pomodoro.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

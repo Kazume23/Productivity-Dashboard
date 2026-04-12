@@ -1,14 +1,27 @@
 async function apiGetState() {
   if (!AUTH_USER) throw new Error("offline_no_server");
-  const res = await fetch(API_STATE_URL, { method: "GET", credentials: "same-origin" });
+
+  const res = await fetch(API_STATE_URL, {
+    method: "GET",
+    credentials: "same-origin"
+  });
+
   if (res.status === 401) throw new Error("unauthorized");
+
   const data = await res.json();
-  if (!data || !data.ok) throw new Error("apiGetState_failed");
+
+  if (!res.ok || !data || !data.ok) {
+    const code = data?.error || `http_${res.status}`;
+    throw new Error(`apiGetState_failed:${code}`);
+  }
+
   return data;
 }
 
 async function apiPutState(reason) {
   if (!AUTH_USER) throw new Error("offline_no_server");
+  if (!CSRF_TOKEN) throw new Error("missing_csrf");
+
   ensureMeta();
 
   const payload = {
@@ -18,19 +31,21 @@ async function apiPutState(reason) {
 
   const res = await fetch(API_STATE_URL, {
     method: "POST",
-
     headers: {
       "Content-Type": "application/json",
-      "X-CSRF-Token": CSRF_TOKEN
+      "X-CSRF-TOKEN": CSRF_TOKEN
     },
-
     credentials: "same-origin",
-
     body: JSON.stringify(payload)
   });
 
   const data = await res.json();
-  if (!data || !data.ok) throw new Error("apiPutState_failed");
+
+  if (!res.ok || !data || !data.ok) {
+    const code = data?.error || `http_${res.status}`;
+    throw new Error(`apiPutState_failed:${code}`);
+  }
+
   return { ok: true, data };
 }
 
@@ -41,9 +56,11 @@ let syncBackoffMs = 2000;
 
 function queueServerSync(reason) {
   if (!AUTH_USER) return;
+
   syncPending = true;
 
   if (syncTimer) clearTimeout(syncTimer);
+
   syncTimer = setTimeout(() => {
     flushServerSync(reason);
   }, syncBackoffMs);
@@ -64,14 +81,54 @@ async function flushServerSync(reason) {
     await apiPutState(reason);
     syncBackoffMs = 2000;
   } catch (e) {
+    console.warn("sync_failed", reason, e);
     syncPending = true;
+
     if (document.hidden) return;
 
     syncBackoffMs = Math.min(30000, syncBackoffMs * 2);
+
     syncFlushTimer = setTimeout(() => {
       flushServerSync("retry");
     }, syncBackoffMs);
   }
+}
+
+function isSeededDefaultStateCandidate(obj) {
+  if (!obj || typeof obj !== "object") return false;
+
+  const habits = Array.isArray(obj.habits) ? obj.habits : [];
+  const habitNames = habits.map(h => String(h?.name ?? "").trim());
+
+  const hasDefaultHabits =
+    habitNames.length === 3 &&
+    habitNames[0] === "Wstać o 6:00" &&
+    habitNames[1] === "Trening" &&
+    habitNames[2] === "Czytanie";
+
+  const hasNoEntries =
+    !obj.entries ||
+    Object.keys(obj.entries).length === 0;
+
+  const hasNoTodos =
+    !Array.isArray(obj.todos) ||
+    obj.todos.length === 0;
+
+  const hasNoExpenses =
+    !Array.isArray(obj.expenses) ||
+    obj.expenses.length === 0;
+
+  const hasNoWishlist =
+    !Array.isArray(obj.wishlist) ||
+    obj.wishlist.length === 0;
+
+  return (
+    hasDefaultHabits &&
+    hasNoEntries &&
+    hasNoTodos &&
+    hasNoExpenses &&
+    hasNoWishlist
+  );
 }
 
 async function bootstrapFromServer() {
@@ -80,6 +137,7 @@ async function bootstrapFromServer() {
   const server = await apiGetState();
   const serverState = server.state;
   const serverMs = server.updatedAtMs || 0;
+
   const localObj = readLocalState();
   const localMs = localObj?._meta?.updatedAtMs || 0;
 
@@ -95,10 +153,16 @@ async function bootstrapFromServer() {
       persistLocal();
       await apiPutState("bootstrap_no_server_state");
     }
+
     return;
   }
 
-  if (!localObj || serverMs > localMs) {
+  const shouldPreferServer =
+    !localObj ||
+    serverMs > localMs ||
+    isSeededDefaultStateCandidate(localObj);
+
+  if (shouldPreferServer) {
     state = sanitizeState(serverState);
     ensureMeta();
     state._meta.updatedAtMs = serverMs || Date.now();
@@ -123,15 +187,23 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("beforeunload", () => {
   try {
     if (!syncPending) return;
-    if (!navigator.sendBeacon) return;
 
     ensureMeta();
-    const payload = JSON.stringify({
+
+    const payload = {
       updatedAtMs: state._meta.updatedAtMs || Date.now(),
       state
-    });
+    };
 
-    const blob = new Blob([payload], { type: "application/json" });
-    navigator.sendBeacon(API_STATE_URL, blob);
+    fetch(API_STATE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-TOKEN": CSRF_TOKEN
+      },
+      credentials: "same-origin",
+      keepalive: true,
+      body: JSON.stringify(payload)
+    });
   } catch (e) {}
 });
