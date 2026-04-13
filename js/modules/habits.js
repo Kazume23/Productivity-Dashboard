@@ -14,8 +14,8 @@ function renderHabits() {
   trHead.appendChild(thHabit);
 
   const thDel = document.createElement("th");
+  thDel.className = "thDel";
   thDel.textContent = "";
-  thDel.style.width = "44px";
   trHead.appendChild(thDel);
 
   for (const d of weekDates) {

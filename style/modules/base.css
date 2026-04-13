@@ -39,6 +39,17 @@
   --focus-ring: rgba(47, 157, 255, 0.28);
   --focus-ring-soft: rgba(47, 157, 255, 0.22);
   --focus-ring-inset: rgba(47, 157, 255, 0.25);
+  --surface-stroke: rgba(255, 255, 255, 0.03);
+  --shadow-panel: 0 10px 28px rgba(0, 0, 0, 0.24);
+  --shadow-panel-soft: 0 4px 12px rgba(0, 0, 0, 0.18);
+  --motion-fast: 140ms;
+  --motion-base: 220ms;
+  --motion-slow: 320ms;
+  --motion-ease: cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -46,5 +57,41 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   background: var(--bg-body);
   color: var(--text-primary);
+  line-height: 1.35;
+  text-rendering: optimizeLegibility;
+}
+
+@keyframes panelEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes itemEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 

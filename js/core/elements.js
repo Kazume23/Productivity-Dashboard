@@ -92,6 +92,8 @@ const navAddHabits = $("navAddHabits");
 const navAddTodo = $("navAddTodo");
 const navAddExpenses = $("navAddExpenses");
 const navAddWishlist = $("navAddWishlist");
+const pageTitle = $("pageTitle");
+const pageSubtitle = $("pageSubtitle");
 
 const boxTopA = document.querySelector(".box.topA");
 const tableBox = document.querySelector(".tableBox");

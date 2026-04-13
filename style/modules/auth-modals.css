@@ -40,6 +40,15 @@
   flex: 1;
 }
 
+.authActions .inlineForm {
+  flex: 1;
+  display: flex;
+}
+
+.authActions .inlineForm .calBtn {
+  width: 100%;
+}
+
 .authError{
   margin-top: 6px;
   font-size: 12px;
@@ -54,16 +63,23 @@
   position: fixed;
   inset: 0;
   background: var(--overlay-dark);
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
   z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--motion-base) var(--motion-ease), visibility 0s linear var(--motion-base);
 }
 
 .modalOverlay.isOpen,
 .modalOverlay[aria-hidden="false"]{
-  display: flex;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
 }
 
 .modal{
@@ -73,6 +89,15 @@
   border-radius: 12px;
   box-shadow: 0 18px 50px var(--overlay-dark);
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(10px) scale(0.99);
+  transition: transform var(--motion-base) var(--motion-ease), opacity var(--motion-base) var(--motion-ease);
+}
+
+.modalOverlay.isOpen .modal,
+.modalOverlay[aria-hidden="false"] .modal{
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .modalHead{
@@ -100,10 +125,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: border-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
 }
 
 .modalHead .miniBtn:hover{
   border-color: var(--border-hover);
+}
+
+.modalHead .miniBtn:focus-visible{
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .modal form{

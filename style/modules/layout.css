@@ -1,6 +1,8 @@
 .app {
   display: flex;
+  min-height: 100vh;
   height: 100vh;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -11,6 +13,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  border-right: 1px solid var(--border-subtle);
 }
 
 .logo {
@@ -43,7 +46,7 @@
 }
 
 .nav {
-  margin-top: 24px;
+  margin-top: 18px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -63,7 +66,7 @@
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+  transition: background var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
   position: relative;
   flex: 1;
 }
@@ -71,6 +74,7 @@
 .navItem:hover {
   background: var(--bg-hover);
   border-color: var(--border-strong);
+  transform: translateY(-1px);
 }
 
 .navItem.isActive {
@@ -104,7 +108,7 @@
   align-items: center;
   justify-content: center;
   opacity: 0.9;
-  transition: background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+  transition: background var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
 }
 
 .navRow:hover .navAddBtn {
@@ -181,10 +185,11 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
+  background: linear-gradient(180deg, var(--bg-body) 0%, #141414 100%);
 }
 
 .topbar {
-  height: 50px;
+  height: 58px;
   background: var(--bg-shell);
   display: flex;
   align-items: center;
@@ -192,31 +197,48 @@
   padding: 0 12px;
   box-sizing: border-box;
   flex-shrink: 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.titleWrap {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .title {
-  width: 140px;
-  height: 16px;
-  background: var(--bg-logo-mark);
-  border-radius: 6px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: var(--text-strong);
+  line-height: 1.1;
+}
+
+.titleMeta {
+  font-size: 12px;
+  opacity: 0.68;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .content {
-  padding: 12px;
+  padding: 14px;
   box-sizing: border-box;
   flex: 1;
   min-height: 0;
   overflow: auto;
   
   display: grid;
-  gap: 12px;
+  gap: 14px;
 
   scrollbar-width: none;
   -ms-overflow-style: none;
 
-  grid-template-columns: 1fr 1fr 0.65fr;
+  grid-template-columns: minmax(340px, 1.05fr) minmax(340px, 0.95fr) minmax(300px, 0.78fr);
 
-  grid-template-rows: minmax(320px, 36vh) minmax(520px, 1fr) auto;
+  grid-template-rows: minmax(320px, 37vh) minmax(460px, 1fr) auto;
 
   align-items: stretch;
   align-content: start;
@@ -231,7 +253,9 @@
 .tableBox,
 .bottomBox {
   background: var(--bg-panel);
-  border-radius: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--surface-stroke);
+  box-shadow: var(--shadow-panel-soft);
   min-width: 0;
   min-height: 0;
 }
@@ -239,7 +263,8 @@
 .panelTitle {
   padding: 10px 12px 0 12px;
   font-size: 14px;
-  opacity: 0.9;
+  opacity: 0.94;
+  font-weight: 600;
 }
 
 .sideBox .panelTitle.todoTitleRow {
@@ -271,6 +296,7 @@
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
+  transition: border-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
 }
 
 .todoAddBtn:hover {
@@ -310,7 +336,7 @@
 
   overflow: hidden;
 
-  min-height: 520px;
+  min-height: 480px;
 }
 
 .sideBox {
@@ -325,7 +351,7 @@
 
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 
   overflow: visible;
 }
@@ -343,8 +369,149 @@
   gap: 12px;
 
   height: auto;
-  min-height: 1028px;
+  min-height: 700px;
   overflow: visible;
+}
+
+.inlineForm {
+  display: inline;
+}
+
+.topA,
+.topB,
+.tableBox,
+.sideBox,
+.bottomBox {
+  animation: panelEnter var(--motion-slow) var(--motion-ease) both;
+}
+
+.topB {
+  animation-delay: 40ms;
+}
+
+.tableBox {
+  animation-delay: 70ms;
+}
+
+.sideBox {
+  animation-delay: 100ms;
+}
+
+.bottomBox {
+  animation-delay: 130ms;
+}
+
+@media (max-width: 1480px) {
+  .content {
+    grid-template-columns: minmax(300px, 1fr) minmax(300px, 1fr) minmax(280px, 0.8fr);
+  }
+}
+
+@media (max-width: 1260px) {
+  .sidebar {
+    width: 216px;
+    padding: 10px;
+  }
+
+  .content {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: minmax(280px, auto) minmax(400px, auto) auto auto;
+  }
+
+  .topA {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .topB {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .tableBox {
+    grid-column: 1 / span 2;
+    grid-row: 2;
+    min-height: 430px;
+  }
+
+  .sideBox {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+    display: grid;
+    grid-template-columns: minmax(240px, 0.6fr) minmax(0, 1fr);
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .sideBox .box {
+    height: 100%;
+  }
+
+  .bottomBox {
+    grid-column: 1 / span 2;
+    grid-row: 4;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 980px) {
+  .app {
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .nav {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .navRow {
+    min-width: 0;
+  }
+
+  .topbar {
+    height: auto;
+    min-height: 58px;
+    gap: 12px;
+    padding: 10px 12px;
+  }
+
+  .content {
+    padding: 12px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 12px;
+  }
+
+  .topA,
+  .topB,
+  .tableBox,
+  .sideBox,
+  .bottomBox {
+    grid-column: auto;
+    grid-row: auto;
+    animation-delay: 0ms;
+  }
+
+  .sideBox {
+    display: flex;
+  }
+
+  .tableBox {
+    min-height: 380px;
+  }
+
+  .bottomBox {
+    min-height: 0;
+  }
 }
 
 
