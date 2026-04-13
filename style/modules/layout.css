@@ -1,8 +1,8 @@
 .app {
   display: flex;
   min-height: 100vh;
-  height: 100vh;
-  overflow: hidden;
+  height: auto;
+  overflow: visible;
 }
 
 .sidebar {
@@ -59,6 +59,8 @@
   border-radius: 10px;
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
+  font-weight: 500;
+  letter-spacing: 0;
   cursor: pointer;
   text-align: left;
   padding: 0 12px;
@@ -80,6 +82,7 @@
 .navItem.isActive {
   border: none;
   box-shadow: none;
+  background: var(--bg-nav-item);
 }
 
 .navItem:focus-visible {
@@ -185,7 +188,7 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  background: linear-gradient(180deg, var(--bg-body) 0%, #141414 100%);
+  background: var(--bg-body);
 }
 
 .topbar {
@@ -208,7 +211,7 @@
 }
 
 .title {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.2px;
   color: var(--text-strong);
@@ -228,7 +231,7 @@
   box-sizing: border-box;
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow: visible;
   
   display: grid;
   gap: 14px;
@@ -238,7 +241,7 @@
 
   grid-template-columns: minmax(340px, 1.05fr) minmax(340px, 0.95fr) minmax(300px, 0.78fr);
 
-  grid-template-rows: minmax(320px, 37vh) minmax(460px, 1fr) auto;
+  grid-template-rows: minmax(280px, auto) minmax(380px, auto) auto;
 
   align-items: stretch;
   align-content: start;
@@ -258,6 +261,7 @@
   box-shadow: var(--shadow-panel-soft);
   min-width: 0;
   min-height: 0;
+  transition: border-color var(--motion-base) var(--motion-ease), box-shadow var(--motion-base) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
 }
 
 .panelTitle {
@@ -283,7 +287,7 @@
 .todoTitleSub {
   font-size: 12px;
   font-weight: 400;
-  opacity: 0.65;
+  opacity: 0.58;
 }
 
 .todoAddBtn {
@@ -336,7 +340,7 @@
 
   overflow: hidden;
 
-  min-height: 480px;
+  min-height: 420px;
 }
 
 .sideBox {
@@ -369,7 +373,7 @@
   gap: 12px;
 
   height: auto;
-  min-height: 700px;
+  min-height: 0;
   overflow: visible;
 }
 
@@ -415,7 +419,7 @@
 
   .content {
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: minmax(280px, auto) minmax(400px, auto) auto auto;
+    grid-template-rows: minmax(260px, auto) minmax(360px, auto) auto auto;
   }
 
   .topA {
@@ -431,7 +435,7 @@
   .tableBox {
     grid-column: 1 / span 2;
     grid-row: 2;
-    min-height: 430px;
+    min-height: 380px;
   }
 
   .sideBox {
@@ -439,12 +443,12 @@
     grid-row: 3;
     display: grid;
     grid-template-columns: minmax(240px, 0.6fr) minmax(0, 1fr);
-    align-items: stretch;
+    align-items: start;
     gap: 12px;
   }
 
   .sideBox .box {
-    height: 100%;
+    height: auto;
   }
 
   .bottomBox {
@@ -503,14 +507,25 @@
 
   .sideBox {
     display: flex;
+    gap: 12px;
   }
 
   .tableBox {
-    min-height: 380px;
+    min-height: 340px;
   }
 
   .bottomBox {
     min-height: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .nav {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    align-items: flex-start;
   }
 }
 

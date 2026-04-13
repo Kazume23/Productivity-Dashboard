@@ -16,6 +16,7 @@
 }
 
 .calTitle {
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.2px;
   text-align: center;
@@ -38,6 +39,7 @@
   border-radius: 8px;
   padding: 6px 10px;
   cursor: pointer;
+  transition: border-color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
 }
 
 .calBtn:hover {
@@ -47,7 +49,7 @@
 .calWeekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  gap: 5px;
   padding: 0 10px 10px 10px;
   margin-bottom: 6px;
   border-bottom: 1px solid var(--bg-divider);
@@ -63,7 +65,7 @@
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--overlay-light);
+  color: var(--text-muted);
 }
 
 .calGrid {
@@ -75,9 +77,9 @@
   flex: 1;
   min-height: 0;
 
-  grid-auto-rows: minmax(30px, 1fr);
+  grid-auto-rows: minmax(0, 1fr);
 
-  overflow: auto;
+  overflow: hidden;
 }
 
 .calDay {
@@ -86,10 +88,14 @@
   border: 1px solid var(--border-base);
   border-radius: 10px;
 
+  display: grid;
+  place-items: center;
+
   height: auto;
   min-height: 30px;
 
   cursor: pointer;
+  transition: border-color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
 }
 
 .calDay:hover {
@@ -107,5 +113,16 @@
 .calSelected {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--focus-ring-inset) inset;
+}
+
+@media (max-width: 1260px) {
+  .calHeader {
+    grid-template-columns: 42px 1fr auto;
+    gap: 8px;
+  }
+
+  .calBtn {
+    padding: 6px 9px;
+  }
 }
 

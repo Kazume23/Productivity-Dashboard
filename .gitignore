@@ -34,6 +34,7 @@ Temporary Items
 # iCloud generated files
 *.icloud
 
+.vscode/
 .github/
 github
 # End of https://www.toptal.com/developers/gitignore/api/macos
