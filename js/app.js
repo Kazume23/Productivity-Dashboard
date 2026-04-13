@@ -57,25 +57,87 @@ function renderAll() {
   pomoSyncUI();
 }
 
+function isMobileDrawerMode() {
+  return window.matchMedia("(max-width: 980px)").matches;
+}
+
+function openSidebarDrawer() {
+  if (!isMobileDrawerMode() || !sidebar) return;
+  sidebar.classList.add("isOpen");
+  document.body.classList.add("drawerOpen");
+  mobileMenuBtn?.setAttribute("aria-expanded", "true");
+}
+
+function closeSidebarDrawer() {
+  sidebar?.classList.remove("isOpen");
+  document.body.classList.remove("drawerOpen");
+  mobileMenuBtn?.setAttribute("aria-expanded", "false");
+}
+
+function toggleSidebarDrawer() {
+  if (sidebar?.classList.contains("isOpen")) {
+    closeSidebarDrawer();
+    return;
+  }
+  openSidebarDrawer();
+}
+
+function initMobileDrawer() {
+  mobileMenuBtn?.addEventListener("click", toggleSidebarDrawer);
+  sidebarCloseBtn?.addEventListener("click", closeSidebarDrawer);
+  sidebarOverlay?.addEventListener("click", closeSidebarDrawer);
+
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  sidebar?.addEventListener("touchstart", (e) => {
+    if (!sidebar.classList.contains("isOpen")) return;
+    const touch = e.changedTouches?.[0];
+    if (!touch) return;
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+  }, { passive: true });
+
+  sidebar?.addEventListener("touchend", (e) => {
+    if (!sidebar.classList.contains("isOpen")) return;
+    const touch = e.changedTouches?.[0];
+    if (!touch) return;
+
+    const dx = touch.clientX - touchStartX;
+    const dy = touch.clientY - touchStartY;
+
+    if (dx < -56 && Math.abs(dy) < 48) {
+      closeSidebarDrawer();
+    }
+  }, { passive: true });
+
+  window.addEventListener("resize", () => {
+    if (!isMobileDrawerMode()) closeSidebarDrawer();
+  });
+}
+
 document.addEventListener("keydown", (e) => {
   if (todoOverlay?.classList.contains("isOpen") && e.key === "Escape") closeTodoModal();
   if (chartOverlay?.classList.contains("isOpen") && e.key === "Escape") closeChartModal();
   if (wishOverlay?.classList.contains("isOpen") && e.key === "Escape") closeWishModal();
+  if (sidebar?.classList.contains("isOpen") && e.key === "Escape") closeSidebarDrawer();
 });
 
-if (navDash) navDash.addEventListener("click", () => { setNavActive(navDash); scrollToEl(boxTopA); });
-if (navHabits) navHabits.addEventListener("click", () => { setNavActive(navHabits); scrollToEl(tableBox); });
-if (navTodo) navTodo.addEventListener("click", () => { setNavActive(navTodo); scrollToEl(todoBox); });
-if (navExpenses) navExpenses.addEventListener("click", () => { setNavActive(navExpenses); scrollToEl(bottomBox); });
-if (navWishlist) navWishlist.addEventListener("click", () => { setNavActive(navWishlist); scrollToEl(wishWrap || bottomBox); });
-if (navAddWishlist) navAddWishlist.addEventListener("click", (e) => { e.stopPropagation(); setNavActive(navWishlist); openWishModal(); });
-if (navWishlist) navWishlist.addEventListener("dblclick", () => { setNavActive(navWishlist); openWishModal(); });
-if (navAddHabits) navAddHabits.addEventListener("click", (e) => { e.stopPropagation(); setNavActive(navHabits); openHabitModal(); });
-if (navAddTodo) navAddTodo.addEventListener("click", (e) => { e.stopPropagation(); setNavActive(navTodo); openTodoModal(getSelectedDateObj()); });
-if (navAddExpenses) navAddExpenses.addEventListener("click", (e) => { e.stopPropagation(); setNavActive(navExpenses); openExpModal(); });
-if (navTodo) navTodo.addEventListener("dblclick", () => { setNavActive(navTodo); openTodoModal(getSelectedDateObj()); });
-if (navHabits) navHabits.addEventListener("dblclick", () => { setNavActive(navHabits); openHabitModal(); });
-if (navExpenses) navExpenses.addEventListener("dblclick", (e) => { e.preventDefault(); setNavActive(navExpenses); focusWishlistQuickAdd(); });
+if (navDash) navDash.addEventListener("click", () => { setNavActive(navDash); scrollToEl(boxTopA); closeSidebarDrawer(); });
+if (navHabits) navHabits.addEventListener("click", () => { setNavActive(navHabits); scrollToEl(tableBox); closeSidebarDrawer(); });
+if (navTodo) navTodo.addEventListener("click", () => { setNavActive(navTodo); scrollToEl(todoBox); closeSidebarDrawer(); });
+if (navExpenses) navExpenses.addEventListener("click", () => { setNavActive(navExpenses); scrollToEl(bottomBox); closeSidebarDrawer(); });
+if (navWishlist) navWishlist.addEventListener("click", () => { setNavActive(navWishlist); scrollToEl(wishWrap || bottomBox); closeSidebarDrawer(); });
+if (navAddWishlist) navAddWishlist.addEventListener("click", (e) => { e.stopPropagation(); setNavActive(navWishlist); closeSidebarDrawer(); openWishModal(); });
+if (navWishlist) navWishlist.addEventListener("dblclick", () => { setNavActive(navWishlist); closeSidebarDrawer(); openWishModal(); });
+if (navAddHabits) navAddHabits.addEventListener("click", (e) => { e.stopPropagation(); setNavActive(navHabits); closeSidebarDrawer(); openHabitModal(); });
+if (navAddTodo) navAddTodo.addEventListener("click", (e) => { e.stopPropagation(); setNavActive(navTodo); closeSidebarDrawer(); openTodoModal(getSelectedDateObj()); });
+if (navAddExpenses) navAddExpenses.addEventListener("click", (e) => { e.stopPropagation(); setNavActive(navExpenses); closeSidebarDrawer(); openExpModal(); });
+if (navTodo) navTodo.addEventListener("dblclick", () => { setNavActive(navTodo); closeSidebarDrawer(); openTodoModal(getSelectedDateObj()); });
+if (navHabits) navHabits.addEventListener("dblclick", () => { setNavActive(navHabits); closeSidebarDrawer(); openHabitModal(); });
+if (navExpenses) navExpenses.addEventListener("dblclick", (e) => { e.preventDefault(); setNavActive(navExpenses); closeSidebarDrawer(); focusWishlistQuickAdd(); });
+
+initMobileDrawer();
 
 initTheme();
 

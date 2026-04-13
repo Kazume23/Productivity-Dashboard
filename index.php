@@ -90,10 +90,11 @@ if (isset($_GET['register_err'])) {
   data-csrf="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>"
 >
   <div class="app">
-    <div class="sidebar">
+    <div class="sidebar" id="sidebarNav">
       <div class="logo">  
         <span class="logoMark" aria-hidden="true"></span>
         <span class="logoText">Edward</span>
+        <button class="sidebarCloseBtn" id="sidebarCloseBtn" type="button" aria-label="Zamknij menu">×</button>
       </div>
 
       <div class="nav">
@@ -154,11 +155,21 @@ if (isset($_GET['register_err'])) {
 
     </div>
 
+    <button class="sidebarOverlay" id="sidebarOverlay" type="button" aria-label="Zamknij menu"></button>
+
     <div class="main">
       <div class="topbar">
-        <div class="titleWrap">
-          <div class="title" id="pageTitle">Dashboard</div>
-          <div class="titleMeta" id="pageSubtitle">Przegląd dnia i postępów</div>
+        <div class="topbarLeft">
+          <button class="iconBtn mobileMenuBtn" id="mobileMenuBtn" type="button" aria-label="Otwórz menu" aria-expanded="false" aria-controls="sidebarNav">
+            <svg class="iconSvg" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path fill="currentColor" d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z"/>
+            </svg>
+          </button>
+
+          <div class="titleWrap">
+            <div class="title" id="pageTitle">Dashboard</div>
+            <div class="titleMeta" id="pageSubtitle">Przegląd dnia i postępów</div>
+          </div>
         </div>
           <div class="icons">
             <button class="icon iconBtn" id="langBtn" type="button" title="Zmień język">

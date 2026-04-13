@@ -65,7 +65,9 @@
   flex: 1;
   min-height: 0;
   overflow-x: auto;
-  overflow-y: visible;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .habTable {
@@ -189,6 +191,10 @@
   .habInput {
     width: 100%;
     flex: 1;
+  }
+
+  .habTableWrap {
+    padding-bottom: 4px;
   }
 }
 

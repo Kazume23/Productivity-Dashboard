@@ -94,6 +94,10 @@ const navAddExpenses = $("navAddExpenses");
 const navAddWishlist = $("navAddWishlist");
 const pageTitle = $("pageTitle");
 const pageSubtitle = $("pageSubtitle");
+const sidebar = $("sidebarNav");
+const sidebarOverlay = $("sidebarOverlay");
+const mobileMenuBtn = $("mobileMenuBtn");
+const sidebarCloseBtn = $("sidebarCloseBtn");
 
 const boxTopA = document.querySelector(".box.topA");
 const tableBox = document.querySelector(".tableBox");
