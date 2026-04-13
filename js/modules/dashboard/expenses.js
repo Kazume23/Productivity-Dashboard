@@ -137,6 +137,7 @@ function renderExpenses() {
     empty.className = "todoEmpty";
     empty.textContent = "Brak wpisów.";
     expList.appendChild(empty);
+    if (typeof renderOverviewPanels === "function") renderOverviewPanels();
     return;
   }
 
@@ -185,6 +186,8 @@ function renderExpenses() {
 
     expList.appendChild(row);
   }
+
+  if (typeof renderOverviewPanels === "function") renderOverviewPanels();
 }
 
 function initExpenses() {

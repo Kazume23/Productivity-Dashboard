@@ -228,6 +228,8 @@ function renderChart() {
 
   syncChartTabs();
   renderDonut(s.done, s.fail, s.empty);
+
+  if (typeof renderOverviewPanels === "function") renderOverviewPanels();
 }
 
 function openChartModal() {

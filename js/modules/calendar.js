@@ -45,6 +45,8 @@ function renderCalendar() {
 
     calGrid.appendChild(cell);
   }
+
+  if (typeof renderOverviewPanels === "function") renderOverviewPanels();
 }
 
 function setSelectedDate(date) {

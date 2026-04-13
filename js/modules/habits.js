@@ -83,6 +83,8 @@ function renderHabits() {
 
     habTbody?.appendChild(tr);
   }
+
+  if (typeof renderOverviewPanels === "function") renderOverviewPanels();
 }
 
 function cycleEntry(habitId, dateISO) {

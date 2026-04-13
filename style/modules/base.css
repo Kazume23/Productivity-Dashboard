@@ -70,6 +70,10 @@ textarea {
   font: inherit;
 }
 
+.isHidden {
+  display: none !important;
+}
+
 @keyframes panelEnter {
   from {
     opacity: 0;

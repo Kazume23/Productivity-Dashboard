@@ -65,11 +65,12 @@ function renderTodos() {
   });
 
   if (!items.length) {
-    if (todoEmpty) todoEmpty.style.display = "block";
+    toggleClass(todoEmpty, "isHidden", false);
+    if (typeof renderOverviewPanels === "function") renderOverviewPanels();
     return;
   }
 
-  if (todoEmpty) todoEmpty.style.display = "none";
+  toggleClass(todoEmpty, "isHidden", true);
 
   for (const it of items) {
     const row = document.createElement("div");
@@ -122,6 +123,8 @@ function renderTodos() {
 
     todoList.appendChild(row);
   }
+
+  if (typeof renderOverviewPanels === "function") renderOverviewPanels();
 }
 
 function initTodo() {

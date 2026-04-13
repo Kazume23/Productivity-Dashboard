@@ -497,6 +497,206 @@ a.iconBtn{
   border-color:var(--danger);
 }
 
+.heroPanel {
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  background: linear-gradient(160deg, var(--bg-panel) 0%, var(--bg-shell) 100%);
+}
+
+.heroMeta {
+  font-size: 12px;
+  opacity: 0.78;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.heroStatus {
+  font-size: 14px;
+  opacity: 0.84;
+  max-width: 64ch;
+}
+
+.heroMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.heroMetric {
+  background: var(--glass-06);
+  border: 1px solid var(--glass-10);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 2px;
+}
+
+.heroMetric span {
+  font-size: 11px;
+  opacity: 0.72;
+}
+
+.heroMetric strong {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.heroActions .calBtn,
+.heroActions .habBtn {
+  min-width: 156px;
+}
+
+.dashTodoCard .panelBody {
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.dashTodoCard .panelBody::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.todoPreviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.todoPreviewItem {
+  padding: 10px 11px;
+  border-radius: 10px;
+  background: var(--bg-control);
+  border: 1px solid var(--border-base);
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.todoPreviewMain {
+  min-width: 0;
+}
+
+.todoPreviewText {
+  font-size: 13px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.todoPreviewMeta {
+  font-size: 11px;
+  opacity: 0.68;
+  margin-top: 3px;
+}
+
+.dashHabitStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.dashHabitStats > div {
+  background: var(--bg-control);
+  border: 1px solid var(--border-base);
+  border-radius: 10px;
+  padding: 8px;
+  display: grid;
+  gap: 2px;
+}
+
+.dashHabitStats span {
+  font-size: 11px;
+  opacity: 0.72;
+}
+
+.dashHabitStats b {
+  font-size: 16px;
+}
+
+.dashHabitRate {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.dashFinanceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--glass-08);
+}
+
+.dashFinanceRow:last-of-type {
+  border-bottom: none;
+}
+
+.dashFinanceActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.dashFinanceActions .calBtn {
+  flex: 1;
+}
+
+.dashActivityList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dashActivityItem {
+  border-radius: 10px;
+  background: var(--bg-control);
+  border: 1px solid var(--border-base);
+  padding: 9px 10px;
+}
+
+.dashActivityText {
+  font-size: 13px;
+}
+
+.dashActivityMeta {
+  margin-top: 2px;
+  font-size: 11px;
+  opacity: 0.68;
+}
+
+.todoViewCard .panelBody {
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.todoViewCard .panelBody::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.expensesViewBox .expWrap,
+.wishlistViewBox .wishWrap {
+  min-height: 0;
+}
+
 @media (max-width: 1260px) {
   .expWrap{
     min-height: 420px;
@@ -514,6 +714,18 @@ a.iconBtn{
 
   .chartMeta{
     padding-left:8px;
+  }
+
+  .heroTitle {
+    font-size: 22px;
+  }
+
+  .heroMetrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashHabitStats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -539,6 +751,32 @@ a.iconBtn{
 
   .wishSortSelect{
     min-width:150px;
+  }
+
+  .heroPanel {
+    padding: 14px;
+  }
+
+  .heroTitle {
+    font-size: 20px;
+  }
+
+  .heroMetrics {
+    grid-template-columns: 1fr;
+  }
+
+  .heroActions .calBtn,
+  .heroActions .habBtn {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .dashHabitStats {
+    grid-template-columns: 1fr;
+  }
+
+  .dashFinanceActions {
+    flex-direction: column;
   }
 }
 

@@ -122,6 +122,7 @@ function renderWishlist() {
     empty.className = "todoEmpty";
     empty.textContent = "Brak wishlisty.";
     wishList.appendChild(empty);
+    if (typeof renderOverviewPanels === "function") renderOverviewPanels();
     return;
   }
 
@@ -154,6 +155,8 @@ function renderWishlist() {
     row.appendChild(del);
     wishList.appendChild(row);
   }
+
+  if (typeof renderOverviewPanels === "function") renderOverviewPanels();
 }
 
 function initWishlist() {
