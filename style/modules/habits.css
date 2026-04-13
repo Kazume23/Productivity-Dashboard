@@ -16,6 +16,7 @@
 }
 
 .habTitle {
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -38,6 +39,12 @@
   border-radius: 8px;
   padding: 8px 10px;
   outline: none;
+  transition: border-color var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+.habInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--focus-ring-soft);
 }
 
 .habBtn {
@@ -47,7 +54,7 @@
   border-radius: 8px;
   padding: 8px 12px;
   cursor: pointer;
-  transition: border-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
+  transition: border-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
 }
 
 .habBtn:hover {
@@ -57,13 +64,14 @@
 .habTableWrap {
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 .habTable {
   width: 100%;
   border-collapse: collapse;
-  min-width: 680px;
+  min-width: 640px;
 }
 
 .habTable thead th {
@@ -114,7 +122,8 @@
 
 .habitName:focus {
   outline: none;
-  border-color: var(--border-strong);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--focus-ring-soft);
 }
 
 .tdCell {

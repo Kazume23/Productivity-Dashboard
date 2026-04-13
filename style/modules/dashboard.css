@@ -14,7 +14,7 @@
   display:flex;
   gap:6px;
   padding:4px;
-  border:1px solid var(--border-strong);
+  border:1px solid var(--border-base);
   background:var(--bg-control);
   border-radius:10px;
 }
@@ -350,7 +350,7 @@ a.iconBtn{
 
 
 .expWrap{
-  min-height: 600px;
+  min-height: 460px;
 }
 
 .expWrap > .panelBody{
@@ -498,6 +498,10 @@ a.iconBtn{
 }
 
 @media (max-width: 1260px) {
+  .expWrap{
+    min-height: 420px;
+  }
+
   .chartWrap{
     grid-template-columns:180px minmax(220px, 1fr);
     gap:16px;
@@ -514,6 +518,10 @@ a.iconBtn{
 }
 
 @media (max-width: 980px) {
+  .expWrap{
+    min-height: 0;
+  }
+
   .chartWrap{
     grid-template-columns:1fr;
     justify-items:center;
