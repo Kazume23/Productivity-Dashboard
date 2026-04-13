@@ -80,7 +80,10 @@ function renderWishlist() {
   if (wishList) wishList.innerHTML = "";
 
   const sortMode = state.wishSortMode || "date-desc";
-  if (wishSort) wishSort.value = sortMode;
+  if (wishSort) {
+    wishSort.value = sortMode;
+    syncCustomSelect(wishSort);
+  }
 
   let items = [...state.wishlist];
   if (sortMode === "date-desc") {

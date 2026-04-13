@@ -176,6 +176,128 @@
   transition: border-color var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
 }
 
+select.modalInput:not(.customSelectNative) {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) calc(50% - 3px),
+    calc(100% - 11px) calc(50% - 3px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 34px;
+}
+
+select.modalInput:not(.customSelectNative) option {
+  background: var(--bg-control);
+  color: var(--text-primary);
+}
+
+select.modalInput:not(.customSelectNative)::-ms-expand {
+  display: none;
+}
+
+.customSelect {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+select.customSelectNative {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.customSelectTrigger {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  padding-right: 34px;
+}
+
+.customSelectTrigger::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -5px;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.customSelect.isOpen .customSelectTrigger {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--focus-ring-soft);
+}
+
+.customSelect.isOpen .customSelectTrigger::after {
+  margin-top: -1px;
+  transform: rotate(-135deg);
+}
+
+.customSelectMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-base);
+  border-radius: 10px;
+  box-shadow: var(--shadow-panel-soft);
+  padding: 6px;
+  max-height: 230px;
+  overflow: auto;
+  display: none;
+  z-index: 120;
+  scrollbar-width: thin;
+}
+
+.customSelect.isOpen .customSelectMenu {
+  display: block;
+}
+
+.customSelectOption {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-primary);
+  text-align: left;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.customSelectOption:hover {
+  background: var(--glass-06);
+  border-color: var(--border-base);
+}
+
+.customSelectOption.isSelected {
+  background: var(--glass-08);
+  border-color: var(--accent);
+}
+
+.customSelectOption:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.customSelectOption:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .modalInput:focus,
 .modalTextarea:focus,
 #registerOverlay .formRow input:focus {

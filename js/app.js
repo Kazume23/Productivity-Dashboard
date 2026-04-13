@@ -37,13 +37,11 @@ const VALID_VIEWS = ["dashboard", "habits", "todo", "expenses", "wishlist"];
 let ignoreNextHashChange = false;
 
 function syncPageHeader(navBtn) {
-  if (!pageTitle || !pageSubtitle) return;
-
   const navId = navBtn?.id || "navDash";
   const conf = PAGE_HEADER_BY_NAV[navId] || PAGE_HEADER_BY_NAV.navDash;
 
-  pageTitle.textContent = conf.title;
-  pageSubtitle.textContent = conf.subtitle;
+  if (pageTitle) pageTitle.textContent = conf.title;
+  if (pageSubtitle) pageSubtitle.textContent = conf.subtitle;
 }
 
 function setNavActive(btn) {
@@ -105,11 +103,20 @@ function getTodoStats() {
   let today = 0;
   let upcoming = 0;
   let overdue = 0;
+  let openCount = 0;
+  let doneCount = 0;
+  let highOpen = 0;
 
   const pending = [];
 
   for (const it of (state.todos || [])) {
-    if (it.done) continue;
+    if (it.done) {
+      doneCount += 1;
+      continue;
+    }
+
+    openCount += 1;
+    if ((it.priority || "medium") === "high") highOpen += 1;
 
     if (it.dateISO === selectedISO) today += 1;
     else if (it.dateISO > selectedISO) upcoming += 1;
@@ -130,7 +137,12 @@ function getTodoStats() {
     today,
     upcoming,
     overdue,
-    preview: pending.slice(0, 6)
+    openCount,
+    doneCount,
+    highOpen,
+    totalCount: openCount + doneCount,
+    preview: pending.slice(0, 6),
+    nextDeadlines: pending.slice(0, 3)
   };
 }
 
@@ -147,22 +159,32 @@ function getHabitWeekStats() {
     const iso = toISO(addDays(weekStart, i));
     for (const h of habits) {
       const v = state.entries?.[`${h.id}|${iso}`] ?? 0;
-      if (v === 1) done += 1;
-      else if (v === -1) fail += 1;
-      else empty += 1;
+      if (v === 1) {
+        done += 1;
+      } else if (v === -1) {
+        fail += 1;
+      } else {
+        empty += 1;
+      }
     }
   }
 
   const decided = done + fail;
   const rate = decided > 0 ? Math.round((done / decided) * 100) : 0;
 
-  return { done, fail, empty, rate };
+  return {
+    done,
+    fail,
+    empty,
+    rate
+  };
 }
 
-function getBestCurrentHabitStreak() {
+function getBestCurrentHabitStreakInfo() {
   const selected = getSelectedDateObj();
   const habits = state.habits || [];
-  let best = 0;
+  let bestStreak = 0;
+  let bestName = "-";
 
   for (const h of habits) {
     let streak = 0;
@@ -175,10 +197,16 @@ function getBestCurrentHabitStreak() {
       d = addDays(d, -1);
     }
 
-    if (streak > best) best = streak;
+    if (streak > bestStreak) {
+      bestStreak = streak;
+      bestName = h.name || "Nawyk";
+    }
   }
 
-  return best;
+  return {
+    streak: bestStreak,
+    name: bestName
+  };
 }
 
 function getExpenseStats() {
@@ -186,21 +214,26 @@ function getExpenseStats() {
   const selectedISO = state.selectedDate;
   const month = selected.getMonth();
   const year = selected.getFullYear();
+  const weekStart = startOfWeekMonday(selected);
+  const weekStartISO = toISO(weekStart);
+  const weekEndISO = toISO(addDays(weekStart, 6));
 
   let today = 0;
+  let weekTotal = 0;
   let monthTotal = 0;
-  let count = 0;
   const byCategory = {};
 
   for (const it of (state.expenses || [])) {
     const amount = Number(it.amount) || 0;
+
     if (it.dateISO === selectedISO) today += amount;
+    if (it.dateISO >= weekStartISO && it.dateISO <= weekEndISO) weekTotal += amount;
 
     const d = fromISO(it.dateISO);
     if (d.getMonth() === month && d.getFullYear() === year) {
       monthTotal += amount;
-      count += 1;
-      byCategory[it.category] = (byCategory[it.category] || 0) + amount;
+      const category = it.category || "Inne";
+      byCategory[category] = (byCategory[category] || 0) + amount;
     }
   }
 
@@ -213,11 +246,17 @@ function getExpenseStats() {
     }
   }
 
+  const categories = Object.entries(byCategory)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value);
+
   return {
     today,
+    weekTotal,
     monthTotal,
-    count,
-    topCategory
+    topCategory,
+    topCategoryValue: topValue,
+    categories
   };
 }
 
@@ -383,12 +422,19 @@ function renderOverviewPanels() {
   const habitStats = getHabitWeekStats();
   const expenseStats = getExpenseStats();
   const wishStats = getWishlistStats();
-  const bestStreak = getBestCurrentHabitStreak();
+  const bestStreak = getBestCurrentHabitStreakInfo();
+  const chartStats = typeof computeChartStats === "function" ? computeChartStats() : null;
+  const habitCoverage = chartStats
+    ? chartStats.coverage
+    : ((habitStats.done + habitStats.fail + habitStats.empty) > 0
+      ? Math.round(((habitStats.done + habitStats.fail) / (habitStats.done + habitStats.fail + habitStats.empty)) * 100)
+      : 0);
 
   const heroDateText = $("heroDateText");
   const heroStatusText = $("heroStatusText");
   const heroFocusValue = $("heroFocusValue");
   const heroTodoValue = $("heroTodoValue");
+  const heroHabitValue = $("heroHabitValue");
   const heroSpendValue = $("heroSpendValue");
 
   if (heroDateText) {
@@ -397,11 +443,13 @@ function renderOverviewPanels() {
 
   if (heroStatusText) {
     if (todoStats.overdue > 0) {
-      heroStatusText.textContent = `Masz ${todoStats.overdue} zaległych zadań. Zacznij od domknięcia backlogu.`;
+      heroStatusText.textContent = `Masz ${todoStats.overdue} zaległych zadań do domknięcia.`;
     } else if (todoStats.today > 0) {
-      heroStatusText.textContent = `Na dziś zaplanowano ${todoStats.today} zadań. Utrzymaj tempo i pilnuj priorytetów.`;
+      heroStatusText.textContent = `Na dziś zaplanowano ${todoStats.today} zadań.`;
+    } else if (todoStats.openCount > 0) {
+      heroStatusText.textContent = `Brak zadań na dziś, ale w kolejce czeka ${todoStats.openCount}.`;
     } else {
-      heroStatusText.textContent = "Dzień jest czysty. Dodaj kluczowy cel i wejdź w flow.";
+      heroStatusText.textContent = "Dzień jest czysty. Dodaj pierwsze zadanie.";
     }
   }
 
@@ -412,36 +460,52 @@ function renderOverviewPanels() {
       heroFocusValue.textContent = "00:00";
     }
   }
-  if (heroTodoValue) heroTodoValue.textContent = String(todoStats.today);
+  if (heroTodoValue) heroTodoValue.textContent = String(todoStats.openCount);
+  if (heroHabitValue) heroHabitValue.textContent = `${habitStats.rate}%`;
   if (heroSpendValue) heroSpendValue.textContent = moneyPL(expenseStats.today);
 
-  const dashTodayTodos = $("dashTodayTodos");
+  const dashTaskToday = $("dashTaskToday");
+  const dashTaskUpcoming = $("dashTaskUpcoming");
+  const dashTaskOverdue = $("dashTaskOverdue");
+
+  if (dashTaskToday) dashTaskToday.textContent = String(todoStats.today);
+  if (dashTaskUpcoming) dashTaskUpcoming.textContent = String(todoStats.upcoming);
+  if (dashTaskOverdue) dashTaskOverdue.textContent = String(todoStats.overdue);
+
+  const dashHabitWeekRate = $("dashHabitWeekRate");
   const dashBestStreak = $("dashBestStreak");
-  const dashMonthSpend = $("dashMonthSpend");
-  const dashWishlistValue = $("dashWishlistValue");
+  const dashHabitCoverage = $("dashHabitCoverage");
 
-  if (dashTodayTodos) dashTodayTodos.textContent = String(todoStats.today);
-  if (dashBestStreak) dashBestStreak.textContent = `${bestStreak} dni`;
-  if (dashMonthSpend) dashMonthSpend.textContent = moneyPL(expenseStats.monthTotal);
-  if (dashWishlistValue) dashWishlistValue.textContent = moneyPL(wishStats.total);
+  if (dashHabitWeekRate) dashHabitWeekRate.textContent = `${habitStats.rate}%`;
+  if (dashBestStreak) dashBestStreak.textContent = `${bestStreak.streak} dni`;
+  if (dashHabitCoverage) dashHabitCoverage.textContent = `${habitCoverage}%`;
 
-  const dashHabitDone = $("dashHabitDone");
-  const dashHabitFail = $("dashHabitFail");
-  const dashHabitEmpty = $("dashHabitEmpty");
-  const dashHabitRate = $("dashHabitRate");
+  const dashMoneyMonth = $("dashMoneyMonth");
+  const dashMoneyWeek = $("dashMoneyWeek");
+  const dashMoneyWishlistBudget = $("dashMoneyWishlistBudget");
+  const dashMoneyTopCategory = $("dashMoneyTopCategory");
 
-  if (dashHabitDone) dashHabitDone.textContent = String(habitStats.done);
-  if (dashHabitFail) dashHabitFail.textContent = String(habitStats.fail);
-  if (dashHabitEmpty) dashHabitEmpty.textContent = String(habitStats.empty);
-  if (dashHabitRate) dashHabitRate.textContent = `${habitStats.rate}%`;
+  if (dashMoneyMonth) dashMoneyMonth.textContent = moneyPL(expenseStats.monthTotal);
+  if (dashMoneyWeek) dashMoneyWeek.textContent = moneyPL(expenseStats.weekTotal);
+  if (dashMoneyWishlistBudget) dashMoneyWishlistBudget.textContent = moneyPL(wishStats.total);
+  if (dashMoneyTopCategory) {
+    if (expenseStats.topCategory === "-") {
+      dashMoneyTopCategory.textContent = "-";
+    } else {
+      dashMoneyTopCategory.textContent = `${expenseStats.topCategory} (${moneyPL(expenseStats.topCategoryValue)})`;
+    }
+  }
 
   const dashExpenseMonth = $("dashExpenseMonth");
-  const dashExpenseCount = $("dashExpenseCount");
-  const dashWishlistCount = $("dashWishlistCount");
-  const dashWishlistBudget = $("dashWishlistBudget");
+  const dashExpenseWeek = $("dashExpenseWeek");
+  const dashExpenseTopCategory = $("dashExpenseTopCategory");
 
   if (dashExpenseMonth) dashExpenseMonth.textContent = moneyPL(expenseStats.monthTotal);
-  if (dashExpenseCount) dashExpenseCount.textContent = String(expenseStats.count);
+  if (dashExpenseWeek) dashExpenseWeek.textContent = moneyPL(expenseStats.weekTotal);
+  if (dashExpenseTopCategory) dashExpenseTopCategory.textContent = expenseStats.topCategory;
+
+  const dashWishlistCount = $("dashWishlistCount");
+  const dashWishlistBudget = $("dashWishlistBudget");
   if (dashWishlistCount) dashWishlistCount.textContent = String(wishStats.itemsCount);
   if (dashWishlistBudget) dashWishlistBudget.textContent = moneyPL(wishStats.total);
 
@@ -452,6 +516,13 @@ function renderOverviewPanels() {
   if (habitsKpiFail) habitsKpiFail.textContent = String(habitStats.fail);
   if (habitsKpiRate) habitsKpiRate.textContent = `${habitStats.rate}%`;
 
+  const chartCoverage = $("chartCoverage");
+  const chartDoneDaily = $("chartDoneDaily");
+  const chartFailDaily = $("chartFailDaily");
+  if (chartCoverage) chartCoverage.textContent = `${habitCoverage}%`;
+  if (chartDoneDaily) chartDoneDaily.textContent = chartStats ? String(chartStats.donePerDay) : "0.00";
+  if (chartFailDaily) chartFailDaily.textContent = chartStats ? String(chartStats.failPerDay) : "0.00";
+
   const todoKpiToday = $("todoKpiToday");
   const todoKpiUpcoming = $("todoKpiUpcoming");
   const todoKpiOverdue = $("todoKpiOverdue");
@@ -459,16 +530,90 @@ function renderOverviewPanels() {
   if (todoKpiUpcoming) todoKpiUpcoming.textContent = String(todoStats.upcoming);
   if (todoKpiOverdue) todoKpiOverdue.textContent = String(todoStats.overdue);
 
+  const todoInsightOpen = $("todoInsightOpen");
+  const todoInsightNext = $("todoInsightNext");
+
+  if (todoInsightOpen) todoInsightOpen.textContent = String(todoStats.openCount);
+  if (todoInsightNext) {
+    todoInsightNext.innerHTML = "";
+    if (!todoStats.nextDeadlines.length) {
+      const empty = document.createElement("div");
+      empty.className = "todoEmpty";
+      empty.textContent = "Brak otwartych terminów.";
+      todoInsightNext.appendChild(empty);
+    } else {
+      for (const it of todoStats.nextDeadlines) {
+        const row = document.createElement("div");
+        row.className = "todoInsightRow";
+        row.textContent = `${fmtPL(fromISO(it.dateISO))} • ${it.text}`;
+        todoInsightNext.appendChild(row);
+      }
+    }
+  }
+
   const expKpiMonth = $("expKpiMonth");
+  const expKpiWeek = $("expKpiWeek");
   const expKpiTopCategory = $("expKpiTopCategory");
-  const expKpiCount = $("expKpiCount");
+
+  const expStatDay = $("expStatDay");
+  const expStatWeek = $("expStatWeek");
+  const expStatMonth = $("expStatMonth");
+  const expCategoryList = $("expCategoryList");
+
   if (expKpiMonth) expKpiMonth.textContent = moneyPL(expenseStats.monthTotal);
+  if (expKpiWeek) expKpiWeek.textContent = moneyPL(expenseStats.weekTotal);
   if (expKpiTopCategory) expKpiTopCategory.textContent = expenseStats.topCategory;
-  if (expKpiCount) expKpiCount.textContent = String(expenseStats.count);
+  if (expStatDay) expStatDay.textContent = moneyPL(expenseStats.today);
+  if (expStatWeek) expStatWeek.textContent = moneyPL(expenseStats.weekTotal);
+  if (expStatMonth) expStatMonth.textContent = moneyPL(expenseStats.monthTotal);
+  if (expCategoryList) {
+    expCategoryList.innerHTML = "";
+    if (!expenseStats.categories.length) {
+      const empty = document.createElement("div");
+      empty.className = "todoEmpty";
+      empty.textContent = "Brak danych kategorii.";
+      expCategoryList.appendChild(empty);
+    } else {
+      const top = expenseStats.categories[0]?.value || 0;
+
+      for (const cat of expenseStats.categories.slice(0, 6)) {
+        const row = document.createElement("div");
+        row.className = "expCategoryItem";
+
+        const topRow = document.createElement("div");
+        topRow.className = "expCategoryTop";
+
+        const name = document.createElement("span");
+        name.className = "expCategoryName";
+        name.textContent = cat.name;
+
+        const value = document.createElement("strong");
+        value.className = "expCategoryValue";
+        value.textContent = moneyPL(cat.value);
+
+        topRow.appendChild(name);
+        topRow.appendChild(value);
+
+        const bar = document.createElement("div");
+        bar.className = "expCategoryBar";
+
+        const fill = document.createElement("div");
+        fill.className = "expCategoryBarFill";
+        const pct = top > 0 ? Math.max(8, Math.round((cat.value / top) * 100)) : 0;
+        fill.style.width = `${pct}%`;
+
+        bar.appendChild(fill);
+        row.appendChild(topRow);
+        row.appendChild(bar);
+        expCategoryList.appendChild(row);
+      }
+    }
+  }
 
   const wishKpiItems = $("wishKpiItems");
   const wishKpiBudget = $("wishKpiBudget");
   const wishKpiAvg = $("wishKpiAvg");
+
   if (wishKpiItems) wishKpiItems.textContent = String(wishStats.itemsCount);
   if (wishKpiBudget) wishKpiBudget.textContent = moneyPL(wishStats.total);
   if (wishKpiAvg) wishKpiAvg.textContent = moneyPL(wishStats.avg);
@@ -491,6 +636,10 @@ function renderAll() {
   renderWishlist();
   pomoSyncUI();
   renderOverviewPanels();
+
+  if (typeof syncAllCustomSelects === "function") {
+    syncAllCustomSelects();
+  }
 }
 
 function isMobileDrawerMode() {
@@ -560,11 +709,10 @@ function initOverviewActions() {
     openExpModal();
   });
 
-  $("dashGoTodoBtn")?.addEventListener("click", () => setView("todo"));
-  $("dashGoHabitsBtn")?.addEventListener("click", () => setView("habits"));
   $("dashGoExpensesBtn")?.addEventListener("click", () => setView("expenses"));
   $("dashGoWishlistBtn")?.addEventListener("click", () => setView("wishlist"));
   $("dashAddTodoBtn")?.addEventListener("click", () => openTodoModal(getSelectedDateObj()));
+  $("todoQuickAddBtn")?.addEventListener("click", () => openTodoModal(getSelectedDateObj()));
 
   window.addEventListener("hashchange", () => {
     if (ignoreNextHashChange) {
@@ -666,6 +814,8 @@ initTheme();
   initChart();
   initWishlist();
   initPomodoro();
+
+  initCustomSelects();
 
   const initialView = getViewFromHash();
   setView(initialView, { updateHash: false, skipRender: true });

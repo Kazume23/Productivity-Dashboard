@@ -31,6 +31,7 @@ function addExpense() {
   expAmount.value = "";
   expWhat.value = "";
   expPeriod.value = "once";
+  syncCustomSelect(expPeriod);
 
   saveState();
   renderExpenses();
@@ -53,6 +54,9 @@ function openExpModal() {
   expModalScore.value = "B";
   expModalPeriod.value = "once";
   expModalDate.value = state.selectedDate;
+  syncCustomSelect(expModalCategory);
+  syncCustomSelect(expModalScore);
+  syncCustomSelect(expModalPeriod);
   showOverlay(expOverlay);
   setTimeout(() => expModalAmount.focus(), 0);
 }
@@ -116,7 +120,10 @@ function renderExpenses() {
   if (expDate) expDate.value = filterISO;
 
   const filterCategory = state.expFilterCategory || "";
-  if (expFilterCategory) expFilterCategory.value = filterCategory;
+  if (expFilterCategory) {
+    expFilterCategory.value = filterCategory;
+    syncCustomSelect(expFilterCategory);
+  }
 
   let items = [...state.expenses];
   if (filterCategory) {
@@ -131,6 +138,7 @@ function renderExpenses() {
   const sum = itemsSliceSum(items);
   if (expSummary) expSummary.textContent = "Suma: " + moneyPL(sum);
   if (expList) expList.innerHTML = "";
+  if (!expList) return;
 
   if (!items.length) {
     const empty = document.createElement("div");
@@ -141,6 +149,8 @@ function renderExpenses() {
     return;
   }
 
+  const frag = document.createDocumentFragment();
+
   for (const it of items) {
     const row = document.createElement("div");
     row.className = "expItem";
@@ -149,18 +159,20 @@ function renderExpenses() {
     amt.className = "expAmt";
     amt.textContent = moneyPL(it.amount);
 
-    const whatBox = document.createElement("div");
+    const main = document.createElement("div");
+    main.className = "expMain";
+
     const what = document.createElement("div");
+    what.className = "expWhat";
     what.textContent = it.what;
+
     const meta = document.createElement("div");
     meta.className = "expMeta";
     meta.textContent = fmtPL(fromISO(it.dateISO));
-    whatBox.appendChild(what);
-    whatBox.appendChild(meta);
 
     const cat = document.createElement("div");
     cat.className = "expTag";
-    cat.textContent = it.category;
+    cat.textContent = it.category || "Inne";
 
     const score = document.createElement("div");
     score.className = "expTag";
@@ -170,6 +182,16 @@ function renderExpenses() {
     per.className = "expTag";
     per.textContent = periodLabel(it.period);
 
+    const tags = document.createElement("div");
+    tags.className = "expTags";
+    tags.appendChild(cat);
+    tags.appendChild(score);
+    tags.appendChild(per);
+
+    main.appendChild(what);
+    main.appendChild(meta);
+    main.appendChild(tags);
+
     const del = document.createElement("button");
     del.type = "button";
     del.className = "expDel";
@@ -178,14 +200,13 @@ function renderExpenses() {
     del.addEventListener("click", () => deleteExpense(it.id));
 
     row.appendChild(amt);
-    row.appendChild(whatBox);
-    row.appendChild(cat);
-    row.appendChild(score);
-    row.appendChild(per);
+    row.appendChild(main);
     row.appendChild(del);
 
-    expList.appendChild(row);
+    frag.appendChild(row);
   }
+
+  expList.appendChild(frag);
 
   if (typeof renderOverviewPanels === "function") renderOverviewPanels();
 }

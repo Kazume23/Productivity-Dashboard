@@ -1,7 +1,8 @@
 .app {
   display: flex;
   min-height: 100vh;
-  overflow: hidden;
+  overflow: visible;
+  align-items: flex-start;
 }
 
 .sidebar {
@@ -14,6 +15,12 @@
   gap: 12px;
   border-right: 1px solid var(--border-subtle);
   z-index: 20;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  min-height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto;
 }
 
 .sidebarCloseBtn {
@@ -73,7 +80,8 @@
 .navRow {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0;
+  transition: gap var(--motion-fast) var(--motion-ease);
 }
 
 .navItem {
@@ -127,26 +135,38 @@
 }
 
 .navAddBtn {
-  width: 36px;
-  height: 42px;
-  border-radius: 10px;
-  background: var(--bg-control);
+  width: 0;
+  min-width: 0;
+  height: 32px;
+  border-radius: 8px;
+  background: transparent;
   color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid transparent;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 16px;
   line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.9;
-  transition: background var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-4px);
+  transition: width var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease), visibility var(--motion-fast) var(--motion-ease);
 }
 
-.navRow:hover .navAddBtn {
-  opacity: 1;
+.navRow:focus-within {
+  gap: 8px;
+}
+
+.navRow:focus-within .navAddBtn {
+  width: 30px;
+  opacity: 0.86;
+  visibility: visible;
+  pointer-events: auto;
   border-color: var(--border-strong);
-  background: var(--bg-hover);
+  background: var(--glass-04);
+  transform: translateX(0);
 }
 
 .navAddBtn:hover {
@@ -220,7 +240,7 @@
   flex: 1;
   min-height: 0;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: visible;
 }
 
 .view {
@@ -245,7 +265,7 @@
 
 .summaryStrip {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -266,6 +286,47 @@
   font-weight: 700;
 }
 
+.todoModuleGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+  gap: 14px;
+  align-content: start;
+}
+
+.expensesSummaryStrip,
+.wishlistSummaryStrip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wishlistSummaryStrip {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.expensesModuleGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.35fr) minmax(240px, 0.6fr);
+  gap: 14px;
+  align-content: start;
+}
+
+.wishlistModuleGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-content: start;
+}
+
+.expComposeCard,
+.expLedgerCard,
+.expBreakdownCard,
+.wishComposeCard,
+.wishInsightCard,
+.todoInsightCard {
+  min-height: 0;
+}
+
 .dashMainGrid,
 .dashSideGrid {
   display: grid;
@@ -280,7 +341,7 @@
 }
 
 .dashTodoCard {
-  min-height: 280px;
+  min-height: 230px;
   overflow: hidden;
 }
 
@@ -419,8 +480,12 @@
 .topA,
 .tableBox,
 .todoViewCard,
-.expensesViewBox,
-.wishlistViewBox {
+.todoInsightCard,
+.expComposeCard,
+.expLedgerCard,
+.expBreakdownCard,
+.wishComposeCard,
+.wishInsightCard {
   animation: panelEnter var(--motion-slow) var(--motion-ease) both;
 }
 
@@ -434,7 +499,8 @@
 }
 
 .todoViewCard {
-  min-height: 560px;
+  min-height: 420px;
+  max-height: 640px;
 }
 
 .expensesViewBox,
@@ -477,6 +543,26 @@
   .sectionKpiGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .todoModuleGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .expensesSummaryStrip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .expensesModuleGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .expBreakdownCard {
+    grid-column: 1 / -1;
+  }
+
+  .wishlistModuleGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 980px) {
@@ -503,6 +589,7 @@
     transition: transform var(--motion-base) var(--motion-ease);
     overflow-y: auto;
     box-shadow: var(--shadow-panel);
+    min-height: 0;
   }
 
   .sidebar.isOpen {
@@ -576,6 +663,17 @@
     grid-template-columns: 1fr 1fr;
   }
 
+  .expensesSummaryStrip,
+  .wishlistSummaryStrip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .expensesModuleGrid,
+  .wishlistModuleGrid,
+  .todoModuleGrid {
+    grid-template-columns: 1fr;
+  }
+
   .sectionKpiGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -585,7 +683,7 @@
   }
 
   .todoViewCard {
-    min-height: 440px;
+    min-height: 360px;
   }
 }
 
@@ -595,6 +693,11 @@
   }
 
   .summaryStrip {
+    grid-template-columns: 1fr;
+  }
+
+  .expensesSummaryStrip,
+  .wishlistSummaryStrip {
     grid-template-columns: 1fr;
   }
 

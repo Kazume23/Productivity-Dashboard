@@ -1,8 +1,12 @@
+const TODO_RENDER_STEP = 60;
+let todoVisibleCount = TODO_RENDER_STEP;
+
 function openTodoModal(dateObj) {
   if (!todoOverlay) return;
   todoDateInput.value = toISO(dateObj);
   todoText.value = "";
   todoPriority.value = "medium";
+  syncCustomSelect(todoPriority);
   showOverlay(todoOverlay);
   setTimeout(() => todoText.focus(), 0);
 }
@@ -29,6 +33,8 @@ function addTodo(dateISO, text, priority) {
     done: false,
     createdAt: Date.now()
   });
+
+  todoVisibleCount = Math.max(TODO_RENDER_STEP, todoVisibleCount + 1);
 
   saveState();
   renderTodos();
@@ -65,6 +71,7 @@ function renderTodos() {
   });
 
   if (!items.length) {
+    todoVisibleCount = TODO_RENDER_STEP;
     toggleClass(todoEmpty, "isHidden", false);
     if (typeof renderOverviewPanels === "function") renderOverviewPanels();
     return;
@@ -72,7 +79,17 @@ function renderTodos() {
 
   toggleClass(todoEmpty, "isHidden", true);
 
-  for (const it of items) {
+  if (todoVisibleCount < TODO_RENDER_STEP) {
+    todoVisibleCount = TODO_RENDER_STEP;
+  }
+  if (items.length < todoVisibleCount) {
+    todoVisibleCount = Math.max(TODO_RENDER_STEP, items.length);
+  }
+
+  const visibleItems = items.slice(0, todoVisibleCount);
+  const frag = document.createDocumentFragment();
+
+  for (const it of visibleItems) {
     const row = document.createElement("div");
     row.className = "todoItem";
     if (it.done) row.classList.add("todoDone");
@@ -121,7 +138,21 @@ function renderTodos() {
     row.appendChild(left);
     row.appendChild(del);
 
-    todoList.appendChild(row);
+    frag.appendChild(row);
+  }
+
+  todoList.appendChild(frag);
+
+  if (items.length > visibleItems.length) {
+    const moreBtn = document.createElement("button");
+    moreBtn.type = "button";
+    moreBtn.className = "calBtn todoLoadMore";
+    moreBtn.textContent = `Pokaż więcej (${items.length - visibleItems.length})`;
+    moreBtn.addEventListener("click", () => {
+      todoVisibleCount = Math.min(items.length, todoVisibleCount + TODO_RENDER_STEP);
+      renderTodos();
+    });
+    todoList.appendChild(moreBtn);
   }
 
   if (typeof renderOverviewPanels === "function") renderOverviewPanels();

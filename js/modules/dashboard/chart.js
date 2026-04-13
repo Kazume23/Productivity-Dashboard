@@ -111,18 +111,6 @@ function computeChartStats() {
   return { start, end, daysCount, totalCells, done, fail, empty, coverage, donePerDay, failPerDay, perHabit };
 }
 
-function polarToCartesian(cx, cy, r, angleDeg) {
-  const a = (angleDeg - 90) * Math.PI / 180;
-  return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
-}
-
-function arcPath(cx, cy, r, startAngle, endAngle) {
-  const start = polarToCartesian(cx, cy, r, endAngle);
-  const end = polarToCartesian(cx, cy, r, startAngle);
-  const large = (endAngle - startAngle) <= 180 ? "0" : "1";
-  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${large} 0 ${end.x} ${end.y}`;
-}
-
 function renderDonut(done, fail, empty) {
   const total = done + fail + empty;
 
@@ -130,80 +118,97 @@ function renderDonut(done, fail, empty) {
 
   chartSvg.innerHTML = "";
 
-  const cx = 110;
-  const cy = 110;
-  const r = 86;
+  const ns = "http://www.w3.org/2000/svg";
 
-  const ring = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  ring.setAttribute("cx", cx);
-  ring.setAttribute("cy", cy);
-  ring.setAttribute("r", r);
-  ring.setAttribute("fill", "none");
-  ring.setAttribute("stroke-width", "18");
-  ring.setAttribute("shape-rendering", "geometricPrecision");
-  ring.setAttribute("stroke-linecap", "butt");
-  ring.classList.add("chart-part", "empty");
-  chartSvg.appendChild(ring);
+  const pctDone = total > 0 ? Math.round((done / total) * 100) : 0;
+  const pctFail = total > 0 ? Math.round((fail / total) * 100) : 0;
+  const pctEmpty = Math.max(0, 100 - pctDone - pctFail);
+  const decided = done + fail;
+  const decidedRate = decided > 0 ? Math.round((done / decided) * 100) : 0;
 
-  if (total <= 0) {
-    const inner = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    inner.setAttribute("cx", cx);
-    inner.setAttribute("cy", cy);
-    inner.setAttribute("r", 58);
-    inner.classList.add("chart-inner");
-    chartSvg.appendChild(inner);
+  const header = document.createElementNS(ns, "text");
+  header.setAttribute("x", "110");
+  header.setAttribute("y", "36");
+  header.setAttribute("text-anchor", "middle");
+  header.classList.add("chart-headline");
+  header.textContent = `${decidedRate}%`;
+  chartSvg.appendChild(header);
 
-    const center = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    center.setAttribute("x", cx);
-    center.setAttribute("y", cy + 6);
-    center.setAttribute("text-anchor", "middle");
-    center.setAttribute("font-size", "16");
-    center.classList.add("chart-text");
-    center.textContent = "0%";
-    chartSvg.appendChild(center);
+  const sub = document.createElementNS(ns, "text");
+  sub.setAttribute("x", "110");
+  sub.setAttribute("y", "52");
+  sub.setAttribute("text-anchor", "middle");
+  sub.classList.add("chart-subline");
+  sub.textContent = decided > 0 ? `wykonane z ${decided} decyzji` : "brak decyzji w zakresie";
+  chartSvg.appendChild(sub);
 
-    return;
+  const trackX = 18;
+  const trackY = 72;
+  const trackW = 184;
+  const trackH = 18;
+
+  const track = document.createElementNS(ns, "rect");
+  track.setAttribute("x", String(trackX));
+  track.setAttribute("y", String(trackY));
+  track.setAttribute("width", String(trackW));
+  track.setAttribute("height", String(trackH));
+  track.setAttribute("rx", "9");
+  track.classList.add("chart-stack-track");
+  chartSvg.appendChild(track);
+
+  let start = trackX;
+  const segs = [
+    { pct: pctDone, cls: "done" },
+    { pct: pctFail, cls: "fail" },
+    { pct: pctEmpty, cls: "empty" }
+  ];
+
+  for (const seg of segs) {
+    const rawW = total > 0 ? Math.round((seg.pct / 100) * trackW) : 0;
+    if (rawW <= 0) continue;
+
+    const rect = document.createElementNS(ns, "rect");
+    rect.setAttribute("x", String(start));
+    rect.setAttribute("y", String(trackY));
+    rect.setAttribute("width", String(rawW));
+    rect.setAttribute("height", String(trackH));
+    rect.classList.add("chart-stack-seg", seg.cls);
+    chartSvg.appendChild(rect);
+
+    start += rawW;
   }
 
-  let angle = (empty / total) * 360;
+  const rows = [
+    { label: "Wykonane", value: done, pct: pctDone, cls: "done" },
+    { label: "Zawalone", value: fail, pct: pctFail, cls: "fail" },
+    { label: "Puste", value: empty, pct: pctEmpty, cls: "empty" }
+  ];
 
-  const parts = [
-    { v: fail, cls: "fail" },
-    { v: done, cls: "done" }
-  ].filter(p => p.v > 0);
+  rows.forEach((row, i) => {
+    const y = 118 + i * 30;
 
-  for (const p of parts) {
-    const span = (p.v / total) * 360;
-    const startAngle = angle;
-    const endAngle = angle + span;
+    const dot = document.createElementNS(ns, "circle");
+    dot.setAttribute("cx", "24");
+    dot.setAttribute("cy", String(y - 5));
+    dot.setAttribute("r", "4");
+    dot.classList.add("chart-legend-dot", row.cls);
+    chartSvg.appendChild(dot);
 
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", arcPath(cx, cy, r, startAngle, endAngle));
-    path.setAttribute("fill", "none");
-    path.setAttribute("stroke-width", "18");
-    path.setAttribute("stroke-linecap", "round");
-    path.setAttribute("shape-rendering", "geometricPrecision");
-    path.classList.add("chart-part", p.cls);
-    chartSvg.appendChild(path);
+    const label = document.createElementNS(ns, "text");
+    label.setAttribute("x", "34");
+    label.setAttribute("y", String(y - 1));
+    label.classList.add("chart-legend-label");
+    label.textContent = row.label;
+    chartSvg.appendChild(label);
 
-    angle = endAngle;
-  }
-
-  const inner = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  inner.setAttribute("cx", cx);
-  inner.setAttribute("cy", cy);
-  inner.setAttribute("r", 58);
-  inner.classList.add("chart-inner");
-  chartSvg.appendChild(inner);
-
-  const center = document.createElementNS("http://www.w3.org/2000/svg", "text");
-  center.setAttribute("x", cx);
-  center.setAttribute("y", cy + 6);
-  center.setAttribute("text-anchor", "middle");
-  center.setAttribute("font-size", "16");
-  center.classList.add("chart-text");
-  center.textContent = `${Math.round((done / total) * 100)}%`;
-  chartSvg.appendChild(center);
+    const value = document.createElementNS(ns, "text");
+    value.setAttribute("x", "204");
+    value.setAttribute("y", String(y - 1));
+    value.setAttribute("text-anchor", "end");
+    value.classList.add("chart-legend-value");
+    value.textContent = `${row.value} (${row.pct}%)`;
+    chartSvg.appendChild(value);
+  });
 }
 
 function syncChartTabs() {

@@ -179,31 +179,70 @@
   font-size:12px;
   opacity:0.75;
 }
-.chart-ring {
-  stroke: var(--chart-empty);
+
+.chart-headline {
+  fill: var(--text-strong);
+  font-size: 28px;
+  font-weight: 700;
 }
 
-.chart-inner {
-  fill: var(--border-strong);
+.chart-subline {
+  fill: var(--text-muted);
+  font-size: 11px;
+  opacity: 0.85;
 }
 
-/* Parts */
-.chart-part.empty {
-  stroke: var(--chart-empty);
+.chart-stack-track {
+  fill: var(--glass-06);
+  stroke: var(--border-base);
 }
 
-.chart-part.fail {
-  stroke: var(--danger);
+.chart-stack-seg {
+  animation: chartGrow var(--motion-slow) var(--motion-ease) both;
 }
 
-.chart-part.done {
-  stroke: var(--accent);
+.chart-stack-seg.done {
+  fill: var(--accent);
 }
 
-/* Text */
-.chart-text {
+.chart-stack-seg.fail {
+  fill: var(--danger);
+}
+
+.chart-stack-seg.empty {
+  fill: var(--chart-empty);
+}
+
+.chart-legend-dot.done {
+  fill: var(--accent);
+}
+
+.chart-legend-dot.fail {
+  fill: var(--danger);
+}
+
+.chart-legend-dot.empty {
+  fill: var(--chart-empty);
+}
+
+.chart-legend-label {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
+
+.chart-legend-value {
   fill: var(--text-primary);
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@keyframes chartGrow {
+  from {
+    transform: scaleX(0.02);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 
 .icons{
@@ -361,16 +400,23 @@ a.iconBtn{
 
 .expList{
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: 220px;
+  max-height: min(62vh, 540px);
   overflow: auto;
   padding-right: 6px;
+  overscroll-behavior: contain;
 
-  scrollbar-width: none;
+  scrollbar-width: thin;
   -ms-overflow-style: none;
 }
 .expList::-webkit-scrollbar{
-  width: 0;
-  height: 0;
+  width: 8px;
+  height: 8px;
+}
+
+.expList::-webkit-scrollbar-thumb{
+  background: var(--glass-10);
+  border-radius: 999px;
 }
 
 .wishWrap{
@@ -435,6 +481,11 @@ a.iconBtn{
   min-width:180px;
   font-size:12px;
   padding:6px 10px;
+}
+
+.wishHeader .customSelect {
+  width: auto;
+  min-width: 180px;
 }
 
 .wishItem{
@@ -526,7 +577,7 @@ a.iconBtn{
 
 .heroMetrics {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -558,6 +609,40 @@ a.iconBtn{
 .heroActions .calBtn,
 .heroActions .habBtn {
   min-width: 156px;
+}
+
+.summaryCard {
+  transition: border-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+.summaryCard:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-panel);
+}
+
+.summaryRows {
+  margin-top: 8px;
+  display: grid;
+  gap: 2px;
+}
+
+.summaryRows > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--glass-08);
+  font-size: 13px;
+}
+
+.summaryRows > div:last-child {
+  border-bottom: none;
+}
+
+.summaryRows span {
+  opacity: 0.72;
 }
 
 .dashTodoCard .panelBody {
@@ -643,10 +728,15 @@ a.iconBtn{
   font-size: 13px;
   padding: 8px 0;
   border-bottom: 1px solid var(--glass-08);
+  transition: color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease);
 }
 
 .dashFinanceRow:last-of-type {
   border-bottom: none;
+}
+
+.dashFinanceCard .panelBody {
+  gap: 0;
 }
 
 .dashFinanceActions {
@@ -682,14 +772,141 @@ a.iconBtn{
   opacity: 0.68;
 }
 
+.dashTodoCard .todoEmpty,
+.todoViewCard .todoEmpty,
+.wishComposeCard .todoEmpty,
+.expLedgerCard .todoEmpty,
+.expBreakdownCard .todoEmpty {
+  margin: 6px 0;
+  padding: 16px 12px;
+  border-radius: 10px;
+  border: 1px dashed var(--border-base);
+  background: var(--glass-03);
+  text-align: center;
+}
+
 .todoViewCard .panelBody {
   overflow: auto;
+  max-height: 520px;
+  overscroll-behavior: contain;
   scrollbar-width: none;
 }
 
 .todoViewCard .panelBody::-webkit-scrollbar {
   width: 0;
   height: 0;
+}
+
+.todoInsightCard .panelBody {
+  gap: 12px;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.todoInsightCard .panelBody::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.wishComposeCard .panelBody {
+  min-height: 320px;
+}
+
+.todoInsightGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.todoInsightGrid > div,
+.todoInsightItem {
+  border-radius: 10px;
+  border: 1px solid var(--border-base);
+  background: var(--bg-control);
+  padding: 8px 10px;
+  display: grid;
+  gap: 2px;
+}
+
+.todoInsightGrid > div span,
+.todoInsightLabel {
+  font-size: 11px;
+  opacity: 0.72;
+}
+
+.todoInsightGrid > div b,
+.todoInsightValue {
+  font-size: 15px;
+}
+
+.todoInsightQuick {
+  border-radius: 10px;
+  border: 1px solid var(--border-base);
+  background: var(--bg-control);
+  padding: 9px 10px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.todoInsightQuick b {
+  font-size: 15px;
+}
+
+.todoInsightBlock {
+  display: grid;
+  gap: 7px;
+}
+
+.todoInsightList {
+  display: grid;
+  gap: 7px;
+  max-height: 190px;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.todoInsightList::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.todoInsightRow {
+  border-radius: 10px;
+  border: 1px solid var(--border-base);
+  background: var(--bg-control);
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.todoLoadMore {
+  width: 100%;
+  margin: 2px 0 0 0;
+}
+
+.chartKpiGrid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.chartKpi {
+  border-radius: 10px;
+  border: 1px solid var(--border-base);
+  background: var(--bg-control);
+  padding: 8px 10px;
+  display: grid;
+  gap: 2px;
+}
+
+.chartKpi span {
+  font-size: 11px;
+  opacity: 0.72;
+}
+
+.chartKpi b {
+  font-size: 14px;
 }
 
 .expensesViewBox .expWrap,
@@ -721,11 +938,7 @@ a.iconBtn{
   }
 
   .heroMetrics {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .dashHabitStats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -745,12 +958,20 @@ a.iconBtn{
     padding-left:0;
   }
 
+  .expList {
+    max-height: 360px;
+  }
+
   .wishHeader{
     flex-wrap:wrap;
   }
 
   .wishSortSelect{
     min-width:150px;
+  }
+
+  .wishHeader .customSelect {
+    min-width: 150px;
   }
 
   .heroPanel {
@@ -771,12 +992,17 @@ a.iconBtn{
     flex: 1;
   }
 
-  .dashHabitStats {
-    grid-template-columns: 1fr;
+  .todoViewCard .panelBody {
+    max-height: 420px;
   }
 
   .dashFinanceActions {
     flex-direction: column;
+  }
+
+  .todoInsightGrid,
+  .chartKpiGrid {
+    grid-template-columns: 1fr;
   }
 }
 
