@@ -2,9 +2,43 @@ function getSelectedDateObj() {
   return fromISO(state.selectedDate);
 }
 
+const PAGE_HEADER_BY_NAV = {
+  navDash: {
+    title: "Dashboard",
+    subtitle: "Przegląd dnia i postępów"
+  },
+  navTodo: {
+    title: "ToDo",
+    subtitle: "Plan zadań i priorytetów"
+  },
+  navHabits: {
+    title: "Nawyki",
+    subtitle: "Codzienna regularność i bilans"
+  },
+  navExpenses: {
+    title: "Wydatki",
+    subtitle: "Kontrola kosztów i kategorii"
+  },
+  navWishlist: {
+    title: "Wishlist",
+    subtitle: "Lista rzeczy do zaplanowania"
+  }
+};
+
+function syncPageHeader(navBtn) {
+  if (!pageTitle || !pageSubtitle) return;
+
+  const navId = navBtn?.id || "navDash";
+  const conf = PAGE_HEADER_BY_NAV[navId] || PAGE_HEADER_BY_NAV.navDash;
+
+  pageTitle.textContent = conf.title;
+  pageSubtitle.textContent = conf.subtitle;
+}
+
 function setNavActive(btn) {
   document.querySelectorAll(".navItem").forEach(x => x.classList.remove("isActive"));
   btn?.classList.add("isActive");
+  syncPageHeader(btn);
 }
 
 function focusWishlistQuickAdd() {

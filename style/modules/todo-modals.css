@@ -58,15 +58,23 @@
   position: fixed;
   inset: 0;
   background: var(--overlay-dark);
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
   z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--motion-base) var(--motion-ease), visibility 0s linear var(--motion-base);
 }
 
-.modalOverlay.isOpen {
-  display: flex;
+.modalOverlay.isOpen,
+.modalOverlay[aria-hidden="false"] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
 }
 
 .modal {
@@ -76,6 +84,15 @@
   border-radius: 12px;
   box-shadow: 0 18px 50px var(--overlay-dark);
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(10px) scale(0.99);
+  transition: transform var(--motion-base) var(--motion-ease), opacity var(--motion-base) var(--motion-ease);
+}
+
+.modalOverlay.isOpen .modal,
+.modalOverlay[aria-hidden="false"] .modal {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .modalTop {
@@ -90,7 +107,8 @@
   font-weight: 700;
 }
 
-.modalClose {
+.modalClose,
+.modalX {
   width: 34px;
   height: 34px;
   border-radius: 10px;
@@ -100,10 +118,23 @@
   cursor: pointer;
   font-size: 20px;
   line-height: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: border-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
 }
 
-.modalClose:hover {
+.modalClose:hover,
+.modalX:hover {
   border-color: var(--border-hover);
+}
+
+.modalClose:focus-visible,
+.modalX:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .modalBody {
@@ -199,6 +230,7 @@
   grid-template-columns: 1fr 34px;
   align-items: start;
   gap: 10px;
+  animation: itemEnter var(--motion-base) var(--motion-ease) both;
 }
 
 .todoCheck {
@@ -264,6 +296,12 @@
 
 .todoText {
   white-space: normal;
+}
+
+.todoTags {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
 }
 
 .habDel {

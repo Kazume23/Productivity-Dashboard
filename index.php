@@ -52,11 +52,6 @@ if (isset($_GET['register_err'])) {
 <link rel="stylesheet" href="style/theme-ira.css" id="themeStyles" media="not all">
 <link rel="stylesheet" href="style/styletrybjasny1.css" id="themelight" media="not all">
 <link rel="stylesheet" href="style/styletrybrozowy.css" id="themepink" media="not all">
-  <style>
-    .icons { display: flex; align-items: center; gap: 10px; padding: 4px; }
-    .iconBtn { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; }
-    .iconSvg { width: 18px; height: 18px; display: block; }
-  </style>
   <script>
     (() => {
       const key = "edward_theme_v1";
@@ -143,7 +138,7 @@ if (isset($_GET['register_err'])) {
 
           <div class="authActions">
               <?php if ($authUser): ?>
-                <form method="post" action="api/auth.php" style="display:inline;">
+                <form method="post" action="api/auth.php" class="inlineForm">
                   <input type="hidden" name="mode" value="logout">
                   <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES) ?>">
                   <button class="calBtn" type="submit">Wyloguj</button>
@@ -161,7 +156,10 @@ if (isset($_GET['register_err'])) {
 
     <div class="main">
       <div class="topbar">
-        <div class="title"></div>
+        <div class="titleWrap">
+          <div class="title" id="pageTitle">Dashboard</div>
+          <div class="titleMeta" id="pageSubtitle">Przegląd dnia i postępów</div>
+        </div>
           <div class="icons">
             <button class="icon iconBtn" id="langBtn" type="button" title="Zmień język">
               <svg class="iconSvg" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -321,9 +319,9 @@ if (isset($_GET['register_err'])) {
                 <div class="panelBody">
                   <div class="expHeader">
                     <div class="expSummary" id="expSummary">Suma: 0,00 zł</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                      <label class="modalLabel" for="expFilterCategory" style="font-size: 12px; opacity: 0.85; margin: 0;">Filtruj:</label>
-                      <select class="modalInput" id="expFilterCategory" style="flex: 0 0 auto; min-width: 150px; font-size: 12px; padding: 6px 10px;">
+                    <div class="expFilterRow">
+                      <label class="modalLabel expFilterLabel" for="expFilterCategory">Filtruj:</label>
+                      <select class="modalInput expFilterSelect" id="expFilterCategory">
                         <option value="">Wszystkie</option>
                         <option value="Jedzenie">Jedzenie</option>
                         <option value="Transport">Transport</option>
@@ -384,9 +382,9 @@ if (isset($_GET['register_err'])) {
                     <button class="habBtn" id="wishAdd" type="button">Dodaj</button>
                   </div>
 
-                  <div class="wishHeader" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                    <label class="modalLabel" for="wishSort" style="font-size: 12px; opacity: 0.85; margin: 0;">Sortuj:</label>
-                    <select class="modalInput" id="wishSort" style="flex: 0 0 auto; min-width: 180px; font-size: 12px; padding: 6px 10px;">
+                  <div class="wishHeader">
+                    <label class="modalLabel wishSortLabel" for="wishSort">Sortuj:</label>
+                    <select class="modalInput wishSortSelect" id="wishSort">
                       <option value="date-desc">Data (najnowsze)</option>
                       <option value="date-asc">Data (najstarsze)</option>
                       <option value="price-asc">Cena (rosnąco)</option>
@@ -559,7 +557,7 @@ if (isset($_GET['register_err'])) {
           <input class="modalInput" id="loginPass" name="password" type="password" value="" required>
 
           <?php if ($loginErr): ?>
-            <div class="authError" style="margin-top:10px;"><?= htmlspecialchars($loginErr, ENT_QUOTES, 'UTF-8') ?></div>
+            <div class="authError"><?= htmlspecialchars($loginErr, ENT_QUOTES, 'UTF-8') ?></div>
           <?php endif; ?>
 
           <div class="modalActions">

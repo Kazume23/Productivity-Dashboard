@@ -103,9 +103,7 @@ function renderTodos() {
     textBox.appendChild(meta);
 
     const tagsBox = document.createElement("div");
-    tagsBox.style.display = "flex";
-    tagsBox.style.gap = "6px";
-    tagsBox.style.marginTop = "4px";
+    tagsBox.className = "todoTags";
     tagsBox.appendChild(priorityTag);
     textBox.appendChild(tagsBox);
 

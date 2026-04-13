@@ -47,6 +47,7 @@
   border-radius: 8px;
   padding: 8px 12px;
   cursor: pointer;
+  transition: border-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
 }
 
 .habBtn:hover {
@@ -62,7 +63,7 @@
 .habTable {
   width: 100%;
   border-collapse: collapse;
-  min-width: 720px;
+  min-width: 680px;
 }
 
 .habTable thead th {
@@ -78,6 +79,10 @@
 .thHabit {
   text-align: left;
   width: 280px;
+}
+
+.thDel {
+  width: 44px;
 }
 
 .thDay {
@@ -104,6 +109,7 @@
   background: var(--bg-control);
   border: 1px solid transparent;
   min-width: 200px;
+  transition: border-color var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
 }
 
 .habitName:focus {
@@ -122,10 +128,15 @@
   border: 1px solid var(--border-cell);
   background: transparent;
   cursor: pointer;
+  transition: border-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
 }
 
 .cellBtn:hover {
   border-color: var(--border-cell-hover);
+}
+
+.cellBtn:active {
+  transform: scale(0.94);
 }
 
 .cellDone {
@@ -136,5 +147,39 @@
 .cellFail {
   background: var(--danger);
   border-color: var(--danger);
+}
+
+@media (max-width: 1260px) {
+  .thHabit {
+    width: 240px;
+  }
+
+  .habInput {
+    width: 200px;
+  }
+
+  .habitName {
+    min-width: 170px;
+  }
+
+  .habTable {
+    min-width: 620px;
+  }
+}
+
+@media (max-width: 980px) {
+  .habHeader {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .habAdd {
+    width: 100%;
+  }
+
+  .habInput {
+    width: 100%;
+    flex: 1;
+  }
 }
 

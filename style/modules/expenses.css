@@ -11,6 +11,26 @@
   opacity: 0.9;
 }
 
+.expFilterRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.expFilterLabel {
+  font-size: 12px;
+  opacity: 0.85;
+  margin: 0;
+}
+
+.expFilterSelect {
+  flex: 0 0 auto;
+  min-width: 150px;
+  font-size: 12px;
+  padding: 6px 10px;
+}
+
 .expOnlyDay {
   display: flex;
   align-items: center;
@@ -23,16 +43,20 @@
 .expForm {
   display: grid;
   grid-template-columns:
-    120px      /* kwota */
-    1.2fr      /* co kupione */
-    140px      /* kategoria */
-    220px      /* A/B/C/D */
-    150px      /* okres */
-    150px      /* data */
-    90px;      /* dodaj */
+    minmax(96px, 120px)
+    minmax(180px, 1.2fr)
+    minmax(132px, 0.9fr)
+    minmax(180px, 1.1fr)
+    minmax(126px, 0.9fr)
+    minmax(126px, 0.9fr)
+    90px;
   gap: 10px;
   align-items: center;
   margin-bottom: 12px;
+}
+
+.expForm > * {
+  min-width: 0;
 }
 
 .expItem {
@@ -43,9 +67,10 @@
   border: 1px solid var(--border-base);
 
   display: grid;
-  grid-template-columns: 120px 1fr 160px 260px 90px 34px;
+  grid-template-columns: minmax(96px, 120px) minmax(160px, 1fr) minmax(120px, 150px) minmax(180px, 220px) minmax(96px, 130px) 34px;
   gap: 10px;
   align-items: start;
+  animation: itemEnter var(--motion-base) var(--motion-ease) both;
 }
 
 .expAmt {
@@ -90,9 +115,85 @@
   justify-content: center;
   line-height: 1;
   padding: 0;
+  transition: border-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
 }
 
 .expDel:hover {
   border-color: var(--danger);
+}
+
+.expDel:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 1500px) {
+  .expForm {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .expForm #expAdd {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 1260px) {
+  .expHeader {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .expForm {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .expForm #expAdd {
+    grid-column: span 3;
+  }
+
+  .expItem {
+    grid-template-columns: minmax(96px, 110px) minmax(0, 1fr) auto;
+  }
+
+  .expItem > :nth-child(3),
+  .expItem > :nth-child(4),
+  .expItem > :nth-child(5) {
+    grid-column: 2;
+  }
+
+  .expItem > :nth-child(6) {
+    grid-column: 3;
+    grid-row: 1 / span 3;
+  }
+}
+
+@media (max-width: 980px) {
+  .expForm {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .expForm #expAdd {
+    grid-column: span 2;
+  }
+
+  .expFilterSelect {
+    min-width: 132px;
+  }
+
+  .expItem {
+    grid-template-columns: 1fr auto;
+  }
+
+  .expItem > :nth-child(1),
+  .expItem > :nth-child(2),
+  .expItem > :nth-child(3),
+  .expItem > :nth-child(4),
+  .expItem > :nth-child(5) {
+    grid-column: 1;
+  }
+
+  .expItem > :nth-child(6) {
+    grid-column: 2;
+    grid-row: 1 / span 5;
+  }
 }
 
