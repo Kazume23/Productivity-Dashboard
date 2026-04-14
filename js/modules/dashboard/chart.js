@@ -111,103 +111,275 @@ function computeChartStats() {
   return { start, end, daysCount, totalCells, done, fail, empty, coverage, donePerDay, failPerDay, perHabit };
 }
 
-function renderDonut(done, fail, empty) {
-  const total = done + fail + empty;
+let habitsBalanceChart = null;
+let habitsBarChart = null;
+let habitsCompareChart = null;
 
-  if (!chartSvg) return;
+function chartCssVar(name, fallback) {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return v || fallback;
+}
 
-  chartSvg.innerHTML = "";
+function clearCanvas(canvas) {
+  const ctx = canvas?.getContext?.("2d");
+  if (!ctx) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
 
-  const ns = "http://www.w3.org/2000/svg";
+function destroyChartInstance(instance) {
+  if (!instance) return null;
+  instance.destroy();
+  return null;
+}
 
-  const pctDone = total > 0 ? Math.round((done / total) * 100) : 0;
-  const pctFail = total > 0 ? Math.round((fail / total) * 100) : 0;
-  const pctEmpty = Math.max(0, 100 - pctDone - pctFail);
-  const decided = done + fail;
-  const decidedRate = decided > 0 ? Math.round((done / decided) * 100) : 0;
+function chartTooltipLabel(context) {
+  const value = Number(context.raw) || 0;
+  return `${context.dataset.label}: ${value}`;
+}
 
-  const header = document.createElementNS(ns, "text");
-  header.setAttribute("x", "110");
-  header.setAttribute("y", "36");
-  header.setAttribute("text-anchor", "middle");
-  header.classList.add("chart-headline");
-  header.textContent = `${decidedRate}%`;
-  chartSvg.appendChild(header);
+function statsForRange(start, end) {
+  const habits = state.habits || [];
+  const totalDays = Math.max(1, Math.floor((startOfDay(end) - startOfDay(start)) / 86400000) + 1);
+  const totalCells = habits.length * totalDays;
 
-  const sub = document.createElementNS(ns, "text");
-  sub.setAttribute("x", "110");
-  sub.setAttribute("y", "52");
-  sub.setAttribute("text-anchor", "middle");
-  sub.classList.add("chart-subline");
-  sub.textContent = decided > 0 ? `wykonane z ${decided} decyzji` : "brak decyzji w zakresie";
-  chartSvg.appendChild(sub);
+  let done = 0;
+  let fail = 0;
 
-  const trackX = 18;
-  const trackY = 72;
-  const trackW = 184;
-  const trackH = 18;
-
-  const track = document.createElementNS(ns, "rect");
-  track.setAttribute("x", String(trackX));
-  track.setAttribute("y", String(trackY));
-  track.setAttribute("width", String(trackW));
-  track.setAttribute("height", String(trackH));
-  track.setAttribute("rx", "9");
-  track.classList.add("chart-stack-track");
-  chartSvg.appendChild(track);
-
-  let start = trackX;
-  const segs = [
-    { pct: pctDone, cls: "done" },
-    { pct: pctFail, cls: "fail" },
-    { pct: pctEmpty, cls: "empty" }
-  ];
-
-  for (const seg of segs) {
-    const rawW = total > 0 ? Math.round((seg.pct / 100) * trackW) : 0;
-    if (rawW <= 0) continue;
-
-    const rect = document.createElementNS(ns, "rect");
-    rect.setAttribute("x", String(start));
-    rect.setAttribute("y", String(trackY));
-    rect.setAttribute("width", String(rawW));
-    rect.setAttribute("height", String(trackH));
-    rect.classList.add("chart-stack-seg", seg.cls);
-    chartSvg.appendChild(rect);
-
-    start += rawW;
+  for (let i = 0; i < totalDays; i++) {
+    const iso = toISO(addDays(start, i));
+    for (const h of habits) {
+      const v = getEntryValue(h.id, iso);
+      if (v === 1) done += 1;
+      else if (v === -1) fail += 1;
+    }
   }
 
-  const rows = [
-    { label: "Wykonane", value: done, pct: pctDone, cls: "done" },
-    { label: "Zawalone", value: fail, pct: pctFail, cls: "fail" },
-    { label: "Puste", value: empty, pct: pctEmpty, cls: "empty" }
-  ];
+  const empty = Math.max(0, totalCells - done - fail);
+  const decided = done + fail;
+  const rate = decided > 0 ? Math.round((done / decided) * 100) : 0;
 
-  rows.forEach((row, i) => {
-    const y = 118 + i * 30;
+  return { done, fail, empty, totalCells, decided, rate };
+}
 
-    const dot = document.createElementNS(ns, "circle");
-    dot.setAttribute("cx", "24");
-    dot.setAttribute("cy", String(y - 5));
-    dot.setAttribute("r", "4");
-    dot.classList.add("chart-legend-dot", row.cls);
-    chartSvg.appendChild(dot);
+function getHabitPeriodComparisons() {
+  const selected = getSelectedDateObj();
 
-    const label = document.createElementNS(ns, "text");
-    label.setAttribute("x", "34");
-    label.setAttribute("y", String(y - 1));
-    label.classList.add("chart-legend-label");
-    label.textContent = row.label;
-    chartSvg.appendChild(label);
+  const weekStart = startOfWeekMonday(selected);
+  const weekEnd = addDays(weekStart, 6);
+  const prevWeekStart = addDays(weekStart, -7);
+  const prevWeekEnd = addDays(weekStart, -1);
 
-    const value = document.createElementNS(ns, "text");
-    value.setAttribute("x", "204");
-    value.setAttribute("y", String(y - 1));
-    value.setAttribute("text-anchor", "end");
-    value.classList.add("chart-legend-value");
-    value.textContent = `${row.value} (${row.pct}%)`;
-    chartSvg.appendChild(value);
+  const monthStart = new Date(selected.getFullYear(), selected.getMonth(), 1);
+  const monthEnd = new Date(selected.getFullYear(), selected.getMonth() + 1, 0);
+  const prevMonthStart = new Date(selected.getFullYear(), selected.getMonth() - 1, 1);
+  const prevMonthEnd = new Date(selected.getFullYear(), selected.getMonth(), 0);
+
+  const weekCurrent = statsForRange(weekStart, weekEnd);
+  const weekPrevious = statsForRange(prevWeekStart, prevWeekEnd);
+  const monthCurrent = statsForRange(monthStart, monthEnd);
+  const monthPrevious = statsForRange(prevMonthStart, prevMonthEnd);
+
+  const weekDelta = weekCurrent.rate - weekPrevious.rate;
+  const monthDelta = monthCurrent.rate - monthPrevious.rate;
+
+  return {
+    weekCurrent,
+    weekPrevious,
+    monthCurrent,
+    monthPrevious,
+    weekDelta,
+    monthDelta
+  };
+}
+
+function renderBalanceChart(done, fail, empty) {
+  if (!chartCanvas || typeof Chart === "undefined") {
+    habitsBalanceChart = destroyChartInstance(habitsBalanceChart);
+    clearCanvas(chartCanvas);
+    return;
+  }
+
+  const doneColor = chartCssVar("--habit-done", "#24b36b");
+  const failColor = chartCssVar("--habit-fail", "#ef3d63");
+  const emptyColor = chartCssVar("--chart-empty", "#c2c7d2");
+
+  habitsBalanceChart = destroyChartInstance(habitsBalanceChart);
+  habitsBalanceChart = new Chart(chartCanvas, {
+    type: "doughnut",
+    data: {
+      labels: ["Wykonane", "Zawalone", "Puste"],
+      datasets: [{
+        label: "Bilans",
+        data: [done, fail, empty],
+        backgroundColor: [doneColor, failColor, emptyColor],
+        borderColor: chartCssVar("--bg-panel", "#ffffff"),
+        borderWidth: 2,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      resizeDelay: 120,
+      cutout: "70%",
+      animation: {
+        duration: 560,
+        easing: "easeOutQuart"
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: chartTooltipLabel }
+        }
+      }
+    }
+  });
+}
+
+function renderHabitBars(stats) {
+  if (!habitsBarChartCanvas || typeof Chart === "undefined") {
+    habitsBarChart = destroyChartInstance(habitsBarChart);
+    clearCanvas(habitsBarChartCanvas);
+    return;
+  }
+
+  const labels = (stats.perHabit || []).map(h => h.name || "Nawyk");
+  if (!labels.length) {
+    habitsBarChart = destroyChartInstance(habitsBarChart);
+    clearCanvas(habitsBarChartCanvas);
+    return;
+  }
+
+  const doneSeries = stats.perHabit.map(h => h.donePct);
+  const failSeries = stats.perHabit.map(h => h.failPct);
+  const emptySeries = stats.perHabit.map(h => Math.max(0, 100 - h.donePct - h.failPct));
+
+  habitsBarChart = destroyChartInstance(habitsBarChart);
+  habitsBarChart = new Chart(habitsBarChartCanvas, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Wykonane %",
+          data: doneSeries,
+          backgroundColor: chartCssVar("--habit-done", "#24b36b"),
+          borderRadius: 6,
+          borderSkipped: false,
+          stack: "habitPct"
+        },
+        {
+          label: "Zawalone %",
+          data: failSeries,
+          backgroundColor: chartCssVar("--habit-fail", "#ef3d63"),
+          borderRadius: 6,
+          borderSkipped: false,
+          stack: "habitPct"
+        },
+        {
+          label: "Puste %",
+          data: emptySeries,
+          backgroundColor: chartCssVar("--chart-empty", "#c2c7d2"),
+          borderRadius: 6,
+          borderSkipped: false,
+          stack: "habitPct"
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      resizeDelay: 120,
+      indexAxis: "y",
+      animation: {
+        duration: 420,
+        easing: "easeOutQuart"
+      },
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: { boxWidth: 10 }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          max: 100,
+          ticks: {
+            callback: (v) => `${v}%`
+          },
+          grid: { color: chartCssVar("--glass-10", "rgba(0,0,0,0.08)") }
+        },
+        y: {
+          stacked: true,
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function renderHabitCompareChart() {
+  if (!habitsCompareChartCanvas || typeof Chart === "undefined") {
+    habitsCompareChart = destroyChartInstance(habitsCompareChart);
+    clearCanvas(habitsCompareChartCanvas);
+    return;
+  }
+
+  const cmp = getHabitPeriodComparisons();
+  const current = [cmp.weekCurrent.rate, cmp.monthCurrent.rate];
+  const previous = [cmp.weekPrevious.rate, cmp.monthPrevious.rate];
+
+  habitsCompareChart = destroyChartInstance(habitsCompareChart);
+  habitsCompareChart = new Chart(habitsCompareChartCanvas, {
+    type: "bar",
+    data: {
+      labels: ["Tydzień", "Miesiąc"],
+      datasets: [
+        {
+          label: "Aktualny zakres",
+          data: current,
+          backgroundColor: chartCssVar("--accent", "#2f9dff"),
+          borderRadius: 8,
+          borderSkipped: false
+        },
+        {
+          label: "Poprzedni zakres",
+          data: previous,
+          backgroundColor: chartCssVar("--glass-10", "rgba(0,0,0,0.18)"),
+          borderRadius: 8,
+          borderSkipped: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      resizeDelay: 120,
+      animation: {
+        duration: 420,
+        easing: "easeOutQuart"
+      },
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: { boxWidth: 10 }
+        }
+      },
+      scales: {
+        y: {
+          min: 0,
+          max: 100,
+          ticks: {
+            callback: (v) => `${v}%`
+          },
+          grid: { color: chartCssVar("--glass-10", "rgba(0,0,0,0.08)") }
+        },
+        x: {
+          grid: { display: false }
+        }
+      }
+    }
   });
 }
 
@@ -232,7 +404,9 @@ function renderChart() {
   }
 
   syncChartTabs();
-  renderDonut(s.done, s.fail, s.empty);
+  renderBalanceChart(s.done, s.fail, s.empty);
+  renderHabitBars(s);
+  renderHabitCompareChart();
 
   if (typeof renderOverviewPanels === "function") renderOverviewPanels();
 }

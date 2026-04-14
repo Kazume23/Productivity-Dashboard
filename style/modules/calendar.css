@@ -126,3 +126,80 @@
   }
 }
 
+.calDay {
+  padding: 6px 7px;
+  align-items: flex-start;
+  justify-items: start;
+}
+
+.calDayNum {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.calDayBadges {
+  margin-top: auto;
+  width: 100%;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.calBadge {
+  height: 14px;
+  min-width: 14px;
+  border-radius: 999px;
+  padding: 0 4px;
+  border: 1px solid transparent;
+  font-size: 9px;
+  line-height: 12px;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.calBadge.todo {
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 42%, transparent);
+  color: var(--text-primary);
+}
+
+.calBadge.done {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 44%, transparent);
+  color: var(--text-primary);
+}
+
+.calBadge.fail {
+  background: color-mix(in srgb, var(--danger) 26%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 48%, transparent);
+  color: var(--text-primary);
+}
+
+.calBadge.money {
+  background: color-mix(in srgb, #f08b3e 24%, transparent);
+  border-color: color-mix(in srgb, #f08b3e 52%, transparent);
+  color: var(--text-primary);
+}
+
+.calLevel0 {
+  background: var(--bg-control);
+}
+
+.calLevel1 {
+  background: color-mix(in srgb, var(--accent) 5%, var(--bg-control));
+}
+
+.calLevel2 {
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-control));
+}
+
+.calLevel3 {
+  background: color-mix(in srgb, var(--accent) 11%, var(--bg-control));
+}
+
+.calLevel4 {
+  background: color-mix(in srgb, var(--accent) 14%, var(--bg-control));
+}
+

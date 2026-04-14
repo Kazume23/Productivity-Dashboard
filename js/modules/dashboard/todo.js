@@ -31,6 +31,7 @@ function addTodo(dateISO, text, priority) {
     text: t,
     priority: priority || "medium",
     done: false,
+    doneAt: 0,
     createdAt: Date.now()
   });
 
@@ -43,7 +44,13 @@ function addTodo(dateISO, text, priority) {
 function toggleTodo(id) {
   const it = state.todos.find(x => x.id === id);
   if (!it) return;
-  it.done = !it.done;
+  if (it.done) {
+    it.done = false;
+    it.doneAt = 0;
+  } else {
+    it.done = true;
+    it.doneAt = Date.now();
+  }
   saveState();
   renderTodos();
 }

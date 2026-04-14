@@ -35,6 +35,8 @@ const NAV_BY_VIEW = {
 
 const VALID_VIEWS = ["dashboard", "habits", "todo", "expenses", "wishlist"];
 let ignoreNextHashChange = false;
+let dashProductivityChart = null;
+let dashSpendTrendChart = null;
 
 function syncPageHeader(navBtn) {
   const navId = navBtn?.id || "navDash";
@@ -84,7 +86,6 @@ function setView(viewName, opts = {}) {
   closeSidebarDrawer();
 
   if (skipRender) {
-    renderOverviewPanels();
     return;
   }
 
@@ -280,6 +281,202 @@ function getWishlistStats() {
   };
 }
 
+function dashboardCssVar(name, fallback) {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return v || fallback;
+}
+
+function destroyDashboardChart(instance) {
+  if (!instance) return null;
+  instance.destroy();
+  return null;
+}
+
+function clearDashboardCanvas(canvas) {
+  const ctx = canvas?.getContext?.("2d");
+  if (!ctx) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function buildDashboardTrendSeries(days = 14) {
+  const selected = getSelectedDateObj();
+  const labels = [];
+  const todoDoneSeries = [];
+  const habitDoneSeries = [];
+  const habitFailSeries = [];
+  const expenseSeries = [];
+
+  const todoDoneByDate = {};
+  for (const it of (state.todos || [])) {
+    if (!it.done) continue;
+    const doneIso = it.doneAt > 0 ? toISO(new Date(it.doneAt)) : it.dateISO;
+    if (!doneIso) continue;
+    todoDoneByDate[doneIso] = (todoDoneByDate[doneIso] || 0) + 1;
+  }
+
+  const habitDoneByDate = {};
+  const habitFailByDate = {};
+  for (const [key, v] of Object.entries(state.entries || {})) {
+    const parts = key.split("|");
+    if (parts.length !== 2) continue;
+    const iso = parts[1];
+    if (v === 1) habitDoneByDate[iso] = (habitDoneByDate[iso] || 0) + 1;
+    else if (v === -1) habitFailByDate[iso] = (habitFailByDate[iso] || 0) + 1;
+  }
+
+  const expenseByDate = {};
+  for (const it of (state.expenses || [])) {
+    if (!it?.dateISO) continue;
+    expenseByDate[it.dateISO] = (expenseByDate[it.dateISO] || 0) + (Number(it.amount) || 0);
+  }
+
+  for (let i = days - 1; i >= 0; i--) {
+    const day = addDays(selected, -i);
+    const iso = toISO(day);
+    labels.push(`${pad2(day.getDate())}.${pad2(day.getMonth() + 1)}`);
+    todoDoneSeries.push(todoDoneByDate[iso] || 0);
+    habitDoneSeries.push(habitDoneByDate[iso] || 0);
+    habitFailSeries.push(habitFailByDate[iso] || 0);
+    expenseSeries.push(Number((expenseByDate[iso] || 0).toFixed(2)));
+  }
+
+  return {
+    labels,
+    todoDoneSeries,
+    habitDoneSeries,
+    habitFailSeries,
+    expenseSeries,
+    totalTodoDone: todoDoneSeries.reduce((a, b) => a + b, 0),
+    totalHabitDone: habitDoneSeries.reduce((a, b) => a + b, 0),
+    totalHabitFail: habitFailSeries.reduce((a, b) => a + b, 0)
+  };
+}
+
+function pctDeltaText(delta) {
+  const n = Number(delta) || 0;
+  if (n > 0) return `+${n}%`;
+  return `${n}%`;
+}
+
+function renderDashboardCharts(series) {
+  const canChart = typeof Chart !== "undefined";
+
+  if (!canChart) {
+    dashProductivityChart = destroyDashboardChart(dashProductivityChart);
+    dashSpendTrendChart = destroyDashboardChart(dashSpendTrendChart);
+    clearDashboardCanvas(dashProductivityChartCanvas);
+    clearDashboardCanvas(dashSpendTrendChartCanvas);
+    return;
+  }
+
+  if (dashProductivityChartCanvas) {
+    dashProductivityChart = destroyDashboardChart(dashProductivityChart);
+    dashProductivityChart = new Chart(dashProductivityChartCanvas, {
+      type: "bar",
+      data: {
+        labels: series.labels,
+        datasets: [
+          {
+            label: "Nawyki wykonane",
+            data: series.habitDoneSeries,
+            backgroundColor: dashboardCssVar("--habit-done", "#2ea84f"),
+            borderRadius: 6,
+            borderSkipped: false,
+            stack: "habits"
+          },
+          {
+            label: "Nawyki zawalone",
+            data: series.habitFailSeries,
+            backgroundColor: dashboardCssVar("--habit-fail", "#e5484d"),
+            borderRadius: 6,
+            borderSkipped: false,
+            stack: "habits"
+          },
+          {
+            label: "Domknięte ToDo",
+            data: series.todoDoneSeries,
+            type: "line",
+            yAxisID: "yTodo",
+            borderColor: "#33b59f",
+            backgroundColor: "rgba(51, 181, 159, 0.16)",
+            pointRadius: 2,
+            pointHoverRadius: 4,
+            tension: 0.35,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 520,
+          easing: "easeOutQuart"
+        },
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: { boxWidth: 10 }
+          }
+        },
+        scales: {
+          x: {
+            stacked: true,
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            stacked: true,
+            grid: { color: dashboardCssVar("--glass-10", "rgba(0,0,0,0.08)") }
+          },
+          yTodo: {
+            beginAtZero: true,
+            position: "right",
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  if (dashSpendTrendChartCanvas) {
+    dashSpendTrendChart = destroyDashboardChart(dashSpendTrendChart);
+    dashSpendTrendChart = new Chart(dashSpendTrendChartCanvas, {
+      type: "line",
+      data: {
+        labels: series.labels,
+        datasets: [{
+          label: "Wydatki",
+          data: series.expenseSeries,
+          borderColor: "#f08b3e",
+          backgroundColor: "rgba(240, 139, 62, 0.20)",
+          fill: true,
+          pointRadius: 0,
+          pointHoverRadius: 3,
+          tension: 0.34
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (v) => `${v} zł`
+            },
+            grid: { color: dashboardCssVar("--glass-10", "rgba(0,0,0,0.08)") }
+          }
+        }
+      }
+    });
+  }
+}
+
 function renderDashboardTodoPreview(items) {
   const listEl = $("dashboardTodoList");
   const emptyEl = $("dashboardTodoEmpty");
@@ -375,7 +572,7 @@ function buildRecentActivity() {
   }
 
   out.sort((a, b) => b.at - a.at);
-  return out.slice(0, 8);
+  return out.slice(0, 3);
 }
 
 function renderActivityPreview() {
@@ -414,6 +611,13 @@ function renderActivityPreview() {
     item.appendChild(meta);
     listEl.appendChild(item);
   }
+
+  const moreBtn = document.createElement("button");
+  moreBtn.type = "button";
+  moreBtn.className = "calBtn dashActivityMoreBtn";
+  moreBtn.textContent = "Więcej w ToDo";
+  moreBtn.addEventListener("click", () => setView("todo"));
+  listEl.appendChild(moreBtn);
 }
 
 function renderOverviewPanels() {
@@ -508,6 +712,23 @@ function renderOverviewPanels() {
   const dashWishlistBudget = $("dashWishlistBudget");
   if (dashWishlistCount) dashWishlistCount.textContent = String(wishStats.itemsCount);
   if (dashWishlistBudget) dashWishlistBudget.textContent = moneyPL(wishStats.total);
+
+  const trendSeries = buildDashboardTrendSeries(14);
+  const dashProductivityDone = $("dashProductivityDone");
+  const dashProductivityHabits = $("dashProductivityHabits");
+  const dashProductivityFail = $("dashProductivityFail");
+  const dashCompareWeek = $("dashCompareWeek");
+  const dashCompareMonth = $("dashCompareMonth");
+
+  if (dashProductivityDone) dashProductivityDone.textContent = String(trendSeries.totalTodoDone);
+  if (dashProductivityHabits) dashProductivityHabits.textContent = String(trendSeries.totalHabitDone);
+  if (dashProductivityFail) dashProductivityFail.textContent = String(trendSeries.totalHabitFail);
+
+  if (typeof getHabitPeriodComparisons === "function") {
+    const cmp = getHabitPeriodComparisons();
+    if (dashCompareWeek) dashCompareWeek.textContent = pctDeltaText(cmp.weekDelta);
+    if (dashCompareMonth) dashCompareMonth.textContent = pctDeltaText(cmp.monthDelta);
+  }
 
   const habitsKpiDone = $("habitsKpiDone");
   const habitsKpiFail = $("habitsKpiFail");
@@ -618,6 +839,7 @@ function renderOverviewPanels() {
   if (wishKpiBudget) wishKpiBudget.textContent = moneyPL(wishStats.total);
   if (wishKpiAvg) wishKpiAvg.textContent = moneyPL(wishStats.avg);
 
+  renderDashboardCharts(trendSeries);
   renderDashboardTodoPreview(todoStats.preview);
   renderActivityPreview();
 }
@@ -701,6 +923,31 @@ function initMobileDrawer() {
   });
 }
 
+function addDashboardQuickTodo() {
+  const text = String(dashQuickTodoText?.value || "").trim();
+  if (!text || typeof addTodo !== "function") {
+    if (dashQuickHint) {
+      dashQuickHint.textContent = "Wpisz treść zadania, aby dodać szybkie ToDo.";
+      dashQuickHint.classList.add("isError");
+    }
+    return;
+  }
+
+  const priority = dashQuickTodoPriority?.value || "medium";
+  addTodo(state.selectedDate, text, priority);
+
+  if (dashQuickTodoText) dashQuickTodoText.value = "";
+  if (dashQuickTodoPriority) {
+    dashQuickTodoPriority.value = "medium";
+    syncCustomSelect(dashQuickTodoPriority);
+  }
+
+  if (dashQuickHint) {
+    dashQuickHint.textContent = "ToDo dodane do aktywnego dnia.";
+    dashQuickHint.classList.remove("isError");
+  }
+}
+
 function initOverviewActions() {
   $("heroOpenTodo")?.addEventListener("click", () => setView("todo"));
   $("heroOpenHabits")?.addEventListener("click", () => setView("habits"));
@@ -713,6 +960,13 @@ function initOverviewActions() {
   $("dashGoWishlistBtn")?.addEventListener("click", () => setView("wishlist"));
   $("dashAddTodoBtn")?.addEventListener("click", () => openTodoModal(getSelectedDateObj()));
   $("todoQuickAddBtn")?.addEventListener("click", () => openTodoModal(getSelectedDateObj()));
+  dashQuickTodoAdd?.addEventListener("click", addDashboardQuickTodo);
+  dashQuickTodoText?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") addDashboardQuickTodo();
+  });
+  dashQuickTodoText?.addEventListener("input", () => {
+    dashQuickHint?.classList.remove("isError");
+  });
 
   window.addEventListener("hashchange", () => {
     if (ignoreNextHashChange) {
@@ -782,43 +1036,48 @@ initOverviewActions();
 
 initTheme();
 
+const initialView = getViewFromHash();
+setView(initialView, { updateHash: false, skipRender: true });
+
 (async () => {
-  if (AUTH_USER) {
-    const hasUserState = !!readUserState(AUTH_USER);
-
-    if (!hasUserState) {
-      importAnonStateToUserStorage(AUTH_USER, { overwrite: false });
-    }
-
-    if (REGISTER_OK && window.history?.replaceState) {
-      const cleanUrl = window.location.pathname + window.location.hash;
-      window.history.replaceState({}, document.title, cleanUrl);
-    }
-  }
-
   try {
-    await bootstrapFromServer();
-  } catch (error) {
-    console.error("bootstrapFromServer failed:", error);
+    if (AUTH_USER) {
+      const hasUserState = !!readUserState(AUTH_USER);
+
+      if (!hasUserState) {
+        importAnonStateToUserStorage(AUTH_USER, { overwrite: false });
+      }
+
+      if (REGISTER_OK && window.history?.replaceState) {
+        const cleanUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
+    }
+
+    try {
+      await bootstrapFromServer();
+    } catch (error) {
+      console.error("bootstrapFromServer failed:", error);
+    }
+
+    ensureWishlist();
+    ensurePomodoro();
+    pomoRestoreRunning();
+
+    initAuth();
+    initCalendar();
+    initHabits();
+    initTodo();
+    initExpenses();
+    initChart();
+    initWishlist();
+    initPomodoro();
+
+    initCustomSelects();
+
+    renderAll();
+    flushServerSync("boot");
+  } finally {
+    document.body.classList.remove("isBooting");
   }
-
-  ensureWishlist();
-  ensurePomodoro();
-  pomoRestoreRunning();
-
-  initAuth();
-  initCalendar();
-  initHabits();
-  initTodo();
-  initExpenses();
-  initChart();
-  initWishlist();
-  initPomodoro();
-
-  initCustomSelects();
-
-  const initialView = getViewFromHash();
-  setView(initialView, { updateHash: false, skipRender: true });
-  renderAll();
-  flushServerSync("boot");
 })();

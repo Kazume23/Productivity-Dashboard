@@ -86,8 +86,8 @@
   border:1px solid var(--border-base);
 }
 
-.legendDot.done{ background:var(--accent); border-color:var(--accent); }
-.legendDot.fail{ background:var(--danger); border-color:var(--danger); }
+.legendDot.done{ background:var(--habit-done); border-color:var(--habit-done); }
+.legendDot.fail{ background:var(--habit-fail); border-color:var(--habit-fail); }
 .legendDot.empty{ background:var(--chart-empty); border-color:var(--chart-empty); }
 
 .chartSmall{
@@ -172,8 +172,8 @@
   border:1px solid var(--border-base);
 }
 
-.chartBadge.done .dot{ background:var(--accent); border-color:var(--accent); }
-.chartBadge.fail .dot{ background:var(--danger); border-color:var(--danger); }
+.chartBadge.done .dot{ background:var(--habit-done); border-color:var(--habit-done); }
+.chartBadge.fail .dot{ background:var(--habit-fail); border-color:var(--habit-fail); }
 
 .chartModalRange{
   font-size:12px;
@@ -202,11 +202,11 @@
 }
 
 .chart-stack-seg.done {
-  fill: var(--accent);
+  fill: var(--habit-done);
 }
 
 .chart-stack-seg.fail {
-  fill: var(--danger);
+  fill: var(--habit-fail);
 }
 
 .chart-stack-seg.empty {
@@ -214,11 +214,11 @@
 }
 
 .chart-legend-dot.done {
-  fill: var(--accent);
+  fill: var(--habit-done);
 }
 
 .chart-legend-dot.fail {
-  fill: var(--danger);
+  fill: var(--habit-fail);
 }
 
 .chart-legend-dot.empty {
@@ -400,14 +400,14 @@ a.iconBtn{
 
 .expList{
   flex: 1 1 auto;
-  min-height: 220px;
-  max-height: min(62vh, 540px);
-  overflow: auto;
-  padding-right: 6px;
-  overscroll-behavior: contain;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+  padding-right: 0;
+  overscroll-behavior: auto;
 
-  scrollbar-width: thin;
-  -ms-overflow-style: none;
+  scrollbar-width: auto;
+  -ms-overflow-style: auto;
 }
 .expList::-webkit-scrollbar{
   width: 8px;
@@ -646,13 +646,7 @@ a.iconBtn{
 }
 
 .dashTodoCard .panelBody {
-  overflow: auto;
-  scrollbar-width: none;
-}
-
-.dashTodoCard .panelBody::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+  overflow: visible;
 }
 
 .todoPreviewList {
@@ -670,6 +664,13 @@ a.iconBtn{
   grid-template-columns: 18px 1fr auto;
   gap: 10px;
   align-items: center;
+  transition: border-color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
+}
+
+.todoPreviewItem:hover {
+  border-color: var(--border-hover);
+  background: color-mix(in srgb, var(--accent) 9%, var(--bg-control));
+  transform: translateY(-1px);
 }
 
 .todoPreviewMain {
@@ -731,6 +732,10 @@ a.iconBtn{
   transition: color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease);
 }
 
+.dashFinanceRow:hover {
+  color: color-mix(in srgb, var(--accent) 78%, var(--text-primary));
+}
+
 .dashFinanceRow:last-of-type {
   border-bottom: none;
 }
@@ -750,8 +755,7 @@ a.iconBtn{
 }
 
 .dashActivityList {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 8px;
 }
 
@@ -760,6 +764,13 @@ a.iconBtn{
   background: var(--bg-control);
   border: 1px solid var(--border-base);
   padding: 9px 10px;
+  transition: border-color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
+}
+
+.dashActivityItem:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 11%, var(--bg-control));
+  transform: translateY(-1px);
 }
 
 .dashActivityText {
@@ -770,6 +781,11 @@ a.iconBtn{
   margin-top: 2px;
   font-size: 11px;
   opacity: 0.68;
+}
+
+.dashActivityMoreBtn {
+  width: 100%;
+  margin-top: 2px;
 }
 
 .dashTodoCard .todoEmpty,
@@ -959,7 +975,7 @@ a.iconBtn{
   }
 
   .expList {
-    max-height: 360px;
+    max-height: none;
   }
 
   .wishHeader{
@@ -1003,6 +1019,162 @@ a.iconBtn{
   .todoInsightGrid,
   .chartKpiGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+.heroPanel {
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in srgb, var(--accent) 14%, transparent);
+  background:
+    radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 46%),
+    linear-gradient(140deg, var(--bg-panel) 0%, color-mix(in srgb, var(--bg-panel) 62%, var(--bg-control)) 46%, var(--bg-control) 100%);
+}
+
+.heroMeta {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.heroTitle {
+  font-family: var(--font-display);
+  font-size: 30px;
+  letter-spacing: -0.02em;
+}
+
+.heroStatus {
+  color: var(--text-muted);
+}
+
+.heroMetric {
+  border-radius: var(--radius-sm);
+  border-color: var(--border-base);
+  background: var(--bg-control);
+}
+
+.heroMetric strong {
+  font-family: var(--font-display);
+}
+
+.summaryCard {
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--bg-panel) 0%, color-mix(in srgb, var(--bg-control) 82%, var(--bg-panel)) 100%);
+}
+
+.summaryRows > div {
+  border-bottom-color: var(--border-row);
+}
+
+.chartWrap {
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.chartCanvas {
+  width: 220px;
+  min-height: 0;
+  height: 220px;
+  max-height: 220px;
+  justify-self: center;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(180deg, var(--bg-control) 0%, color-mix(in srgb, var(--bg-panel) 78%, var(--bg-control)) 100%);
+  border: 1px solid var(--border-base);
+  padding: 8px;
+}
+
+.chartMeta {
+  width: 100%;
+  padding-left: 0;
+  align-self: center;
+}
+
+.chartLegend {
+  gap: 10px;
+}
+
+.legendRow {
+  justify-content: space-between;
+  border: 1px solid var(--border-base);
+  background: var(--bg-control);
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+
+.chartKpi {
+  border-radius: var(--radius-sm);
+}
+
+.habitsInsightsCard {
+  overflow: hidden;
+}
+
+.habitsInsightsBody {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.habitsInsightChart {
+  border: 1px solid var(--border-base);
+  background: var(--bg-control);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.habitsInsightTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.habitsInsightChart canvas {
+  width: 100%;
+  height: clamp(176px, 24vh, 220px);
+  max-height: 220px;
+}
+
+.dashActivityItem,
+.todoPreviewItem,
+.todoInsightRow,
+.wishItem,
+.expCategoryItem {
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 1260px) {
+  .chartWrap {
+    grid-template-columns: 1fr;
+  }
+
+  .chartCanvas {
+    width: min(100%, 300px);
+    height: 220px;
+    max-height: 220px;
+    justify-self: center;
+  }
+
+  .habitsInsightsBody {
+    grid-template-columns: 1fr;
+  }
+
+  .habitsInsightChart canvas {
+    height: 190px;
+  }
+}
+
+@media (max-width: 980px) {
+  .chartMeta {
+    width: 100%;
+  }
+
+  .chartCanvas {
+    width: min(100%, 260px);
+    height: 210px;
+    max-height: 210px;
   }
 }
 

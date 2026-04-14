@@ -241,6 +241,11 @@
   min-height: 0;
   overflow-x: hidden;
   overflow-y: visible;
+  transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+body.isBooting .content {
+  opacity: 0;
 }
 
 .view {
@@ -306,7 +311,13 @@
 
 .expensesModuleGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.35fr) minmax(240px, 0.6fr);
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.92fr);
+  gap: 14px;
+  align-content: start;
+}
+
+.expensesMainCol {
+  display: grid;
   gap: 14px;
   align-content: start;
 }
@@ -553,11 +564,7 @@
   }
 
   .expensesModuleGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .expBreakdownCard {
-    grid-column: 1 / -1;
+    grid-template-columns: 1fr;
   }
 
   .wishlistModuleGrid {
@@ -712,6 +719,277 @@
 
   #ghBtn {
     display: none;
+  }
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.logoText {
+  font-family: var(--font-display);
+  letter-spacing: 0.6px;
+}
+
+.box,
+.tableBox,
+.bottomBox {
+  border-radius: var(--radius-md);
+  border-color: var(--surface-stroke);
+}
+
+.viewDashboard.isActive .box:not(.topA):hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-panel);
+  transform: translateY(-2px);
+}
+
+.viewDashboard.isActive {
+  grid-template-columns: minmax(0, 1.48fr) minmax(360px, 0.92fr);
+  gap: 16px;
+}
+
+.heroPanel,
+.summaryStrip {
+  grid-column: 1 / -1;
+}
+
+.summaryStrip {
+  gap: 14px;
+}
+
+.dashMainGrid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-auto-rows: minmax(190px, max-content);
+  gap: 16px;
+  align-items: start;
+}
+
+.dashCalendarCard {
+  grid-column: 1;
+  min-height: 400px;
+}
+
+.dashQuickCard {
+  grid-column: 2;
+  min-height: 0;
+  align-self: start;
+}
+
+.dashTodoCard {
+  grid-column: 1 / -1;
+  min-height: 230px;
+  max-height: none;
+}
+
+.dashSideGrid {
+  grid-template-columns: 1fr;
+  grid-auto-rows: minmax(160px, max-content);
+  gap: 14px;
+  align-content: start;
+  align-items: start;
+}
+
+.dashSideGrid > .box {
+  max-height: none;
+  overflow: visible;
+}
+
+.dashActivityCard {
+  max-height: none;
+}
+
+.dashActivityCard .panelBody {
+  min-height: 0;
+}
+
+.dashProductivityCard .panelBody,
+.dashFinanceCard .panelBody {
+  gap: 10px;
+}
+
+.dashChartWrap {
+  height: 180px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-base);
+  background: linear-gradient(180deg, var(--bg-control) 0%, var(--bg-card) 100%);
+  padding: 8px;
+}
+
+.dashChartWrap canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.dashSpendChartWrap {
+  height: 128px;
+}
+
+.dashMiniStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.dashMiniStats > div {
+  border: 1px solid var(--border-base);
+  background: var(--bg-control);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: grid;
+  gap: 2px;
+  transition: border-color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
+}
+
+.dashMiniStats > div:hover {
+  border-color: var(--border-hover);
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-control));
+  transform: translateY(-1px);
+}
+
+.dashMiniStats span {
+  font-size: 11px;
+  opacity: 0.72;
+}
+
+.dashMiniStats b {
+  font-size: 16px;
+}
+
+.dashCompareRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--glass-06);
+  font-size: 12px;
+  transition: color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease);
+}
+
+.dashCompareRow:hover {
+  color: color-mix(in srgb, var(--accent) 75%, var(--text-primary));
+}
+
+.dashCompareRow:last-child {
+  border-bottom: none;
+}
+
+.dashQuickBody {
+  justify-content: start;
+  gap: 14px;
+}
+
+.dashQuickCard .panelBody {
+  padding-top: 8px;
+}
+
+.dashQuickBlock {
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent) 7%, var(--bg-control));
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  transition: border-color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
+}
+
+.dashQuickBlock:hover {
+  border-color: var(--border-hover);
+  background: color-mix(in srgb, var(--accent) 11%, var(--bg-control));
+  transform: translateY(-1px);
+}
+
+.dashQuickLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.dashQuickRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 160px);
+  align-items: center;
+  gap: 8px;
+}
+
+.dashQuickRow .modalInput {
+  min-width: 0;
+}
+
+.dashQuickRow .modalInput::placeholder {
+  color: var(--text-muted);
+  opacity: 0.86;
+}
+
+.dashQuickRow .habBtn {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.dashQuickExpenseRow {
+  grid-template-columns: minmax(86px, 112px) minmax(114px, 152px) minmax(0, 1fr);
+}
+
+.dashQuickHint {
+  font-size: 12px;
+  opacity: 0.82;
+  padding: 8px 10px;
+  line-height: 1.35;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-control));
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.dashQuickHint.isError {
+  background: var(--danger-soft-bg);
+  border-color: var(--danger-soft-border);
+}
+
+@media (max-width: 1480px) {
+  .viewDashboard.isActive {
+    grid-template-columns: minmax(0, 1.28fr) minmax(320px, 0.92fr);
+  }
+
+  .dashQuickRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashQuickRow .habBtn {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .dashQuickExpenseRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1260px) {
+  .dashMainGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashCalendarCard,
+  .dashQuickCard,
+  .dashTodoCard {
+    grid-column: 1;
+  }
+
+  .dashMiniStats {
+    grid-template-columns: 1fr;
+  }
+
+  .dashQuickRow,
+  .dashQuickExpenseRow {
+    grid-template-columns: 1fr;
+  }
+
+  .dashQuickRow .habBtn,
+  .dashQuickExpenseRow .habBtn {
+    grid-column: auto;
   }
 }
 

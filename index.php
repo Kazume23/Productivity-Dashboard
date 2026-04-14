@@ -49,20 +49,17 @@ if (isset($_GET['register_err'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Edward Tracker</title>
 <link rel="stylesheet" href="style/style.css" id="baseStyles">
-<link rel="stylesheet" href="style/theme-ira.css" id="themeStyles" media="not all">
+<link rel="stylesheet" href="style/theme-ira.css" id="themeStyles" media="all">
 <link rel="stylesheet" href="style/styletrybjasny1.css" id="themelight" media="not all">
 <link rel="stylesheet" href="style/styletrybrozowy.css" id="themepink" media="not all">
   <script>
     (() => {
       const key = "edward_theme_v1";
       const themeIds = ["themeStyles", "themelight", "themepink"];
-      let saved = "base";
+      const saved = "themeStyles";
 
       try {
-        const raw = localStorage.getItem(key) || "base";
-        if (raw === "base" || themeIds.includes(raw)) {
-          saved = raw;
-        }
+        localStorage.setItem(key, saved);
       } catch (e) {}
 
       const base = document.getElementById("baseStyles");
@@ -83,7 +80,7 @@ if (isset($_GET['register_err'])) {
   
 </head>
 
-<body
+<body class="isBooting"
   data-auth-user="<?= htmlspecialchars((string)($authUser ?? ''), ENT_QUOTES, 'UTF-8') ?>"
   data-api-state-url="./api/state.php"
   data-register-ok="<?= $registerOk ? '1' : '0' ?>"
@@ -198,7 +195,7 @@ if (isset($_GET['register_err'])) {
           </div>
       </div>
     <div class="content" id="appContent">
-      <section class="view viewDashboard isActive" id="viewDash" data-view="dashboard" aria-hidden="false">
+      <section class="view viewDashboard" id="viewDash" data-view="dashboard" aria-hidden="true">
         <div class="heroPanel box">
           <div class="heroMeta" id="heroDateText">Dzisiaj</div>
           <div class="heroTitle">Dzień pod kontrolą</div>
@@ -286,6 +283,45 @@ if (isset($_GET['register_err'])) {
             </div>
           </div>
 
+          <div class="box dashQuickCard">
+            <div class="panelTitle">Szybkie akcje</div>
+            <div class="panelBody dashQuickBody">
+              <div class="dashQuickBlock">
+                <div class="dashQuickLabel">ToDo na wybraną datę</div>
+                <div class="dashQuickRow">
+                  <input class="modalInput" id="dashQuickTodoText" type="text" placeholder="Np. Domknąć raport" autocomplete="off">
+                  <select class="modalInput" id="dashQuickTodoPriority">
+                    <option value="high">Wysoki</option>
+                    <option value="medium" selected>Średni</option>
+                    <option value="low">Niski</option>
+                  </select>
+                  <button class="habBtn" id="dashQuickTodoAdd" type="button">Dodaj ToDo</button>
+                </div>
+              </div>
+
+              <div class="dashQuickBlock">
+                <div class="dashQuickLabel">Koszt na szybko</div>
+                <div class="dashQuickRow dashQuickExpenseRow">
+                  <input class="modalInput" id="dashQuickExpenseAmount" type="text" inputmode="numeric" placeholder="Kwota">
+                  <select class="modalInput" id="dashQuickExpenseCategory">
+                    <option value="Jedzenie">Jedzenie</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Rozrywka">Rozrywka</option>
+                    <option value="Zdrowie">Zdrowie</option>
+                    <option value="Edukacja">Edukacja</option>
+                    <option value="Sprzęt">Sprzęt</option>
+                    <option value="Subskrypcje">Subskrypcje</option>
+                    <option value="Inne">Inne</option>
+                  </select>
+                  <input class="modalInput" id="dashQuickExpenseWhat" type="text" placeholder="Za co?" autocomplete="off">
+                  <button class="habBtn" id="dashQuickExpenseAdd" type="button">Dodaj koszt</button>
+                </div>
+              </div>
+
+              <div class="dashQuickHint" id="dashQuickHint">Quick mode działa na aktualnej dacie z kalendarza.</div>
+            </div>
+          </div>
+
           <div class="box dashTodoCard">
             <div class="panelTitle todoTitleRow">
               <div class="todoTitleText">
@@ -306,6 +342,24 @@ if (isset($_GET['register_err'])) {
         </div>
 
         <div class="dashSideGrid">
+          <div class="box dashProductivityCard">
+            <div class="panelTitle">Produktywność i trend</div>
+            <div class="panelBody">
+              <div class="dashChartWrap">
+                <canvas id="dashProductivityChart" aria-label="Trend produktywności 14 dni"></canvas>
+              </div>
+
+              <div class="dashMiniStats">
+                <div><span>Domknięte ToDo</span><b id="dashProductivityDone">0</b></div>
+                <div><span>Nawyki wykonane</span><b id="dashProductivityHabits">0</b></div>
+                <div><span>Niewykonane wpisy</span><b id="dashProductivityFail">0</b></div>
+              </div>
+
+              <div class="dashCompareRow"><span>Tydzień vs poprzedni</span><b id="dashCompareWeek">0%</b></div>
+              <div class="dashCompareRow"><span>Miesiąc vs poprzedni</span><b id="dashCompareMonth">0%</b></div>
+            </div>
+          </div>
+
           <div class="box pomoBox dashPomoCard">
             <div class="panelTitle">Pomodoro</div>
             <div class="panelBody pomoBody">
@@ -334,6 +388,9 @@ if (isset($_GET['register_err'])) {
               <div class="dashFinanceRow"><span>Top kategoria</span><b id="dashExpenseTopCategory">-</b></div>
               <div class="dashFinanceRow"><span>Pozycje</span><b id="dashWishlistCount">0</b></div>
               <div class="dashFinanceRow"><span>Budżet wishlisty</span><b id="dashWishlistBudget">0,00 zł</b></div>
+              <div class="dashChartWrap dashSpendChartWrap">
+                <canvas id="dashSpendTrendChart" aria-label="Trend wydatków 14 dni"></canvas>
+              </div>
               <div class="dashFinanceActions">
                 <button class="calBtn" id="dashGoExpensesBtn" type="button">Wydatki</button>
                 <button class="calBtn" id="dashGoWishlistBtn" type="button">Wishlist</button>
@@ -376,7 +433,7 @@ if (isset($_GET['register_err'])) {
 
             <div class="panelBody">
               <div class="chartWrap">
-                <svg id="chartSvg" class="chartSvg" viewBox="0 0 220 220" aria-label="Wykres bilansu"></svg>
+                <canvas id="chartCanvas" class="chartCanvas" aria-label="Wykres bilansu nawyków"></canvas>
 
                 <div class="chartMeta">
                   <div class="chartRange" id="chartRangeTxt"></div>
@@ -408,6 +465,21 @@ if (isset($_GET['register_err'])) {
                     <div class="chartKpi"><span>Śr. zawalone / dzień</span><b id="chartFailDaily">0.00</b></div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="box habitsInsightsCard">
+            <div class="panelTitle">Skuteczność i porównanie</div>
+            <div class="panelBody habitsInsightsBody">
+              <div class="habitsInsightChart">
+                <div class="habitsInsightTitle">Skuteczność per nawyk</div>
+                <canvas id="habitsBarChart" aria-label="Skuteczność per nawyk"></canvas>
+              </div>
+
+              <div class="habitsInsightChart">
+                <div class="habitsInsightTitle">Porównanie zakresów</div>
+                <canvas id="habitsCompareChart" aria-label="Porównanie tygodnia i miesiąca"></canvas>
               </div>
             </div>
           </div>
@@ -513,73 +585,109 @@ if (isset($_GET['register_err'])) {
         </div>
 
         <div class="expensesModuleGrid">
-          <div class="box expComposeCard">
-            <div class="panelTitle">Dodaj nowy koszt</div>
-            <div class="panelBody">
-              <div class="expForm">
-                <input class="modalInput" id="expAmount" type="text" inputmode="numeric" placeholder="Kwota" data-i18n-placeholder="exp.amount" />
-                <input class="modalInput" id="expWhat" type="text" placeholder="Co kupione" data-i18n-placeholder="exp.what">
+          <div class="expensesMainCol">
+            <div class="box expComposeCard">
+              <div class="panelTitle">Dodaj nowy koszt</div>
+              <div class="panelBody">
+                <div class="expForm expFormFull">
+                  <label class="expField" for="expAmount">
+                    <span>Kwota</span>
+                    <input class="modalInput" id="expAmount" type="text" inputmode="numeric" placeholder="Kwota" data-i18n-placeholder="exp.amount" />
+                  </label>
 
-                <select class="modalInput" id="expCategory">
-                  <option value="Jedzenie">Jedzenie</option>
-                  <option value="Transport">Transport</option>
-                  <option value="Rozrywka">Rozrywka</option>
-                  <option value="Zdrowie">Zdrowie</option>
-                  <option value="Edukacja">Edukacja</option>
-                  <option value="Sprzęt">Sprzęt</option>
-                  <option value="Subskrypcje">Subskrypcje</option>
-                  <option value="Inne">Inne</option>
-                </select>
+                  <label class="expField" for="expCategory">
+                    <span>Kategoria</span>
+                    <select class="modalInput" id="expCategory">
+                      <option value="Jedzenie">Jedzenie</option>
+                      <option value="Transport">Transport</option>
+                      <option value="Rozrywka">Rozrywka</option>
+                      <option value="Zdrowie">Zdrowie</option>
+                      <option value="Edukacja">Edukacja</option>
+                      <option value="Sprzęt">Sprzęt</option>
+                      <option value="Subskrypcje">Subskrypcje</option>
+                      <option value="Inne">Inne</option>
+                    </select>
+                  </label>
 
-                <select class="modalInput" id="expScore">
-                  <option value="A">A — Wysoki priorytet</option>
-                  <option value="B">B — Konieczny</option>
-                  <option value="C">C — Opcjonalny</option>
-                  <option value="D">D — Zbędny</option>
-                </select>
+                  <label class="expField expFieldWide" for="expWhat">
+                    <span>Co kupione</span>
+                    <input class="modalInput" id="expWhat" type="text" placeholder="Co kupione" data-i18n-placeholder="exp.what">
+                  </label>
 
-                <select class="modalInput" id="expPeriod">
-                  <option value="once">Jednorazowe</option>
-                  <option value="weekly">Tygodniowe</option>
-                  <option value="monthly">Miesięczne</option>
-                  <option value="yearly">Roczne</option>
-                </select>
+                  <label class="expField" for="expScore">
+                    <span>Ocena</span>
+                    <select class="modalInput" id="expScore">
+                      <option value="A">A — Wysoki priorytet</option>
+                      <option value="B">B — Konieczny</option>
+                      <option value="C">C — Opcjonalny</option>
+                      <option value="D">D — Zbędny</option>
+                    </select>
+                  </label>
 
-                <input class="modalInput" id="expDate" type="date">
-                <button class="habBtn" id="expAdd" type="button" data-i18n="common.add">Dodaj</button>
-              </div>
-            </div>
-          </div>
+                  <label class="expField" for="expPeriod">
+                    <span>Okres</span>
+                    <select class="modalInput" id="expPeriod">
+                      <option value="once">Jednorazowe</option>
+                      <option value="weekly">Tygodniowe</option>
+                      <option value="monthly">Miesięczne</option>
+                      <option value="yearly">Roczne</option>
+                    </select>
+                  </label>
 
-          <div class="box expLedgerCard">
-            <div class="panelTitle" data-i18n="exp.title">Dziennik wydatków</div>
-            <div class="panelBody">
-              <div class="expHeader">
-                <div class="expSummary" id="expSummary">Suma: 0,00 zł</div>
-                <div class="expFilterRow">
-                  <label class="modalLabel expFilterLabel" for="expFilterCategory">Filtruj:</label>
-                  <select class="modalInput expFilterSelect" id="expFilterCategory">
-                    <option value="">Wszystkie</option>
-                    <option value="Jedzenie">Jedzenie</option>
-                    <option value="Transport">Transport</option>
-                    <option value="Rozrywka">Rozrywka</option>
-                    <option value="Zdrowie">Zdrowie</option>
-                    <option value="Edukacja">Edukacja</option>
-                    <option value="Sprzęt">Sprzęt</option>
-                    <option value="Subskrypcje">Subskrypcje</option>
-                    <option value="Inne">Inne</option>
-                  </select>
+                  <label class="expField" for="expDate">
+                    <span>Data</span>
+                    <input class="modalInput" id="expDate" type="date">
+                  </label>
+
+                  <div class="expActionsRow">
+                    <button class="habBtn" id="expAdd" type="button" data-i18n="common.add">Dodaj</button>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div class="expList" id="expList"></div>
+            <div class="box expLedgerCard">
+              <div class="panelTitle" data-i18n="exp.title">Dziennik wydatków</div>
+              <div class="panelBody">
+                <div class="expHeader">
+                  <div class="expSummary" id="expSummary">Suma: 0,00 zł</div>
+                  <div class="expFilterRow">
+                    <label class="modalLabel expFilterLabel" for="expFilterCategory">Filtruj:</label>
+                    <select class="modalInput expFilterSelect" id="expFilterCategory">
+                      <option value="">Wszystkie</option>
+                      <option value="Jedzenie">Jedzenie</option>
+                      <option value="Transport">Transport</option>
+                      <option value="Rozrywka">Rozrywka</option>
+                      <option value="Zdrowie">Zdrowie</option>
+                      <option value="Edukacja">Edukacja</option>
+                      <option value="Sprzęt">Sprzęt</option>
+                      <option value="Subskrypcje">Subskrypcje</option>
+                      <option value="Inne">Inne</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="expList" id="expList"></div>
+              </div>
             </div>
           </div>
 
           <aside class="box expBreakdownCard">
-            <div class="panelTitle">Rozkład kategorii</div>
+            <div class="panelTitle">Analityka wydatków</div>
             <div class="panelBody">
-              <div id="expCategoryList" class="expCategoryList"></div>
+              <div class="expBreakdownStack">
+                <div class="expChartBox">
+                  <div class="expChartTitle">Udział kategorii</div>
+                  <canvas id="expCategoryChart" aria-label="Udział kategorii wydatków"></canvas>
+                </div>
+
+                <div class="expChartBox">
+                  <div class="expChartTitle">Trend 14 dni</div>
+                  <canvas id="expTrendChart" aria-label="Trend wydatków 14 dni"></canvas>
+                </div>
+
+                <div id="expCategoryList" class="expCategoryList"></div>
+              </div>
             </div>
           </aside>
         </div>
@@ -836,6 +944,7 @@ if (isset($_GET['register_err'])) {
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <script src="js/core/config.js"></script>
   <script src="js/core/dom.js"></script>
   <script src="js/core/utils.js"></script>

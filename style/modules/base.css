@@ -1,51 +1,68 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap");
+
 :root {
-  --bg-body: #111;
-  --bg-icons-wrap: #1a1a1a;
-  --bg-pill: #1b1b1b;
-  --bg-shell: #1e1e1e;
-  --bg-control: #1f1f1f;
-  --bg-nav-item: #232323;
-  --bg-card: #242424;
-  --bg-hover: #262626;
-  --bg-panel: #2a2a2a;
-  --bg-divider: #2b2b2b;
-  --bg-logo-mark: #2d2d2d;
-  --border-subtle: #2f2f2f;
-  --accent: #2f9dff;
-  --border-row: #303030;
-  --border-base: #333;
-  --border-soft: #343434;
-  --border-strong: #3a3a3a;
-  --border-week: #3f5d75;
-  --border-cell: #444;
-  --border-hover: #4a4a4a;
-  --chart-empty: #555;
-  --border-cell-hover: #666;
-  --text-muted: #bdbdbd;
-  --text-primary: #e7e7e7;
-  --text-secondary: #eaeaea;
-  --text-strong: #f0f0f0;
-  --danger: #ff2f5d;
-  --overlay-dark: rgba(0, 0, 0, 0.55);
-  --overlay-light: rgba(255, 255, 255, 0.55);
-  --danger-soft-bg: rgba(255, 80, 80, 0.10);
-  --danger-soft-border: rgba(255, 80, 80, 0.35);
-  --glass-03: rgba(255,255,255,0.03);
-  --glass-04: rgba(255,255,255,.04);
-  --glass-06: rgba(255,255,255,0.06);
-  --glass-08: rgba(255,255,255,.08);
-  --glass-10: rgba(255,255,255,0.10);
-  --glass-12: rgba(255,255,255,0.12);
-  --focus-ring: rgba(47, 157, 255, 0.28);
-  --focus-ring-soft: rgba(47, 157, 255, 0.22);
-  --focus-ring-inset: rgba(47, 157, 255, 0.25);
-  --surface-stroke: rgba(255, 255, 255, 0.03);
-  --shadow-panel: 0 10px 28px rgba(0, 0, 0, 0.24);
-  --shadow-panel-soft: 0 4px 12px rgba(0, 0, 0, 0.18);
+  --bg-body: #edf1f7;
+  --bg-icons-wrap: #f7f9fd;
+  --bg-pill: #f3f6fc;
+  --bg-shell: #ffffff;
+  --bg-control: #f6f8fc;
+  --bg-nav-item: #f7f9fd;
+  --bg-card: #ffffff;
+  --bg-hover: #eef3ff;
+  --bg-panel: #ffffff;
+  --bg-divider: #d7ddeb;
+  --bg-logo-mark: #2a6df4;
+  --border-subtle: #dde4f1;
+  --accent: #2a6df4;
+  --border-row: #e4e9f3;
+  --border-base: #d8dfec;
+  --border-soft: #e4eaf5;
+  --border-strong: #bec9dc;
+  --border-week: #6f8bd7;
+  --border-cell: #cbd4e4;
+  --border-hover: #8ca5d8;
+  --chart-empty: #c6d0df;
+  --border-cell-hover: #9fb1cd;
+  --text-muted: #6a7487;
+  --text-primary: #263246;
+  --text-secondary: #1f2940;
+  --text-strong: #111a2e;
+  --danger: #df4f5b;
+  --habit-done: #24b36b;
+  --habit-fail: #ef3d63;
+  --overlay-dark: rgba(17, 26, 46, 0.34);
+  --overlay-light: rgba(255, 255, 255, 0.62);
+  --danger-soft-bg: rgba(223, 79, 91, 0.1);
+  --danger-soft-border: rgba(223, 79, 91, 0.32);
+  --glass-03: rgba(20, 34, 57, 0.03);
+  --glass-04: rgba(20, 34, 57, 0.04);
+  --glass-06: rgba(20, 34, 57, 0.06);
+  --glass-08: rgba(20, 34, 57, 0.08);
+  --glass-10: rgba(20, 34, 57, 0.1);
+  --glass-12: rgba(20, 34, 57, 0.12);
+  --focus-ring: rgba(42, 109, 244, 0.26);
+  --focus-ring-soft: rgba(42, 109, 244, 0.2);
+  --focus-ring-inset: rgba(42, 109, 244, 0.22);
+  --surface-stroke: rgba(17, 26, 46, 0.05);
+  --shadow-panel: 0 22px 42px rgba(20, 30, 50, 0.14);
+  --shadow-panel-soft: 0 8px 18px rgba(20, 30, 50, 0.08);
   --motion-fast: 130ms;
   --motion-base: 200ms;
-  --motion-slow: 300ms;
+  --motion-slow: 320ms;
   --motion-ease: cubic-bezier(0.2, 0.75, 0.2, 1);
+  --bg-grad-start: #f7f9fd;
+  --bg-grad-end: #edf1f7;
+  --bg-glow-a: rgba(42, 109, 244, 0.15);
+  --bg-glow-b: rgba(34, 185, 159, 0.11);
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --font-sans: "Manrope", "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Segoe UI", sans-serif;
 }
 
 * {
@@ -54,8 +71,12 @@
 
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   background: var(--bg-body);
+  background-image:
+    radial-gradient(circle at 2% -8%, var(--bg-glow-a), transparent 28%),
+    radial-gradient(circle at 100% 0%, var(--bg-glow-b), transparent 24%),
+    linear-gradient(180deg, var(--bg-grad-start) 0%, var(--bg-grad-end) 100%);
   color: var(--text-primary);
   line-height: 1.35;
   text-rendering: optimizeLegibility;

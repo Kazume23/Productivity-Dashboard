@@ -27,7 +27,7 @@ const habitSave = $("habitSave");
 const habitClose = $("habitClose");
 const habitCancel = $("habitCancel");
 
-const chartSvg = $("chartSvg");
+const chartCanvas = $("chartCanvas");
 const chartWeekBtn = $("chartWeek");
 const chartMonthBtn = $("chartMonth");
 const chartRangeTxt = $("chartRangeTxt");
@@ -40,6 +40,20 @@ const chartClose = $("chartClose");
 const chartModalRange = $("chartModalRange");
 const chartModalSummary = $("chartModalSummary");
 const chartModalList = $("chartModalList");
+const habitsBarChartCanvas = $("habitsBarChart");
+const habitsCompareChartCanvas = $("habitsCompareChart");
+
+const dashProductivityChartCanvas = $("dashProductivityChart");
+const dashSpendTrendChartCanvas = $("dashSpendTrendChart");
+
+const dashQuickTodoText = $("dashQuickTodoText");
+const dashQuickTodoPriority = $("dashQuickTodoPriority");
+const dashQuickTodoAdd = $("dashQuickTodoAdd");
+const dashQuickExpenseAmount = $("dashQuickExpenseAmount");
+const dashQuickExpenseCategory = $("dashQuickExpenseCategory");
+const dashQuickExpenseWhat = $("dashQuickExpenseWhat");
+const dashQuickExpenseAdd = $("dashQuickExpenseAdd");
+const dashQuickHint = $("dashQuickHint");
 
 const expOnlySelected = $("expOnlySelected");
 const expAmount = $("expAmount");
@@ -52,6 +66,8 @@ const expAdd = $("expAdd");
 const expList = $("expList");
 const expSummary = $("expSummary");
 const expFilterCategory = $("expFilterCategory");
+const expCategoryChartCanvas = $("expCategoryChart");
+const expTrendChartCanvas = $("expTrendChart");
 const expOverlay = $("expOverlay");
 const expModalAmount = $("expModalAmount");
 const expModalWhat = $("expModalWhat");

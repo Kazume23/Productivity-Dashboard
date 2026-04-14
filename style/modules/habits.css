@@ -8,6 +8,11 @@
   border-bottom: 1px solid var(--border-base);
 }
 
+.habHeader,
+.habTable thead th {
+  background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-control) 100%);
+}
+
 .habHeaderLeft {
   display: flex;
   flex-direction: column;
@@ -108,6 +113,10 @@
   padding: 10px 8px;
 }
 
+.habTable tbody tr:hover td {
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+}
+
 .tdHabit {
   padding-left: 12px;
 }
@@ -133,8 +142,8 @@
 }
 
 .cellBtn {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 6px;
   border: 1px solid var(--border-cell);
   background: transparent;
@@ -151,13 +160,13 @@
 }
 
 .cellDone {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: color-mix(in srgb, var(--habit-done) 88%, var(--bg-panel));
+  border-color: var(--habit-done);
 }
 
 .cellFail {
-  background: var(--danger);
-  border-color: var(--danger);
+  background: color-mix(in srgb, var(--habit-fail) 88%, var(--bg-panel));
+  border-color: var(--habit-fail);
 }
 
 @media (max-width: 1260px) {
