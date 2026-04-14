@@ -345,7 +345,11 @@ function renderExpenseCharts() {
           responsive: true,
           maintainAspectRatio: false,
           resizeDelay: 120,
-          cutout: "68%",
+          cutout: "72%",
+          animation: {
+            duration: 480,
+            easing: "easeOutQuart"
+          },
           plugins: {
             legend: {
               position: "bottom",
@@ -372,6 +376,9 @@ function renderExpenseCharts() {
       values.push(Number(sum.toFixed(2)));
     }
 
+    const trendMax = Math.max(0, ...values);
+    const sparseTrend = values.filter(v => v > 0).length <= 2;
+
     expTrendChart = destroyExpChart(expTrendChart);
     expTrendChart = new Chart(expTrendChartCanvas, {
       type: "line",
@@ -383,8 +390,9 @@ function renderExpenseCharts() {
           borderColor: expenseCssVar("--accent", "#2f9dff"),
           backgroundColor: "rgba(255, 138, 61, 0.18)",
           fill: true,
-          pointRadius: 2,
+          pointRadius: sparseTrend ? 2 : 0,
           pointHoverRadius: 4,
+          borderDash: sparseTrend ? [6, 5] : [],
           tension: 0.3
         }]
       },
@@ -401,6 +409,7 @@ function renderExpenseCharts() {
           },
           y: {
             beginAtZero: true,
+            suggestedMax: trendMax > 0 ? undefined : 100,
             ticks: {
               callback: (v) => `${v} zł`
             },

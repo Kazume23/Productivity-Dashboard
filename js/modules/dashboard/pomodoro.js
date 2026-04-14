@@ -68,7 +68,13 @@ function pomoSyncUI() {
   if (pomoFocusBtn) pomoFocusBtn.classList.toggle("isActive", p.mode === "focus");
   if (pomoBreakBtn) pomoBreakBtn.classList.toggle("isActive", p.mode === "break");
   if (pomoLongBtn) pomoLongBtn.classList.toggle("isActive", p.mode === "long");
-  if (pomoStartBtn) pomoStartBtn.textContent = p.isRunning ? "Pause" : "Start";
+  if (pomoStartBtn) pomoStartBtn.textContent = p.isRunning ? "Pauza" : "Start";
+
+  const dashPomoCard = document.querySelector(".dashPomoCard");
+  if (dashPomoCard) {
+    dashPomoCard.dataset.mode = p.mode;
+    dashPomoCard.classList.toggle("isRunning", p.isRunning);
+  }
 }
 
 function pomoSaveRemaining() {

@@ -122,14 +122,14 @@
 }
 
 .expBreakdownCard .panelBody {
-  min-height: 220px;
+  min-height: 200px;
   max-height: none;
   overflow: visible;
 }
 
 .expBreakdownStack {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   min-height: 0;
   max-height: none;
   overflow: visible;
@@ -165,8 +165,8 @@
 
 .expChartBox canvas {
   width: 100%;
-  height: clamp(160px, 23vh, 200px);
-  max-height: 200px;
+  height: clamp(146px, 20vh, 180px);
+  max-height: 180px;
 }
 
 .expCategoryList::-webkit-scrollbar {
@@ -223,7 +223,7 @@
 
 .expItem {
   margin: 0 0 8px 0;
-  padding: 11px 12px;
+  padding: 9px 10px;
   border-radius: 11px;
   background: var(--bg-control);
   border: 1px solid var(--border-base);
@@ -271,7 +271,7 @@
 .expMeta {
   font-size: 11px;
   opacity: 0.62;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .expTags {

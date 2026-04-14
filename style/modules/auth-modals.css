@@ -1,17 +1,17 @@
 /* Sidebar login */
 .sidebarFooter{
   margin-top: auto;
-  padding-top: 8px;
+  padding-top: 6px;
 }
 
 .authBox{
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
-  padding: 8px;
+  padding: 7px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .authTop{
@@ -22,23 +22,25 @@
 
 .authTitle{
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .authStatus{
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.35;
   opacity: 0.68;
 }
 
 .authActions{
   display: flex;
-  gap: 6px;
+  gap: 5px;
 }
 
 .authActions .habBtn,
 .authActions .calBtn{
   flex: 1;
-  padding: 7px 10px;
+  padding: 6px 9px;
+  font-size: 12px;
 }
 
 .authActions .inlineForm {

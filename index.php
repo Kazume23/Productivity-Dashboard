@@ -30,6 +30,11 @@ if (!$loginErr && $sessionExpired) {
 $registerErr = '';
 $registerOk = isset($_GET['register_ok']) && (string)$_GET['register_ok'] === '1';
 
+$vBaseStyles = (string) (@filemtime(__DIR__ . '/style/style.css') ?: time());
+$vThemeIra = (string) (@filemtime(__DIR__ . '/style/theme-ira.css') ?: time());
+$vThemeLight = (string) (@filemtime(__DIR__ . '/style/styletrybjasny1.css') ?: time());
+$vThemePink = (string) (@filemtime(__DIR__ . '/style/styletrybrozowy.css') ?: time());
+
 if (isset($_GET['register_err'])) {
   $code = (string)$_GET['register_err'];
   if ($code === 'csrf') $registerErr = 'Sesja wygasła, spróbuj ponownie';
@@ -48,10 +53,10 @@ if (isset($_GET['register_err'])) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Edward Tracker</title>
-<link rel="stylesheet" href="style/style.css" id="baseStyles">
-<link rel="stylesheet" href="style/theme-ira.css" id="themeStyles" media="all">
-<link rel="stylesheet" href="style/styletrybjasny1.css" id="themelight" media="not all">
-<link rel="stylesheet" href="style/styletrybrozowy.css" id="themepink" media="not all">
+<link rel="stylesheet" href="style/style.css?v=<?= htmlspecialchars($vBaseStyles, ENT_QUOTES, 'UTF-8') ?>" id="baseStyles">
+<link rel="stylesheet" href="style/theme-ira.css?v=<?= htmlspecialchars($vThemeIra, ENT_QUOTES, 'UTF-8') ?>" id="themeStyles" media="all">
+<link rel="stylesheet" href="style/styletrybjasny1.css?v=<?= htmlspecialchars($vThemeLight, ENT_QUOTES, 'UTF-8') ?>" id="themelight" media="not all">
+<link rel="stylesheet" href="style/styletrybrozowy.css?v=<?= htmlspecialchars($vThemePink, ENT_QUOTES, 'UTF-8') ?>" id="themepink" media="not all">
   <script>
     (() => {
       const key = "edward_theme_v1";
@@ -96,7 +101,7 @@ if (isset($_GET['register_err'])) {
 
       <div class="nav">
         <div class="navRow">
-          <button class="navItem" id="navDash" type="button">Dashboard</button>
+          <button class="navItem" id="navDash" type="button">Panel główny</button>
         </div>
 
         <div class="navRow">
@@ -115,8 +120,8 @@ if (isset($_GET['register_err'])) {
         </div>
 
         <div class="navRow">
-          <button class="navItem" id="navWishlist" type="button">Wishlist</button>
-          <button class="navAddBtn" id="navAddWishlist" type="button" title="Dodaj do wishlisty" aria-label="Dodaj do wishlisty">+</button>
+          <button class="navItem" id="navWishlist" type="button">Lista życzeń</button>
+          <button class="navAddBtn" id="navAddWishlist" type="button" title="Dodaj do listy życzeń" aria-label="Dodaj do listy życzeń">+</button>
         </div>
       </div>
 
@@ -164,7 +169,7 @@ if (isset($_GET['register_err'])) {
           </button>
 
           <div class="titleWrap">
-            <div class="title" id="pageTitle">Dashboard</div>
+            <div class="title" id="pageTitle">Panel główny</div>
           </div>
         </div>
           <div class="icons">
@@ -198,12 +203,12 @@ if (isset($_GET['register_err'])) {
       <section class="view viewDashboard" id="viewDash" data-view="dashboard" aria-hidden="true">
         <div class="heroPanel box">
           <div class="heroMeta" id="heroDateText">Dzisiaj</div>
-          <div class="heroTitle">Dzień pod kontrolą</div>
-          <div class="heroStatus" id="heroStatusText">Zamień plan na wykonanie: priorytety, fokus i finanse w jednym miejscu.</div>
+          <div class="heroTitle">Podsumowanie dnia</div>
+          <div class="heroStatus" id="heroStatusText">Priorytety, skupienie i najbliższe decyzje w jednym skrócie.</div>
 
           <div class="heroMetrics">
             <div class="heroMetric">
-              <span>Focus</span>
+              <span>Fokus</span>
               <strong id="heroFocusValue">25:00</strong>
             </div>
             <div class="heroMetric">
@@ -213,10 +218,6 @@ if (isset($_GET['register_err'])) {
             <div class="heroMetric">
               <span>Skuteczność nawyków</span>
               <strong id="heroHabitValue">0%</strong>
-            </div>
-            <div class="heroMetric">
-              <span>Cashflow dziś</span>
-              <strong id="heroSpendValue">0,00 zł</strong>
             </div>
           </div>
 
@@ -243,16 +244,6 @@ if (isset($_GET['register_err'])) {
               <div><span>Skuteczność tygodnia</span><b id="dashHabitWeekRate">0%</b></div>
               <div><span>Najlepszy streak</span><b id="dashBestStreak">0 dni</b></div>
               <div><span>Pokrycie wpisów</span><b id="dashHabitCoverage">0%</b></div>
-            </div>
-          </article>
-
-          <article class="summaryCard summaryCardMoney box">
-            <div class="summaryLabel">Finanse i wishlist</div>
-            <div class="summaryRows">
-              <div><span>Miesięczne wydatki</span><b id="dashMoneyMonth">0,00 zł</b></div>
-              <div><span>Wydatki tygodnia</span><b id="dashMoneyWeek">0,00 zł</b></div>
-              <div><span>Budżet wishlisty</span><b id="dashMoneyWishlistBudget">0,00 zł</b></div>
-              <div><span>Top kategoria</span><b id="dashMoneyTopCategory">-</b></div>
             </div>
           </article>
         </div>
@@ -318,7 +309,7 @@ if (isset($_GET['register_err'])) {
                 </div>
               </div>
 
-              <div class="dashQuickHint" id="dashQuickHint">Quick mode działa na aktualnej dacie z kalendarza.</div>
+              <div class="dashQuickHint" id="dashQuickHint">Tryb szybki działa na aktualnej dacie z kalendarza.</div>
             </div>
           </div>
 
@@ -364,16 +355,16 @@ if (isset($_GET['register_err'])) {
             <div class="panelTitle">Pomodoro</div>
             <div class="panelBody pomoBody">
               <div class="pomoMode">
-                <button class="pomoTab isActive" id="pomoFocus" type="button">Focus</button>
-                <button class="pomoTab" id="pomoBreak" type="button">Break</button>
-                <button class="pomoTab" id="pomoLong" type="button">Long</button>
+                <button class="pomoTab isActive" id="pomoFocus" type="button">Fokus</button>
+                <button class="pomoTab" id="pomoBreak" type="button">Przerwa</button>
+                <button class="pomoTab" id="pomoLong" type="button">Długa</button>
               </div>
 
               <div class="pomoTime" id="pomoTime">25:00</div>
 
               <div class="pomoActions">
                 <button class="habBtn" id="pomoStart" type="button">Start</button>
-                <button class="habBtn" id="pomoReset" type="button">Reset</button>
+                <button class="habBtn" id="pomoReset" type="button">Resetuj</button>
               </div>
 
               <div class="pomoMeta">Sesja: <span id="pomoSession">0</span></div>
@@ -381,19 +372,19 @@ if (isset($_GET['register_err'])) {
           </div>
 
           <div class="box dashFinanceCard">
-            <div class="panelTitle">Finanse i wishlist</div>
+            <div class="panelTitle">Finanse i lista życzeń</div>
             <div class="panelBody">
               <div class="dashFinanceRow"><span>Miesięcznie</span><b id="dashExpenseMonth">0,00 zł</b></div>
               <div class="dashFinanceRow"><span>Tydzień</span><b id="dashExpenseWeek">0,00 zł</b></div>
               <div class="dashFinanceRow"><span>Top kategoria</span><b id="dashExpenseTopCategory">-</b></div>
               <div class="dashFinanceRow"><span>Pozycje</span><b id="dashWishlistCount">0</b></div>
-              <div class="dashFinanceRow"><span>Budżet wishlisty</span><b id="dashWishlistBudget">0,00 zł</b></div>
+              <div class="dashFinanceRow"><span>Budżet listy życzeń</span><b id="dashWishlistBudget">0,00 zł</b></div>
               <div class="dashChartWrap dashSpendChartWrap">
                 <canvas id="dashSpendTrendChart" aria-label="Trend wydatków 14 dni"></canvas>
               </div>
               <div class="dashFinanceActions">
                 <button class="calBtn" id="dashGoExpensesBtn" type="button">Wydatki</button>
-                <button class="calBtn" id="dashGoWishlistBtn" type="button">Wishlist</button>
+                <button class="calBtn" id="dashGoWishlistBtn" type="button">Lista życzeń</button>
               </div>
             </div>
           </div>
@@ -455,15 +446,6 @@ if (isset($_GET['register_err'])) {
                       <b id="chartEmpty">0</b>
                     </div>
                   </div>
-                  <div class="chartActions">
-                    <button class="habBtn" id="chartDetailsBtn" type="button">Szczegóły</button>
-                  </div>
-
-                  <div class="chartKpiGrid">
-                    <div class="chartKpi"><span>Pokrycie</span><b id="chartCoverage">0%</b></div>
-                    <div class="chartKpi"><span>Śr. wykonane / dzień</span><b id="chartDoneDaily">0.00</b></div>
-                    <div class="chartKpi"><span>Śr. zawalone / dzień</span><b id="chartFailDaily">0.00</b></div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -473,8 +455,8 @@ if (isset($_GET['register_err'])) {
             <div class="panelTitle">Skuteczność i porównanie</div>
             <div class="panelBody habitsInsightsBody">
               <div class="habitsInsightChart">
-                <div class="habitsInsightTitle">Skuteczność per nawyk</div>
-                <canvas id="habitsBarChart" aria-label="Skuteczność per nawyk"></canvas>
+                <div class="habitsInsightTitle">Skuteczność nawyków</div>
+                <canvas id="habitsBarChart" aria-label="Skuteczność nawyków"></canvas>
               </div>
 
               <div class="habitsInsightChart">
@@ -487,7 +469,7 @@ if (isset($_GET['register_err'])) {
           <div class="tableBox">
             <div class="habHeader">
               <div class="habHeaderLeft">
-                <div class="habTitle">Habit tracker</div>
+                <div class="habTitle">Tracker nawyków</div>
                 <div class="habRange" id="habRange"></div>
               </div>
 
@@ -516,8 +498,8 @@ if (isset($_GET['register_err'])) {
           </div>
           <div class="sectionKpiGrid">
             <div class="sectionKpi"><span>Otwarte dziś</span><b id="todoKpiToday">0</b></div>
-            <div class="sectionKpi"><span>Upcoming</span><b id="todoKpiUpcoming">0</b></div>
-            <div class="sectionKpi"><span>Overdue</span><b id="todoKpiOverdue">0</b></div>
+            <div class="sectionKpi"><span>Nadchodzące</span><b id="todoKpiUpcoming">0</b></div>
+            <div class="sectionKpi"><span>Zaległe</span><b id="todoKpiOverdue">0</b></div>
           </div>
         </div>
 
@@ -539,10 +521,15 @@ if (isset($_GET['register_err'])) {
           </div>
 
           <aside class="box todoInsightCard">
-            <div class="panelTitle">Szybki podgląd</div>
+            <div class="panelTitle">Priorytety dnia</div>
             <div class="panelBody">
               <div class="todoInsightQuick">
                 Otwarte zadania: <b id="todoInsightOpen">0</b>
+              </div>
+
+              <div class="todoInsightGrid">
+                <div><span>Wysoki priorytet</span><b id="todoInsightHigh">0</b></div>
+                <div><span>Zamknięte</span><b id="todoInsightDone">0</b></div>
               </div>
 
               <div class="todoInsightBlock">
@@ -696,7 +683,7 @@ if (isset($_GET['register_err'])) {
       <section class="view viewWishlist" id="viewWishlist" data-view="wishlist" aria-hidden="true">
         <div class="sectionHero box">
           <div class="sectionHeadText">
-            <div class="sectionTitle">Wishlist i plan zakupów</div>
+            <div class="sectionTitle">Lista życzeń i plan zakupów</div>
             <div class="sectionSubtitle">Lista zakupów z kontrolą budżetu i prostym sortowaniem.</div>
           </div>
           <div class="sectionKpiGrid">
@@ -855,7 +842,7 @@ if (isset($_GET['register_err'])) {
   <div class="modalOverlay" id="wishOverlay" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="wishModalTitle">
       <div class="modalTop">
-        <div class="modalTitle" id="wishModalTitle">Dodaj do wishlisty</div>
+        <div class="modalTitle" id="wishModalTitle">Dodaj do listy życzeń</div>
         <button class="modalClose" id="wishClose" type="button" aria-label="Zamknij">×</button>
       </div>
 

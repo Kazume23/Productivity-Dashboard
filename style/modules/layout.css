@@ -270,7 +270,7 @@ body.isBooting .content {
 
 .summaryStrip {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -293,7 +293,7 @@ body.isBooting .content {
 
 .todoModuleGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+  grid-template-columns: minmax(0, 1.34fr) minmax(250px, 0.66fr);
   gap: 14px;
   align-content: start;
 }
@@ -311,8 +311,8 @@ body.isBooting .content {
 
 .expensesModuleGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.92fr);
-  gap: 14px;
+  grid-template-columns: minmax(0, 1.48fr) minmax(280px, 0.82fr);
+  gap: 12px;
   align-content: start;
 }
 
@@ -363,11 +363,11 @@ body.isBooting .content {
 }
 
 .sectionHero {
-  padding: 14px;
+  padding: 12px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 }
 
 .sectionHeadText {
@@ -375,31 +375,31 @@ body.isBooting .content {
 }
 
 .sectionTitle {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-strong);
 }
 
 .sectionSubtitle {
   margin-top: 4px;
-  font-size: 13px;
+  font-size: 12px;
   opacity: 0.75;
 }
 
 .sectionKpiGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(124px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(3, minmax(108px, 1fr));
+  gap: 7px;
 }
 
 .sectionKpi {
   background: var(--bg-control);
   border: 1px solid var(--border-base);
   border-radius: 10px;
-  padding: 8px 10px;
+  padding: 7px 9px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
 .sectionKpi span {
@@ -408,7 +408,7 @@ body.isBooting .content {
 }
 
 .sectionKpi b {
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .sectionGrid {
@@ -434,7 +434,7 @@ body.isBooting .content {
 }
 
 .panelTitle {
-  padding: 10px 12px 0 12px;
+  padding: 9px 11px 0 11px;
   font-size: 14px;
   opacity: 0.94;
   font-weight: 600;
@@ -481,7 +481,7 @@ body.isBooting .content {
 }
 
 .panelBody {
-  padding: 10px 12px 12px 12px;
+  padding: 9px 11px 11px 11px;
   height: auto;
   display: flex;
   flex-direction: column;
@@ -501,17 +501,17 @@ body.isBooting .content {
 }
 
 .topA {
-  min-height: 280px;
+  min-height: 250px;
 }
 
 .tableBox {
   overflow: hidden;
-  min-height: 420px;
+  min-height: 380px;
 }
 
 .todoViewCard {
-  min-height: 420px;
-  max-height: 640px;
+  min-height: 360px;
+  max-height: 560px;
 }
 
 .expensesViewBox,
@@ -747,8 +747,8 @@ body.isBooting .content {
 }
 
 .viewDashboard.isActive {
-  grid-template-columns: minmax(0, 1.48fr) minmax(360px, 0.92fr);
-  gap: 16px;
+  grid-template-columns: minmax(0, 1.38fr) minmax(320px, 0.84fr);
+  gap: 14px;
 }
 
 .heroPanel,
@@ -757,19 +757,19 @@ body.isBooting .content {
 }
 
 .summaryStrip {
-  gap: 14px;
+  gap: 12px;
 }
 
 .dashMainGrid {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-auto-rows: minmax(190px, max-content);
-  gap: 16px;
+  grid-auto-rows: minmax(170px, max-content);
+  gap: 14px;
   align-items: start;
 }
 
 .dashCalendarCard {
   grid-column: 1;
-  min-height: 400px;
+  min-height: 360px;
 }
 
 .dashQuickCard {
@@ -780,14 +780,14 @@ body.isBooting .content {
 
 .dashTodoCard {
   grid-column: 1 / -1;
-  min-height: 230px;
+  min-height: 200px;
   max-height: none;
 }
 
 .dashSideGrid {
   grid-template-columns: 1fr;
-  grid-auto-rows: minmax(160px, max-content);
-  gap: 14px;
+  grid-auto-rows: minmax(140px, max-content);
+  gap: 12px;
   align-content: start;
   align-items: start;
 }
@@ -990,6 +990,66 @@ body.isBooting .content {
   .dashQuickRow .habBtn,
   .dashQuickExpenseRow .habBtn {
     grid-column: auto;
+  }
+}
+
+/* Final pass: explicit layout overrides to avoid duplicate-selector drift. */
+body[data-view="dashboard"] .viewDashboard.isActive {
+  grid-template-columns: minmax(0, 1.62fr) minmax(300px, 0.78fr);
+  gap: 18px;
+}
+
+body[data-view="dashboard"] .summaryStrip {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+body[data-view="dashboard"] .dashMainGrid {
+  grid-auto-rows: minmax(150px, max-content);
+  gap: 12px;
+}
+
+body[data-view="dashboard"] .dashSideGrid {
+  gap: 10px;
+}
+
+body[data-view="todo"] .todoModuleGrid {
+  grid-template-columns: minmax(0, 1.44fr) minmax(240px, 0.56fr);
+  gap: 12px;
+}
+
+body[data-view="expenses"] .expensesModuleGrid {
+  grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.74fr);
+  gap: 12px;
+}
+
+body[data-view="habits"] .habitsLayoutGrid {
+  grid-template-columns: minmax(0, 1.24fr) minmax(0, 0.76fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+body[data-view="habits"] .habitsLayoutGrid > .topA {
+  grid-column: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+body[data-view="habits"] .habitsLayoutGrid > .habitsInsightsCard {
+  grid-column: 2;
+  height: 100%;
+}
+
+body[data-view="habits"] .habitsLayoutGrid > .tableBox {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 1260px) {
+  body[data-view="dashboard"] .viewDashboard.isActive,
+  body[data-view="todo"] .todoModuleGrid,
+  body[data-view="expenses"] .expensesModuleGrid,
+  body[data-view="habits"] .habitsLayoutGrid {
+    grid-template-columns: 1fr;
   }
 }
 

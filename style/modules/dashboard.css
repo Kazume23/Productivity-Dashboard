@@ -308,25 +308,25 @@ a.iconBtn{
 }
 
 .pomoBox{
-  background: var(--bg-panel);
-  border: 1px solid var(--glass-06);
-  border-radius: 10px;
-  padding: 10px 12px 12px 12px;
+  background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-control) 100%);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-md);
+  padding: 0;
   margin: 0;
 }
 
 .pomoBody{
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:8px;
 }
 
 .pomoMode{
   display:flex;
   gap:6px;
   padding:4px;
-  border:1px solid var(--glass-08);
-  background: var(--glass-03);
+  border:1px solid var(--border-base);
+  background: var(--bg-control);
   border-radius:10px;
 }
 
@@ -347,16 +347,16 @@ a.iconBtn{
 }
 
 .pomoTab.isActive{
-  background: var(--glass-06);
-  border-color: var(--glass-10);
+  background: var(--bg-panel);
+  border-color: var(--accent);
   opacity:1;
 }
 
 .pomoTime{
-  font-size:32px;
+  font-size:30px;
   font-weight:700;
   text-align:center;
-  letter-spacing:1px;
+  letter-spacing:0.04em;
   padding:4px 0;
 }
 
@@ -373,6 +373,22 @@ a.iconBtn{
   text-align:center;
   opacity:0.65;
   font-size:12px;
+}
+
+.dashPomoCard[data-mode="focus"] {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border-base));
+}
+
+.dashPomoCard[data-mode="break"] {
+  border-color: color-mix(in srgb, var(--habit-done) 34%, var(--border-base));
+}
+
+.dashPomoCard[data-mode="long"] {
+  border-color: color-mix(in srgb, var(--habit-fail) 28%, var(--border-base));
+}
+
+.dashPomoCard.isRunning .pomoTime {
+  color: var(--accent);
 }
 
 .expWrap,
@@ -549,10 +565,10 @@ a.iconBtn{
 }
 
 .heroPanel {
-  padding: 16px;
+  padding: 14px;
   display: grid;
-  gap: 12px;
-  background: linear-gradient(160deg, var(--bg-panel) 0%, var(--bg-shell) 100%);
+  gap: 10px;
+  background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-control) 100%);
 }
 
 .heroMeta {
@@ -563,29 +579,29 @@ a.iconBtn{
 }
 
 .heroTitle {
-  font-size: 24px;
+  font-size: 22px;
   line-height: 1.1;
   font-weight: 700;
   color: var(--text-strong);
 }
 
 .heroStatus {
-  font-size: 14px;
+  font-size: 13px;
   opacity: 0.84;
   max-width: 64ch;
 }
 
 .heroMetrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .heroMetric {
   background: var(--glass-06);
   border: 1px solid var(--glass-10);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   display: grid;
   gap: 2px;
 }
@@ -596,19 +612,19 @@ a.iconBtn{
 }
 
 .heroMetric strong {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
 }
 
 .heroActions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 7px;
 }
 
 .heroActions .calBtn,
 .heroActions .habBtn {
-  min-width: 156px;
+  min-width: 138px;
 }
 
 .summaryCard {
@@ -656,7 +672,7 @@ a.iconBtn{
 }
 
 .todoPreviewItem {
-  padding: 10px 11px;
+  padding: 8px 10px;
   border-radius: 10px;
   background: var(--bg-control);
   border: 1px solid var(--border-base);
@@ -727,7 +743,7 @@ a.iconBtn{
   justify-content: space-between;
   gap: 10px;
   font-size: 13px;
-  padding: 8px 0;
+  padding: 6px 0;
   border-bottom: 1px solid var(--glass-08);
   transition: color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease);
 }
@@ -803,7 +819,7 @@ a.iconBtn{
 
 .todoViewCard .panelBody {
   overflow: auto;
-  max-height: 520px;
+  max-height: 460px;
   overscroll-behavior: contain;
   scrollbar-width: none;
 }
@@ -814,7 +830,7 @@ a.iconBtn{
 }
 
 .todoInsightCard .panelBody {
-  gap: 12px;
+  gap: 9px;
   overflow: auto;
   scrollbar-width: none;
 }
@@ -859,7 +875,7 @@ a.iconBtn{
   border-radius: 10px;
   border: 1px solid var(--border-base);
   background: var(--bg-control);
-  padding: 9px 10px;
+  padding: 8px 9px;
   font-size: 12px;
   line-height: 1.35;
 }
@@ -875,8 +891,8 @@ a.iconBtn{
 
 .todoInsightList {
   display: grid;
-  gap: 7px;
-  max-height: 190px;
+  gap: 6px;
+  max-height: 170px;
   overflow: auto;
   scrollbar-width: none;
 }
@@ -890,7 +906,7 @@ a.iconBtn{
   border-radius: 10px;
   border: 1px solid var(--border-base);
   background: var(--bg-control);
-  padding: 8px 10px;
+  padding: 7px 9px;
   font-size: 12px;
   line-height: 1.35;
 }
@@ -1023,12 +1039,10 @@ a.iconBtn{
 }
 
 .heroPanel {
-  padding: 18px;
+  padding: 14px;
   border-radius: var(--radius-lg);
-  border: 1px solid color-mix(in srgb, var(--accent) 14%, transparent);
-  background:
-    radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 46%),
-    linear-gradient(140deg, var(--bg-panel) 0%, color-mix(in srgb, var(--bg-panel) 62%, var(--bg-control)) 46%, var(--bg-control) 100%);
+  border: 1px solid var(--border-base);
+  background: linear-gradient(180deg, var(--bg-panel) 0%, color-mix(in srgb, var(--bg-control) 90%, var(--bg-panel)) 100%);
 }
 
 .heroMeta {
@@ -1039,8 +1053,8 @@ a.iconBtn{
 
 .heroTitle {
   font-family: var(--font-display);
-  font-size: 30px;
-  letter-spacing: -0.02em;
+  font-size: 24px;
+  letter-spacing: -0.01em;
 }
 
 .heroStatus {
@@ -1059,7 +1073,7 @@ a.iconBtn{
 
 .summaryCard {
   border-radius: var(--radius-md);
-  background: linear-gradient(180deg, var(--bg-panel) 0%, color-mix(in srgb, var(--bg-control) 82%, var(--bg-panel)) 100%);
+  background: linear-gradient(180deg, var(--bg-panel) 0%, color-mix(in srgb, var(--bg-control) 90%, var(--bg-panel)) 100%);
 }
 
 .summaryRows > div {
@@ -1067,16 +1081,16 @@ a.iconBtn{
 }
 
 .chartWrap {
-  grid-template-columns: 260px minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 14px;
   align-items: center;
 }
 
 .chartCanvas {
-  width: 220px;
+  width: 200px;
   min-height: 0;
-  height: 220px;
-  max-height: 220px;
+  height: 200px;
+  max-height: 200px;
   justify-self: center;
   border-radius: var(--radius-sm);
   background: linear-gradient(180deg, var(--bg-control) 0%, color-mix(in srgb, var(--bg-panel) 78%, var(--bg-control)) 100%);
@@ -1099,7 +1113,7 @@ a.iconBtn{
   border: 1px solid var(--border-base);
   background: var(--bg-control);
   border-radius: 999px;
-  padding: 6px 10px;
+  padding: 5px 9px;
 }
 
 .chartKpi {
@@ -1113,7 +1127,7 @@ a.iconBtn{
 .habitsInsightsBody {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .habitsInsightChart {
@@ -1133,8 +1147,8 @@ a.iconBtn{
 
 .habitsInsightChart canvas {
   width: 100%;
-  height: clamp(176px, 24vh, 220px);
-  max-height: 220px;
+  height: clamp(150px, 20vh, 190px);
+  max-height: 190px;
 }
 
 .dashActivityItem,
@@ -1175,6 +1189,259 @@ a.iconBtn{
     width: min(100%, 260px);
     height: 210px;
     max-height: 210px;
+  }
+}
+
+/* Final pass: highly visible dashboard and todo density overrides. */
+body[data-view="dashboard"] .heroPanel {
+  padding: 12px;
+  border: 1px solid var(--border-strong);
+  border-left: 4px solid var(--accent);
+  background: linear-gradient(180deg, var(--bg-panel) 0%, color-mix(in srgb, var(--accent) 10%, var(--bg-control)) 100%);
+  gap: 9px;
+}
+
+body[data-view="dashboard"] .heroTitle {
+  font-size: 21px;
+  letter-spacing: 0;
+}
+
+body[data-view="dashboard"] .heroStatus {
+  font-size: 12px;
+  max-width: 52ch;
+}
+
+body[data-view="dashboard"] .heroMetrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+body[data-view="dashboard"] .heroMetric {
+  padding: 7px 9px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-control));
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border-base));
+}
+
+body[data-view="dashboard"] .heroMetric strong {
+  font-size: 15px;
+}
+
+body[data-view="dashboard"] .summaryCard {
+  padding: 10px;
+  border-color: var(--border-strong);
+  box-shadow: none;
+}
+
+body[data-view="dashboard"] .summaryCardTasks {
+  border-left: 3px solid var(--accent);
+}
+
+body[data-view="dashboard"] .summaryCardHabits {
+  border-left: 3px solid var(--habit-done);
+}
+
+body[data-view="dashboard"] .summaryRows > div {
+  font-size: 12px;
+  padding: 5px 0;
+}
+
+body[data-view="dashboard"] .dashChartWrap {
+  height: 168px;
+}
+
+body[data-view="dashboard"] .dashSpendChartWrap {
+  height: 116px;
+}
+
+body[data-view="dashboard"] .dashPomoCard {
+  border-width: 2px;
+}
+
+body[data-view="dashboard"] .pomoTime {
+  font-size: 28px;
+}
+
+body[data-view="dashboard"] .todoPreviewItem {
+  padding: 7px 8px;
+  gap: 8px;
+}
+
+body[data-view="dashboard"] .todoPreviewText {
+  font-size: 12px;
+}
+
+body[data-view="dashboard"] .todoPreviewMeta {
+  font-size: 10px;
+}
+
+body[data-view="todo"] .todoInsightCard .panelBody {
+  gap: 8px;
+}
+
+body[data-view="todo"] .todoInsightQuick {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border-base));
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-control));
+}
+
+body[data-view="todo"] .todoInsightGrid > div {
+  padding: 7px 8px;
+}
+
+body[data-view="todo"] .todoInsightRow {
+  font-size: 11px;
+  padding: 7px 8px;
+}
+
+@media (max-width: 980px) {
+  body[data-view="dashboard"] .heroMetrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Final pass: highly visible habits overrides. */
+body[data-view="habits"] .sectionHero {
+  border: 1px solid var(--border-strong);
+  border-left: 4px solid var(--habit-done);
+  background: linear-gradient(180deg, var(--bg-panel) 0%, color-mix(in srgb, var(--habit-done) 9%, var(--bg-control)) 100%);
+}
+
+body[data-view="habits"] .sectionKpi {
+  background: color-mix(in srgb, var(--habit-done) 8%, var(--bg-control));
+  border-color: color-mix(in srgb, var(--habit-done) 22%, var(--border-base));
+}
+
+body[data-view="habits"] .topA,
+body[data-view="habits"] .habitsInsightsCard,
+body[data-view="habits"] .tableBox {
+  border-color: var(--border-strong);
+  box-shadow: none;
+}
+
+body[data-view="habits"] .topA {
+  border-left: 3px solid color-mix(in srgb, var(--habit-done) 60%, var(--border-base));
+  background: linear-gradient(180deg, var(--bg-panel) 0%, color-mix(in srgb, var(--habit-done) 7%, var(--bg-control)) 100%);
+  height: 100%;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+}
+
+body[data-view="habits"] .chartHeader {
+  padding: 8px 10px 0 10px;
+}
+
+body[data-view="habits"] .topA .panelTitle {
+  font-size: 15px;
+}
+
+body[data-view="habits"] .topA .panelBody {
+  padding: 8px 10px 10px 10px;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+body[data-view="habits"] .chartWrap {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+body[data-view="habits"] .chartCanvas {
+  width: 164px;
+  height: 164px;
+  max-height: 164px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  justify-self: center;
+}
+
+body[data-view="habits"] .chartMeta {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  align-content: center;
+}
+
+body[data-view="habits"] .chartRange {
+  display: none;
+}
+
+body[data-view="habits"] .chartLegend {
+  gap: 6px;
+  margin: 0;
+  width: 100%;
+}
+
+body[data-view="habits"] .legendRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+
+body[data-view="habits"] .legendRow > span:nth-child(2) {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body[data-view="habits"] .legendRow > b {
+  justify-self: end;
+}
+
+body[data-view="habits"] .habitsInsightsCard .panelTitle {
+  border-bottom: 1px solid var(--border-base);
+  padding-bottom: 7px;
+}
+
+body[data-view="habits"] .habitsInsightsBody {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+body[data-view="habits"] .habitsInsightChart {
+  padding: 8px;
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border-base));
+}
+
+body[data-view="habits"] .habitsInsightChart canvas {
+  height: clamp(140px, 18vh, 170px);
+  max-height: 170px;
+}
+
+body[data-view="habits"] .tableBox {
+  border-top: 2px solid color-mix(in srgb, var(--habit-done) 34%, var(--border-base));
+}
+
+@media (max-width: 980px) {
+  body[data-view="habits"] .topA .panelBody {
+    align-items: flex-start;
+    overflow: visible;
+  }
+
+  body[data-view="habits"] .chartWrap {
+    grid-template-columns: 1fr;
+    justify-items: start;
+    gap: 10px;
+  }
+
+  body[data-view="habits"] .chartCanvas {
+    width: min(100%, 190px);
+    height: 160px;
+    max-height: 160px;
+    justify-self: start;
   }
 }
 

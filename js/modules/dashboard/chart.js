@@ -234,6 +234,8 @@ function renderBalanceChart(done, fail, empty) {
       }
     }
   });
+
+  habitsBalanceChart.resize();
 }
 
 function renderHabitBars(stats) {
@@ -243,16 +245,19 @@ function renderHabitBars(stats) {
     return;
   }
 
-  const labels = (stats.perHabit || []).map(h => h.name || "Nawyk");
+  const ranked = [...(stats.perHabit || [])]
+    .sort((a, b) => (b.done + b.fail) - (a.done + a.fail))
+    .slice(0, 6);
+
+  const labels = ranked.map(h => h.name || "Nawyk");
   if (!labels.length) {
     habitsBarChart = destroyChartInstance(habitsBarChart);
     clearCanvas(habitsBarChartCanvas);
     return;
   }
 
-  const doneSeries = stats.perHabit.map(h => h.donePct);
-  const failSeries = stats.perHabit.map(h => h.failPct);
-  const emptySeries = stats.perHabit.map(h => Math.max(0, 100 - h.donePct - h.failPct));
+  const doneSeries = ranked.map(h => h.donePct);
+  const failSeries = ranked.map(h => h.failPct);
 
   habitsBarChart = destroyChartInstance(habitsBarChart);
   habitsBarChart = new Chart(habitsBarChartCanvas, {
@@ -265,24 +270,14 @@ function renderHabitBars(stats) {
           data: doneSeries,
           backgroundColor: chartCssVar("--habit-done", "#24b36b"),
           borderRadius: 6,
-          borderSkipped: false,
-          stack: "habitPct"
+          borderSkipped: false
         },
         {
           label: "Zawalone %",
           data: failSeries,
           backgroundColor: chartCssVar("--habit-fail", "#ef3d63"),
           borderRadius: 6,
-          borderSkipped: false,
-          stack: "habitPct"
-        },
-        {
-          label: "Puste %",
-          data: emptySeries,
-          backgroundColor: chartCssVar("--chart-empty", "#c2c7d2"),
-          borderRadius: 6,
-          borderSkipped: false,
-          stack: "habitPct"
+          borderSkipped: false
         }
       ]
     },
@@ -299,24 +294,30 @@ function renderHabitBars(stats) {
         legend: {
           position: "bottom",
           labels: { boxWidth: 10 }
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${ctx.raw}%`
+          }
         }
       },
       scales: {
         x: {
-          stacked: true,
           max: 100,
           ticks: {
+            stepSize: 20,
             callback: (v) => `${v}%`
           },
           grid: { color: chartCssVar("--glass-10", "rgba(0,0,0,0.08)") }
         },
         y: {
-          stacked: true,
           grid: { display: false }
         }
       }
     }
   });
+
+  habitsBarChart.resize();
 }
 
 function renderHabitCompareChart() {
@@ -381,6 +382,8 @@ function renderHabitCompareChart() {
       }
     }
   });
+
+  habitsCompareChart.resize();
 }
 
 function syncChartTabs() {

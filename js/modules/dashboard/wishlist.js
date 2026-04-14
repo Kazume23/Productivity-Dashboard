@@ -123,7 +123,7 @@ function renderWishlist() {
   if (!items.length) {
     const empty = document.createElement("div");
     empty.className = "todoEmpty";
-    empty.textContent = "Brak wishlisty.";
+    empty.textContent = "Brak pozycji na liście życzeń.";
     wishList.appendChild(empty);
     if (typeof renderOverviewPanels === "function") renderOverviewPanels();
     return;

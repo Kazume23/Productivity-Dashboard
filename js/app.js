@@ -4,7 +4,7 @@ function getSelectedDateObj() {
 
 const PAGE_HEADER_BY_NAV = {
   navDash: {
-    title: "Dashboard",
+    title: "Panel główny",
     subtitle: "Centrum dnia i szybkie decyzje"
   },
   navTodo: {
@@ -20,7 +20,7 @@ const PAGE_HEADER_BY_NAV = {
     subtitle: "Kontrola kosztów, filtry i priorytety"
   },
   navWishlist: {
-    title: "Wishlist",
+    title: "Lista życzeń",
     subtitle: "Plan zakupów i budżet"
   }
 };
@@ -142,7 +142,7 @@ function getTodoStats() {
     doneCount,
     highOpen,
     totalCount: openCount + doneCount,
-    preview: pending.slice(0, 6),
+    preview: pending.slice(0, 4),
     nextDeadlines: pending.slice(0, 3)
   };
 }
@@ -369,6 +369,10 @@ function renderDashboardCharts(series) {
     return;
   }
 
+  const expenseMax = Math.max(0, ...series.expenseSeries);
+  const sparseExpense = series.expenseSeries.filter(v => v > 0).length <= 2;
+  const sparseTodo = series.todoDoneSeries.filter(v => v > 0).length <= 2;
+
   if (dashProductivityChartCanvas) {
     dashProductivityChart = destroyDashboardChart(dashProductivityChart);
     dashProductivityChart = new Chart(dashProductivityChartCanvas, {
@@ -399,7 +403,7 @@ function renderDashboardCharts(series) {
             yAxisID: "yTodo",
             borderColor: "#33b59f",
             backgroundColor: "rgba(51, 181, 159, 0.16)",
-            pointRadius: 2,
+            pointRadius: sparseTodo ? 2 : 0,
             pointHoverRadius: 4,
             tension: 0.35,
             fill: false
@@ -432,6 +436,10 @@ function renderDashboardCharts(series) {
           yTodo: {
             beginAtZero: true,
             position: "right",
+            suggestedMax: Math.max(2, ...series.todoDoneSeries) + 1,
+            ticks: {
+              precision: 0
+            },
             grid: { display: false }
           }
         }
@@ -451,8 +459,9 @@ function renderDashboardCharts(series) {
           borderColor: "#f08b3e",
           backgroundColor: "rgba(240, 139, 62, 0.20)",
           fill: true,
-          pointRadius: 0,
+          pointRadius: sparseExpense ? 2 : 0,
           pointHoverRadius: 3,
+          borderDash: sparseExpense ? [6, 5] : [],
           tension: 0.34
         }]
       },
@@ -466,6 +475,7 @@ function renderDashboardCharts(series) {
           x: { grid: { display: false } },
           y: {
             beginAtZero: true,
+            suggestedMax: expenseMax > 0 ? undefined : 100,
             ticks: {
               callback: (v) => `${v} zł`
             },
@@ -566,7 +576,7 @@ function buildRecentActivity() {
   for (const it of (state.wishlist || [])) {
     out.push({
       at: Number(it.createdAt) || 0,
-      text: `Wishlist: ${it.name}`,
+      text: `Lista życzeń: ${it.name}`,
       meta: it.price == null ? "Cena: brak" : `Cena: ${moneyPL(it.price)}`
     });
   }
@@ -639,7 +649,6 @@ function renderOverviewPanels() {
   const heroFocusValue = $("heroFocusValue");
   const heroTodoValue = $("heroTodoValue");
   const heroHabitValue = $("heroHabitValue");
-  const heroSpendValue = $("heroSpendValue");
 
   if (heroDateText) {
     heroDateText.textContent = `${weekDayNamePL(selected)}, ${fmtPL(selected)}`;
@@ -666,7 +675,6 @@ function renderOverviewPanels() {
   }
   if (heroTodoValue) heroTodoValue.textContent = String(todoStats.openCount);
   if (heroHabitValue) heroHabitValue.textContent = `${habitStats.rate}%`;
-  if (heroSpendValue) heroSpendValue.textContent = moneyPL(expenseStats.today);
 
   const dashTaskToday = $("dashTaskToday");
   const dashTaskUpcoming = $("dashTaskUpcoming");
@@ -683,22 +691,6 @@ function renderOverviewPanels() {
   if (dashHabitWeekRate) dashHabitWeekRate.textContent = `${habitStats.rate}%`;
   if (dashBestStreak) dashBestStreak.textContent = `${bestStreak.streak} dni`;
   if (dashHabitCoverage) dashHabitCoverage.textContent = `${habitCoverage}%`;
-
-  const dashMoneyMonth = $("dashMoneyMonth");
-  const dashMoneyWeek = $("dashMoneyWeek");
-  const dashMoneyWishlistBudget = $("dashMoneyWishlistBudget");
-  const dashMoneyTopCategory = $("dashMoneyTopCategory");
-
-  if (dashMoneyMonth) dashMoneyMonth.textContent = moneyPL(expenseStats.monthTotal);
-  if (dashMoneyWeek) dashMoneyWeek.textContent = moneyPL(expenseStats.weekTotal);
-  if (dashMoneyWishlistBudget) dashMoneyWishlistBudget.textContent = moneyPL(wishStats.total);
-  if (dashMoneyTopCategory) {
-    if (expenseStats.topCategory === "-") {
-      dashMoneyTopCategory.textContent = "-";
-    } else {
-      dashMoneyTopCategory.textContent = `${expenseStats.topCategory} (${moneyPL(expenseStats.topCategoryValue)})`;
-    }
-  }
 
   const dashExpenseMonth = $("dashExpenseMonth");
   const dashExpenseWeek = $("dashExpenseWeek");
@@ -737,13 +729,6 @@ function renderOverviewPanels() {
   if (habitsKpiFail) habitsKpiFail.textContent = String(habitStats.fail);
   if (habitsKpiRate) habitsKpiRate.textContent = `${habitStats.rate}%`;
 
-  const chartCoverage = $("chartCoverage");
-  const chartDoneDaily = $("chartDoneDaily");
-  const chartFailDaily = $("chartFailDaily");
-  if (chartCoverage) chartCoverage.textContent = `${habitCoverage}%`;
-  if (chartDoneDaily) chartDoneDaily.textContent = chartStats ? String(chartStats.donePerDay) : "0.00";
-  if (chartFailDaily) chartFailDaily.textContent = chartStats ? String(chartStats.failPerDay) : "0.00";
-
   const todoKpiToday = $("todoKpiToday");
   const todoKpiUpcoming = $("todoKpiUpcoming");
   const todoKpiOverdue = $("todoKpiOverdue");
@@ -752,9 +737,13 @@ function renderOverviewPanels() {
   if (todoKpiOverdue) todoKpiOverdue.textContent = String(todoStats.overdue);
 
   const todoInsightOpen = $("todoInsightOpen");
+  const todoInsightHigh = $("todoInsightHigh");
+  const todoInsightDone = $("todoInsightDone");
   const todoInsightNext = $("todoInsightNext");
 
   if (todoInsightOpen) todoInsightOpen.textContent = String(todoStats.openCount);
+  if (todoInsightHigh) todoInsightHigh.textContent = String(todoStats.highOpen);
+  if (todoInsightDone) todoInsightDone.textContent = String(todoStats.doneCount);
   if (todoInsightNext) {
     todoInsightNext.innerHTML = "";
     if (!todoStats.nextDeadlines.length) {
