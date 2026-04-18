@@ -1,8 +1,12 @@
+const TODO_RENDER_STEP = 60;
+let todoVisibleCount = TODO_RENDER_STEP;
+
 function openTodoModal(dateObj) {
   if (!todoOverlay) return;
   todoDateInput.value = toISO(dateObj);
   todoText.value = "";
   todoPriority.value = "medium";
+  syncCustomSelect(todoPriority);
   showOverlay(todoOverlay);
   setTimeout(() => todoText.focus(), 0);
 }
@@ -27,8 +31,11 @@ function addTodo(dateISO, text, priority) {
     text: t,
     priority: priority || "medium",
     done: false,
+    doneAt: 0,
     createdAt: Date.now()
   });
+
+  todoVisibleCount = Math.max(TODO_RENDER_STEP, todoVisibleCount + 1);
 
   saveState();
   renderTodos();
@@ -37,7 +44,13 @@ function addTodo(dateISO, text, priority) {
 function toggleTodo(id) {
   const it = state.todos.find(x => x.id === id);
   if (!it) return;
-  it.done = !it.done;
+  if (it.done) {
+    it.done = false;
+    it.doneAt = 0;
+  } else {
+    it.done = true;
+    it.doneAt = Date.now();
+  }
   saveState();
   renderTodos();
 }
@@ -65,13 +78,25 @@ function renderTodos() {
   });
 
   if (!items.length) {
-    if (todoEmpty) todoEmpty.style.display = "block";
+    todoVisibleCount = TODO_RENDER_STEP;
+    toggleClass(todoEmpty, "isHidden", false);
+    if (typeof renderOverviewPanels === "function") renderOverviewPanels();
     return;
   }
 
-  if (todoEmpty) todoEmpty.style.display = "none";
+  toggleClass(todoEmpty, "isHidden", true);
 
-  for (const it of items) {
+  if (todoVisibleCount < TODO_RENDER_STEP) {
+    todoVisibleCount = TODO_RENDER_STEP;
+  }
+  if (items.length < todoVisibleCount) {
+    todoVisibleCount = Math.max(TODO_RENDER_STEP, items.length);
+  }
+
+  const visibleItems = items.slice(0, todoVisibleCount);
+  const frag = document.createDocumentFragment();
+
+  for (const it of visibleItems) {
     const row = document.createElement("div");
     row.className = "todoItem";
     if (it.done) row.classList.add("todoDone");
@@ -120,8 +145,24 @@ function renderTodos() {
     row.appendChild(left);
     row.appendChild(del);
 
-    todoList.appendChild(row);
+    frag.appendChild(row);
   }
+
+  todoList.appendChild(frag);
+
+  if (items.length > visibleItems.length) {
+    const moreBtn = document.createElement("button");
+    moreBtn.type = "button";
+    moreBtn.className = "calBtn todoLoadMore";
+    moreBtn.textContent = `Pokaż więcej (${items.length - visibleItems.length})`;
+    moreBtn.addEventListener("click", () => {
+      todoVisibleCount = Math.min(items.length, todoVisibleCount + TODO_RENDER_STEP);
+      renderTodos();
+    });
+    todoList.appendChild(moreBtn);
+  }
+
+  if (typeof renderOverviewPanels === "function") renderOverviewPanels();
 }
 
 function initTodo() {

@@ -8,6 +8,11 @@
   border-bottom: 1px solid var(--border-base);
 }
 
+.habHeader,
+.habTable thead th {
+  background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-control) 100%);
+}
+
 .habHeaderLeft {
   display: flex;
   flex-direction: column;
@@ -65,7 +70,9 @@
   flex: 1;
   min-height: 0;
   overflow-x: auto;
-  overflow-y: visible;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .habTable {
@@ -106,6 +113,10 @@
   padding: 10px 8px;
 }
 
+.habTable tbody tr:hover td {
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+}
+
 .tdHabit {
   padding-left: 12px;
 }
@@ -131,8 +142,8 @@
 }
 
 .cellBtn {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 6px;
   border: 1px solid var(--border-cell);
   background: transparent;
@@ -149,13 +160,13 @@
 }
 
 .cellDone {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: color-mix(in srgb, var(--habit-done) 88%, var(--bg-panel));
+  border-color: var(--habit-done);
 }
 
 .cellFail {
-  background: var(--danger);
-  border-color: var(--danger);
+  background: color-mix(in srgb, var(--habit-fail) 88%, var(--bg-panel));
+  border-color: var(--habit-fail);
 }
 
 @media (max-width: 1260px) {
@@ -189,6 +200,66 @@
   .habInput {
     width: 100%;
     flex: 1;
+  }
+
+  .habTableWrap {
+    padding-bottom: 4px;
+  }
+}
+
+/* Final pass: explicit habits tracker density and hierarchy overrides. */
+body[data-view="habits"] .habHeader {
+  padding: 8px 10px;
+  gap: 10px;
+}
+
+body[data-view="habits"] .habTitle {
+  font-size: 13px;
+}
+
+body[data-view="habits"] .habRange {
+  font-size: 11px;
+}
+
+body[data-view="habits"] .habInput {
+  width: 220px;
+  padding: 7px 9px;
+}
+
+body[data-view="habits"] .habTable thead th {
+  padding: 8px 6px;
+  font-size: 11px;
+}
+
+body[data-view="habits"] .habTable tbody td {
+  padding: 8px 6px;
+}
+
+body[data-view="habits"] .thHabit {
+  width: 250px;
+}
+
+body[data-view="habits"] .habitName {
+  min-width: 170px;
+  padding: 5px 7px;
+}
+
+body[data-view="habits"] .cellBtn {
+  width: 22px;
+  height: 22px;
+}
+
+body[data-view="habits"] .habTable tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--accent) 3%, transparent);
+}
+
+@media (max-width: 980px) {
+  body[data-view="habits"] .habInput {
+    width: 100%;
+  }
+
+  body[data-view="habits"] .thHabit {
+    width: 220px;
   }
 }
 

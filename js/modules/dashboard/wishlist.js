@@ -80,7 +80,10 @@ function renderWishlist() {
   if (wishList) wishList.innerHTML = "";
 
   const sortMode = state.wishSortMode || "date-desc";
-  if (wishSort) wishSort.value = sortMode;
+  if (wishSort) {
+    wishSort.value = sortMode;
+    syncCustomSelect(wishSort);
+  }
 
   let items = [...state.wishlist];
   if (sortMode === "date-desc") {
@@ -120,8 +123,9 @@ function renderWishlist() {
   if (!items.length) {
     const empty = document.createElement("div");
     empty.className = "todoEmpty";
-    empty.textContent = "Brak wishlisty.";
+    empty.textContent = "Brak pozycji na liście życzeń.";
     wishList.appendChild(empty);
+    if (typeof renderOverviewPanels === "function") renderOverviewPanels();
     return;
   }
 
@@ -154,6 +158,8 @@ function renderWishlist() {
     row.appendChild(del);
     wishList.appendChild(row);
   }
+
+  if (typeof renderOverviewPanels === "function") renderOverviewPanels();
 }
 
 function initWishlist() {

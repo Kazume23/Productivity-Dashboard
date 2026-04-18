@@ -13,6 +13,70 @@ function buildMonthGrid(year, month) {
   return days;
 }
 
+function ensureCalendarMeta(bucket, iso) {
+  if (!bucket[iso]) {
+    bucket[iso] = {
+      todoOpen: 0,
+      todoDone: 0,
+      habitDone: 0,
+      habitFail: 0,
+      expenses: 0
+    };
+  }
+  return bucket[iso];
+}
+
+function buildCalendarMetaMap() {
+  const metaMap = {};
+
+  for (const it of (state.todos || [])) {
+    if (!it?.dateISO) continue;
+    const item = ensureCalendarMeta(metaMap, it.dateISO);
+    if (it.done) item.todoDone += 1;
+    else item.todoOpen += 1;
+  }
+
+  for (const it of (state.expenses || [])) {
+    if (!it?.dateISO) continue;
+    const item = ensureCalendarMeta(metaMap, it.dateISO);
+    item.expenses += 1;
+  }
+
+  for (const [key, val] of Object.entries(state.entries || {})) {
+    const split = key.split("|");
+    if (split.length !== 2) continue;
+    const iso = split[1];
+    const item = ensureCalendarMeta(metaMap, iso);
+    if (val === 1) item.habitDone += 1;
+    else if (val === -1) item.habitFail += 1;
+  }
+
+  return metaMap;
+}
+
+function calendarActivityLevel(meta) {
+  if (!meta) return 0;
+  const score =
+    (meta.todoOpen * 2) +
+    meta.todoDone +
+    meta.habitDone +
+    (meta.habitFail * 0.8) +
+    (meta.expenses * 0.6);
+
+  if (score <= 0) return 0;
+  if (score <= 2) return 1;
+  if (score <= 4) return 2;
+  if (score <= 7) return 3;
+  return 4;
+}
+
+function makeCalBadge(type, count) {
+  const badge = document.createElement("span");
+  badge.className = `calBadge ${type}`;
+  badge.textContent = count > 9 ? "9+" : String(count);
+  return badge;
+}
+
 function renderCalendar() {
   if (calTitle) {
     calTitle.textContent = `${monthNamePL(state.viewMonth)} ${state.viewYear}`;
@@ -21,6 +85,7 @@ function renderCalendar() {
   calGrid.innerHTML = "";
 
   const days = buildMonthGrid(state.viewYear, state.viewMonth);
+  const metaMap = buildCalendarMetaMap();
   const selectedDate = fromISO(state.selectedDate);
   const weekStart = startOfWeekMonday(selectedDate);
   const weekEnd = addDays(weekStart, 6);
@@ -30,12 +95,33 @@ function renderCalendar() {
     cell.type = "button";
     cell.className = "calDay";
 
+    const iso = toISO(d);
+    const meta = metaMap[iso] || null;
+    const activityLevel = calendarActivityLevel(meta);
+    cell.classList.add(`calLevel${activityLevel}`);
+
     const inMonth = d.getMonth() === state.viewMonth;
     if (!inMonth) cell.classList.add("calMuted");
     if (sameDay(d, selectedDate)) cell.classList.add("calSelected");
     if (d >= weekStart && d <= weekEnd) cell.classList.add("calWeek");
 
-    cell.textContent = String(d.getDate());
+    const dayNum = document.createElement("span");
+    dayNum.className = "calDayNum";
+    dayNum.textContent = String(d.getDate());
+
+    const badges = document.createElement("span");
+    badges.className = "calDayBadges";
+    if (meta?.todoOpen) badges.appendChild(makeCalBadge("todo", meta.todoOpen));
+    if (meta?.habitDone) badges.appendChild(makeCalBadge("done", meta.habitDone));
+    if (meta?.habitFail) badges.appendChild(makeCalBadge("fail", meta.habitFail));
+    if (meta?.expenses) badges.appendChild(makeCalBadge("money", meta.expenses));
+
+    if (meta) {
+      cell.title = `ToDo: ${meta.todoOpen}/${meta.todoDone} • Nawyki: ${meta.habitDone}/${meta.habitFail} • Koszty: ${meta.expenses}`;
+    }
+
+    cell.appendChild(dayNum);
+    cell.appendChild(badges);
     cell.addEventListener("click", () => setSelectedDate(d));
     cell.addEventListener("dblclick", (e) => {
       e.preventDefault();
@@ -45,6 +131,8 @@ function renderCalendar() {
 
     calGrid.appendChild(cell);
   }
+
+  if (typeof renderOverviewPanels === "function") renderOverviewPanels();
 }
 
 function setSelectedDate(date) {

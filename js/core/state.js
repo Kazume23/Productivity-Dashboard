@@ -36,7 +36,22 @@ function sanitizeState(s) {
   }
   s.entries = normalizedEntries;
 
-  if (!Array.isArray(s.todos)) s.todos = [];
+  if (!Array.isArray(s.todos)) {
+    s.todos = [];
+  } else {
+    s.todos = s.todos
+      .filter((it) => it && typeof it === "object")
+      .map((it) => ({
+        id: it.id || crypto.randomUUID(),
+        dateISO: it.dateISO || s.selectedDate || toISO(startOfDay(new Date())),
+        text: String(it.text || "").trim(),
+        priority: it.priority || "medium",
+        done: !!it.done,
+        doneAt: Number(it.doneAt) > 0 ? Number(it.doneAt) : 0,
+        createdAt: Number(it.createdAt) || Date.now()
+      }))
+      .filter((it) => it.text.length > 0);
+  }
   if (!Array.isArray(s.expenses)) s.expenses = [];
   if (!Array.isArray(s.wishlist)) s.wishlist = [];
   if (!s.selectedDate) s.selectedDate = toISO(startOfDay(new Date()));

@@ -1,18 +1,17 @@
 /* Sidebar login */
 .sidebarFooter{
   margin-top: auto;
-  padding-top: 12px;
+  padding-top: 6px;
 }
 
 .authBox{
-  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-control) 100%);
-  border: 1px solid var(--border-base);
-  border-radius: 12px;
-  padding: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 7px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  box-shadow: inset 0 1px 0 var(--glass-06);
+  gap: 6px;
 }
 
 .authTop{
@@ -23,22 +22,25 @@
 
 .authTitle{
   font-weight: 700;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .authStatus{
-  font-size: 12px;
-  opacity: 0.76;
+  font-size: 11px;
+  line-height: 1.35;
+  opacity: 0.68;
 }
 
 .authActions{
   display: flex;
-  gap: 9px;
+  gap: 5px;
 }
 
 .authActions .habBtn,
 .authActions .calBtn{
   flex: 1;
+  padding: 6px 9px;
+  font-size: 12px;
 }
 
 .authActions .inlineForm {

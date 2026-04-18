@@ -30,6 +30,11 @@ if (!$loginErr && $sessionExpired) {
 $registerErr = '';
 $registerOk = isset($_GET['register_ok']) && (string)$_GET['register_ok'] === '1';
 
+$vBaseStyles = (string) (@filemtime(__DIR__ . '/style/style.css') ?: time());
+$vThemeIra = (string) (@filemtime(__DIR__ . '/style/theme-ira.css') ?: time());
+$vThemeLight = (string) (@filemtime(__DIR__ . '/style/styletrybjasny1.css') ?: time());
+$vThemePink = (string) (@filemtime(__DIR__ . '/style/styletrybrozowy.css') ?: time());
+
 if (isset($_GET['register_err'])) {
   $code = (string)$_GET['register_err'];
   if ($code === 'csrf') $registerErr = 'Sesja wygasła, spróbuj ponownie';
@@ -48,18 +53,19 @@ if (isset($_GET['register_err'])) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Edward Tracker</title>
-<link rel="stylesheet" href="style/style.css" id="baseStyles">
-<link rel="stylesheet" href="style/theme-ira.css" id="themeStyles" media="not all">
-<link rel="stylesheet" href="style/styletrybjasny1.css" id="themelight" media="not all">
-<link rel="stylesheet" href="style/styletrybrozowy.css" id="themepink" media="not all">
+<link rel="stylesheet" href="style/style.css?v=<?= htmlspecialchars($vBaseStyles, ENT_QUOTES, 'UTF-8') ?>" id="baseStyles">
+<link rel="stylesheet" href="style/theme-ira.css?v=<?= htmlspecialchars($vThemeIra, ENT_QUOTES, 'UTF-8') ?>" id="themeStyles" media="all">
+<link rel="stylesheet" href="style/styletrybjasny1.css?v=<?= htmlspecialchars($vThemeLight, ENT_QUOTES, 'UTF-8') ?>" id="themelight" media="not all">
+<link rel="stylesheet" href="style/styletrybrozowy.css?v=<?= htmlspecialchars($vThemePink, ENT_QUOTES, 'UTF-8') ?>" id="themepink" media="not all">
   <script>
     (() => {
       const key = "edward_theme_v1";
       const themeIds = ["themeStyles", "themelight", "themepink"];
-      let saved = "base";
+      const fallback = "base";
+      let saved = fallback;
 
       try {
-        const raw = localStorage.getItem(key) || "base";
+        const raw = localStorage.getItem(key);
         if (raw === "base" || themeIds.includes(raw)) {
           saved = raw;
         }
@@ -83,22 +89,23 @@ if (isset($_GET['register_err'])) {
   
 </head>
 
-<body
+<body class="isBooting"
   data-auth-user="<?= htmlspecialchars((string)($authUser ?? ''), ENT_QUOTES, 'UTF-8') ?>"
   data-api-state-url="./api/state.php"
   data-register-ok="<?= $registerOk ? '1' : '0' ?>"
   data-csrf="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>"
 >
   <div class="app">
-    <div class="sidebar">
+    <div class="sidebar" id="sidebarNav">
       <div class="logo">  
         <span class="logoMark" aria-hidden="true"></span>
         <span class="logoText">Edward</span>
+        <button class="sidebarCloseBtn" id="sidebarCloseBtn" type="button" aria-label="Zamknij menu">×</button>
       </div>
 
       <div class="nav">
         <div class="navRow">
-          <button class="navItem" id="navDash" type="button">Dashboard</button>
+          <button class="navItem" id="navDash" type="button">Panel główny</button>
         </div>
 
         <div class="navRow">
@@ -117,8 +124,8 @@ if (isset($_GET['register_err'])) {
         </div>
 
         <div class="navRow">
-          <button class="navItem" id="navWishlist" type="button">Wishlist</button>
-          <button class="navAddBtn" id="navAddWishlist" type="button" title="Dodaj do wishlisty" aria-label="Dodaj do wishlisty">+</button>
+          <button class="navItem" id="navWishlist" type="button">Lista życzeń</button>
+          <button class="navAddBtn" id="navAddWishlist" type="button" title="Dodaj do listy życzeń" aria-label="Dodaj do listy życzeń">+</button>
         </div>
       </div>
 
@@ -154,14 +161,26 @@ if (isset($_GET['register_err'])) {
 
     </div>
 
+    <button class="sidebarOverlay" id="sidebarOverlay" type="button" aria-label="Zamknij menu"></button>
+
     <div class="main">
       <div class="topbar">
-        <div class="titleWrap">
-          <div class="title" id="pageTitle">Dashboard</div>
-          <div class="titleMeta" id="pageSubtitle">Przegląd dnia i postępów</div>
+        <div class="topbarLeft">
+          <button class="iconBtn mobileMenuBtn" id="mobileMenuBtn" type="button" aria-label="Otwórz menu" aria-expanded="false" aria-controls="sidebarNav">
+            <svg class="iconSvg" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path fill="currentColor" d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z"/>
+            </svg>
+          </button>
+
+          <div class="titleWrap">
+            <div class="title" id="pageTitle">Panel główny</div>
+          </div>
         </div>
-          <div class="icons">
-            <button class="icon iconBtn" id="langBtn" type="button" title="Zmień język">
+          <div class="topbarRight">
+            <div class="syncBadge" id="syncBadge" role="status" aria-live="polite">Tryb lokalny</div>
+
+            <div class="icons">
+            <button class="icon iconBtn" id="langBtn" type="button" title="Zmień język" hidden aria-hidden="true">
               <svg class="iconSvg" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                 <path fill="currentColor"
                   d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2Zm7.93 9h-3.1a15.6 15.6 0 0 0-1.2-5.02A8.03 8.03 0 0 1 19.93 11ZM12 4c.88 1.22 1.57 3.07 1.9 5H10.1c.33-1.93 1.02-3.78 1.9-5Zm-1.9 7h3.8c.1.64.1 1.31.1 2s0 1.36-.1 2h-3.8c-.1-.64-.1-1.31-.1-2s0-1.36.1-2Zm-1.73-5.02A15.6 15.6 0 0 0 7.17 11H4.07a8.03 8.03 0 0 1 4.3-5.02ZM4.07 13h3.1c.19 1.74.62 3.44 1.2 5.02A8.03 8.03 0 0 1 4.07 13Zm7.93 7c-.88-1.22-1.57-3.07-1.9-5h3.8c-.33 1.93-1.02 3.78-1.9 5Zm3.63-1.98A15.6 15.6 0 0 0 16.83 13h3.1a8.03 8.03 0 0 1-4.3 5.02Z"/>
@@ -185,160 +204,394 @@ if (isset($_GET['register_err'])) {
                   d="M12 .5C5.73.5.5 5.74.5 12.02c0 5.11 3.29 9.43 7.86 10.96.58.11.79-.25.79-.56v-2.1c-3.2.7-3.87-1.38-3.87-1.38-.53-1.34-1.3-1.7-1.3-1.7-1.06-.73.08-.72.08-.72 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.73 1.27 3.4.97.1-.75.41-1.27.75-1.56-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.07 11.07 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.41-2.68 5.38-5.24 5.66.42.36.8 1.08.8 2.18v3.23c0 .31.21.67.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.74 18.27.5 12 .5z"/>
               </svg>
             </a>
+            </div>
           </div>
       </div>
-    <div class="content">  
-      <div class="box topA">
-        <div class="chartHeader">
-          <div class="panelTitle">Bilans nawyków</div>
-        
-          <div class="chartToggle" role="tablist" aria-label="Zakres wykresu">
-            <button class="chartTab isActive" id="chartWeek" type="button">Tydzień</button>
-            <button class="chartTab" id="chartMonth" type="button">Miesiąc</button>
-          </div>
-        </div>
-      
-        <div class="panelBody">
-          <div class="chartWrap">
-            <svg id="chartSvg" class="chartSvg" viewBox="0 0 220 220" aria-label="Wykres bilansu"></svg>
-          
-            <div class="chartMeta">
-              <div class="chartRange" id="chartRangeTxt"></div>
-            
-              <div class="chartLegend">
-                <div class="legendRow">
-                  <span class="legendDot done"></span>
-                  <span>Wykonane:</span>
-                  <b id="chartDone">0</b>
-                </div>
-                <div class="legendRow">
-                  <span class="legendDot fail"></span>
-                  <span>Zawalone:</span>
-                  <b id="chartFail">0</b>
-                </div>
-                <div class="legendRow">
-                  <span class="legendDot empty"></span>
-                  <span>Puste:</span>
-                  <b id="chartEmpty">0</b>
-                </div>
-              </div>
-              <div class="chartActions">
-                <button class="habBtn" id="chartDetailsBtn" type="button">Szczegóły</button>
-              </div>
+    <div class="content" id="appContent">
+      <section class="view viewDashboard" id="viewDash" data-view="dashboard" aria-hidden="true">
+        <div class="heroPanel box">
+          <div class="heroMeta" id="heroDateText">Dzisiaj</div>
+          <div class="heroTitle">Podsumowanie dnia</div>
+          <div class="heroStatus" id="heroStatusText">Priorytety, skupienie i najbliższe decyzje w jednym skrócie.</div>
+
+          <div class="heroMetrics">
+            <div class="heroMetric">
+              <span>Fokus</span>
+              <strong id="heroFocusValue">25:00</strong>
+            </div>
+            <div class="heroMetric">
+              <span>Zadania otwarte</span>
+              <strong id="heroTodoValue">0</strong>
+            </div>
+            <div class="heroMetric">
+              <span>Skuteczność nawyków</span>
+              <strong id="heroHabitValue">0%</strong>
             </div>
           </div>
-        </div>
-      </div>
 
-
-        <div class="box topB">
-          <div class="cal">
-            <div class="calHeader">
-              <button class="calBtn" id="calPrev" type="button">‹</button>
-              <div class="calTitle" id="calTitle">Miesiąc 2026</div>
-              <div class="calRight">
-                <button class="calBtn" id="calToday" type="button" data-i18n="cal.today">Dziś</button>
-                <button class="calBtn" id="calNext" type="button">›</button>
-              </div>
-            </div>
-
-            <div class="calWeekdays">
-              <div data-i18n="cal.wd.mon">PN</div>
-              <div data-i18n="cal.wd.tue">WT</div>
-              <div data-i18n="cal.wd.wed">ŚR</div>
-              <div data-i18n="cal.wd.thu">CZ</div>
-              <div data-i18n="cal.wd.fri">PT</div>
-              <div data-i18n="cal.wd.sat">SB</div>
-              <div data-i18n="cal.wd.sun">ND</div>
-            </div>
-
-            <div class="calGrid" id="calGrid"></div>
+          <div class="heroActions">
+            <button class="habBtn" id="heroOpenTodo" type="button">Domknij zadania</button>
+            <button class="calBtn" id="heroOpenHabits" type="button">Sprawdź nawyki</button>
+            <button class="calBtn" id="heroAddExpense" type="button">Zapisz koszt</button>
           </div>
         </div>
 
-        <div class="tableBox">
-          <div class="habHeader">
-            <div class="habHeaderLeft">
-              <div class="habTitle">Habit tracker</div>
-              <div class="habRange" id="habRange"></div>
+        <div class="summaryStrip">
+          <article class="summaryCard summaryCardTasks box">
+            <div class="summaryLabel">Pipeline zadań</div>
+            <div class="summaryRows">
+              <div><span>Dziś</span><b id="dashTaskToday">0</b></div>
+              <div><span>Nadchodzące</span><b id="dashTaskUpcoming">0</b></div>
+              <div><span>Zaległe</span><b id="dashTaskOverdue">0</b></div>
             </div>
+          </article>
 
-            <div class="habAdd">
-              <input class="habInput" id="habitName" placeholder="Dodaj nawyk..." data-i18n-placeholder="hab.addPlaceholder" autocomplete="off">
-              <button class="habBtn" id="addHabit" type="button" data-i18n="common.add">Dodaj</button>
+          <article class="summaryCard summaryCardHabits box">
+            <div class="summaryLabel">Momentum nawyków</div>
+            <div class="summaryRows">
+              <div><span>Skuteczność tygodnia</span><b id="dashHabitWeekRate">0%</b></div>
+              <div><span>Najlepszy streak</span><b id="dashBestStreak">0 dni</b></div>
+              <div><span>Pokrycie wpisów</span><b id="dashHabitCoverage">0%</b></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="dashMainGrid">
+          <div class="box topB dashCalendarCard">
+            <div class="cal">
+              <div class="calHeader">
+                <button class="calBtn" id="calPrev" type="button">‹</button>
+                <div class="calTitle" id="calTitle">Miesiąc 2026</div>
+                <div class="calRight">
+                  <button class="calBtn" id="calToday" type="button" data-i18n="cal.today">Dziś</button>
+                  <button class="calBtn" id="calNext" type="button">›</button>
+                </div>
+              </div>
+
+              <div class="calWeekdays">
+                <div data-i18n="cal.wd.mon">PN</div>
+                <div data-i18n="cal.wd.tue">WT</div>
+                <div data-i18n="cal.wd.wed">ŚR</div>
+                <div data-i18n="cal.wd.thu">CZ</div>
+                <div data-i18n="cal.wd.fri">PT</div>
+                <div data-i18n="cal.wd.sat">SB</div>
+                <div data-i18n="cal.wd.sun">ND</div>
+              </div>
+
+              <div class="calGrid" id="calGrid"></div>
             </div>
           </div>
 
-          <div class="habTableWrap">
-            <table class="habTable" id="habTable">
-              <thead id="habThead"></thead>
-              <tbody id="habTbody"></tbody>
-            </table>
+          <div class="box dashQuickCard">
+            <div class="panelTitle">Szybkie akcje</div>
+            <div class="panelBody dashQuickBody">
+              <div class="dashQuickBlock">
+                <div class="dashQuickLabel">ToDo na wybraną datę</div>
+                <div class="dashQuickRow">
+                  <input class="modalInput" id="dashQuickTodoText" type="text" placeholder="Np. Domknąć raport" autocomplete="off">
+                  <select class="modalInput" id="dashQuickTodoPriority">
+                    <option value="high">Wysoki</option>
+                    <option value="medium" selected>Średni</option>
+                    <option value="low">Niski</option>
+                  </select>
+                  <button class="habBtn" id="dashQuickTodoAdd" type="button">Dodaj ToDo</button>
+                </div>
+              </div>
+
+              <div class="dashQuickBlock">
+                <div class="dashQuickLabel">Koszt na szybko</div>
+                <div class="dashQuickRow dashQuickExpenseRow">
+                  <input class="modalInput" id="dashQuickExpenseAmount" type="text" inputmode="numeric" placeholder="Kwota">
+                  <select class="modalInput" id="dashQuickExpenseCategory">
+                    <option value="Jedzenie">Jedzenie</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Rozrywka">Rozrywka</option>
+                    <option value="Zdrowie">Zdrowie</option>
+                    <option value="Edukacja">Edukacja</option>
+                    <option value="Sprzęt">Sprzęt</option>
+                    <option value="Subskrypcje">Subskrypcje</option>
+                    <option value="Inne">Inne</option>
+                  </select>
+                  <input class="modalInput" id="dashQuickExpenseWhat" type="text" placeholder="Za co?" autocomplete="off">
+                  <button class="habBtn" id="dashQuickExpenseAdd" type="button">Dodaj koszt</button>
+                </div>
+              </div>
+
+              <div class="dashQuickHint" id="dashQuickHint">Tryb szybki działa na aktualnej dacie z kalendarza.</div>
+            </div>
+          </div>
+
+          <div class="box dashTodoCard">
+            <div class="panelTitle todoTitleRow">
+              <div class="todoTitleText">
+                <span>Najbliższe zadania i terminy</span>
+                <span class="todoTitleSub" id="dashboardTodoSub"></span>
+              </div>
+
+              <div class="inlineActions">
+                <button type="button" class="todoAddBtn" id="dashAddTodoBtn" aria-label="Dodaj ToDo">+</button>
+              </div>
+            </div>
+
+            <div class="panelBody">
+              <div id="dashboardTodoEmpty" class="todoEmpty">Brak ToDo do podglądu.</div>
+              <div id="dashboardTodoList" class="todoList todoPreviewList"></div>
+            </div>
           </div>
         </div>
 
-          <div class="sideBox" id="todoBox">
-            <div class="box pomoBox">
-              <div class="panelTitle">Pomodoro</div>
-              <div class="panelBody pomoBody">
-                <div class="pomoMode">
-                  <button class="pomoTab isActive" id="pomoFocus" type="button">Focus</button>
-                  <button class="pomoTab" id="pomoBreak" type="button">Break</button>
-                  <button class="pomoTab" id="pomoLong" type="button">Long</button>
-                </div>
-
-                <div class="pomoTime" id="pomoTime">25:00</div>
-
-                <div class="pomoActions">
-                  <button class="habBtn" id="pomoStart" type="button">Start</button>
-                  <button class="habBtn" id="pomoReset" type="button">Reset</button>
-                </div>
-
-                <div class="pomoMeta">Sesja: <span id="pomoSession">0</span></div>
+        <div class="dashSideGrid">
+          <div class="box dashProductivityCard">
+            <div class="panelTitle">Produktywność i trend</div>
+            <div class="panelBody">
+              <div class="dashChartWrap">
+                <canvas id="dashProductivityChart" aria-label="Trend produktywności 14 dni"></canvas>
               </div>
+
+              <div class="dashMiniStats">
+                <div><span>Domknięte ToDo</span><b id="dashProductivityDone">0</b></div>
+                <div><span>Nawyki wykonane</span><b id="dashProductivityHabits">0</b></div>
+                <div><span>Niewykonane wpisy</span><b id="dashProductivityFail">0</b></div>
+              </div>
+
+              <div class="dashCompareRow"><span>Tydzień vs poprzedni</span><b id="dashCompareWeek">0%</b></div>
+              <div class="dashCompareRow"><span>Miesiąc vs poprzedni</span><b id="dashCompareMonth">0%</b></div>
             </div>
-            <div class="box todoBox">
-              <div class="panelTitle todoTitleRow">
-                <div class="todoTitleText">
-                  <span data-i18n="todo.title">ToDo</span>
-                  <span class="todoTitleSub" id="todoTitleSub"></span>
-                </div>
+          </div>
 
-                <button type="button" class="todoAddBtn" id="todoAddBtn" aria-label="Dodaj ToDo">+</button>
+          <div class="box pomoBox dashPomoCard">
+            <div class="panelTitle">Pomodoro</div>
+            <div class="panelBody pomoBody">
+              <div class="pomoMode">
+                <button class="pomoTab isActive" id="pomoFocus" type="button">Fokus</button>
+                <button class="pomoTab" id="pomoBreak" type="button">Przerwa</button>
+                <button class="pomoTab" id="pomoLong" type="button">Długa</button>
               </div>
 
-              <div class="panelBody">
-                <div id="todoEmpty" class="todoEmpty" data-i18n="todo.empty">Brak ToDo. Dwuklik w kalendarzu aby dodać.</div>
-                <div id="todoList" class="todoList"></div>
+              <div class="pomoTime" id="pomoTime">25:00</div>
+
+              <div class="pomoActions">
+                <button class="habBtn" id="pomoStart" type="button">Start</button>
+                <button class="habBtn" id="pomoReset" type="button">Resetuj</button>
+              </div>
+
+              <div class="pomoMeta">Sesja: <span id="pomoSession">0</span></div>
+            </div>
+          </div>
+
+          <div class="box dashFinanceCard">
+            <div class="panelTitle">Finanse i lista życzeń</div>
+            <div class="panelBody">
+              <div class="dashFinanceRow"><span>Miesięcznie</span><b id="dashExpenseMonth">0,00 zł</b></div>
+              <div class="dashFinanceRow"><span>Tydzień</span><b id="dashExpenseWeek">0,00 zł</b></div>
+              <div class="dashFinanceRow"><span>Top kategoria</span><b id="dashExpenseTopCategory">-</b></div>
+              <div class="dashFinanceRow"><span>Pozycje</span><b id="dashWishlistCount">0</b></div>
+              <div class="dashFinanceRow"><span>Budżet listy życzeń</span><b id="dashWishlistBudget">0,00 zł</b></div>
+              <div class="dashChartWrap dashSpendChartWrap">
+                <canvas id="dashSpendTrendChart" aria-label="Trend wydatków 14 dni"></canvas>
+              </div>
+              <div class="dashFinanceActions">
+                <button class="calBtn" id="dashGoExpensesBtn" type="button">Wydatki</button>
+                <button class="calBtn" id="dashGoWishlistBtn" type="button">Lista życzeń</button>
               </div>
             </div>
           </div>
-            <div class="bottomBox">
-              <div class="expWrap">
-                <div class="panelTitle" data-i18n="exp.title">Dziennik wydatków</div>
-                <div class="panelBody">
-                  <div class="expHeader">
-                    <div class="expSummary" id="expSummary">Suma: 0,00 zł</div>
-                    <div class="expFilterRow">
-                      <label class="modalLabel expFilterLabel" for="expFilterCategory">Filtruj:</label>
-                      <select class="modalInput expFilterSelect" id="expFilterCategory">
-                        <option value="">Wszystkie</option>
-                        <option value="Jedzenie">Jedzenie</option>
-                        <option value="Transport">Transport</option>
-                        <option value="Rozrywka">Rozrywka</option>
-                        <option value="Zdrowie">Zdrowie</option>
-                        <option value="Edukacja">Edukacja</option>
-                        <option value="Sprzęt">Sprzęt</option>
-                        <option value="Subskrypcje">Subskrypcje</option>
-                        <option value="Inne">Inne</option>
-                      </select>
+
+          <div class="box dashActivityCard">
+            <div class="panelTitle">Ostatnia aktywność</div>
+            <div class="panelBody">
+              <div id="dashActivityList" class="dashActivityList"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view viewHabits" id="viewHabits" data-view="habits" aria-hidden="true">
+        <div class="sectionHero box">
+          <div class="sectionHeadText">
+            <div class="sectionTitle">Nawyki i skuteczność</div>
+            <div class="sectionSubtitle">Bilans tygodnia i widok realizacji nawyków bez zbędnych dodatków.</div>
+          </div>
+          <div class="sectionKpiGrid">
+            <div class="sectionKpi"><span>Wykonane w tygodniu</span><b id="habitsKpiDone">0</b></div>
+            <div class="sectionKpi"><span>Nieudane</span><b id="habitsKpiFail">0</b></div>
+            <div class="sectionKpi"><span>Wskaźnik wykonania</span><b id="habitsKpiRate">0%</b></div>
+          </div>
+        </div>
+
+        <div class="sectionGrid habitsLayoutGrid">
+          <div class="box topA">
+            <div class="chartHeader">
+              <div class="panelTitle">Bilans nawyków</div>
+
+              <div class="chartToggle" role="tablist" aria-label="Zakres wykresu">
+                <button class="chartTab isActive" id="chartWeek" type="button">Tydzień</button>
+                <button class="chartTab" id="chartMonth" type="button">Miesiąc</button>
+              </div>
+            </div>
+
+            <div class="panelBody">
+              <div class="chartWrap">
+                <canvas id="chartCanvas" class="chartCanvas" aria-label="Wykres bilansu nawyków"></canvas>
+
+                <div class="chartMeta">
+                  <div class="chartRange" id="chartRangeTxt"></div>
+
+                  <div class="chartLegend">
+                    <div class="legendRow">
+                      <span class="legendDot done"></span>
+                      <span>Wykonane:</span>
+                      <b id="chartDone">0</b>
+                    </div>
+                    <div class="legendRow">
+                      <span class="legendDot fail"></span>
+                      <span>Zawalone:</span>
+                      <b id="chartFail">0</b>
+                    </div>
+                    <div class="legendRow">
+                      <span class="legendDot empty"></span>
+                      <span>Puste:</span>
+                      <b id="chartEmpty">0</b>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                  <div class="expForm">
+          <div class="box habitsInsightsCard">
+            <div class="panelTitle">Skuteczność i porównanie</div>
+            <div class="panelBody habitsInsightsBody">
+              <div class="habitsInsightChart">
+                <div class="habitsInsightTitle">Skuteczność nawyków</div>
+                <canvas id="habitsBarChart" aria-label="Skuteczność nawyków"></canvas>
+              </div>
+
+              <div class="habitsInsightChart">
+                <div class="habitsInsightTitle">Porównanie zakresów</div>
+                <canvas id="habitsCompareChart" aria-label="Porównanie tygodnia i miesiąca"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="tableBox">
+            <div class="habHeader">
+              <div class="habHeaderLeft">
+                <div class="habTitle">Tracker nawyków</div>
+                <div class="habRange" id="habRange"></div>
+              </div>
+
+              <div class="habAdd">
+                <input class="habInput" id="habitName" placeholder="Dodaj nawyk..." data-i18n-placeholder="hab.addPlaceholder" autocomplete="off">
+                <button class="habBtn" id="addHabit" type="button" data-i18n="common.add">Dodaj</button>
+              </div>
+            </div>
+
+            <div class="habTableWrap">
+              <table class="habTable" id="habTable">
+                <thead id="habThead"></thead>
+                <tbody id="habTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="view viewTodo" id="viewTodo" data-view="todo" aria-hidden="true">
+        <div class="sectionHero box">
+          <div class="sectionHeadText">
+            <div class="sectionTitle">Plan dnia i backlog</div>
+            <div class="sectionSubtitle">Prosty widok pracy: lista zadań i najbliższe terminy.</div>
+          </div>
+          <div class="sectionKpiGrid">
+            <div class="sectionKpi"><span>Otwarte dziś</span><b id="todoKpiToday">0</b></div>
+            <div class="sectionKpi"><span>Nadchodzące</span><b id="todoKpiUpcoming">0</b></div>
+            <div class="sectionKpi"><span>Zaległe</span><b id="todoKpiOverdue">0</b></div>
+          </div>
+        </div>
+
+        <div class="todoModuleGrid">
+          <div class="box todoBox todoViewCard" id="todoBox">
+            <div class="panelTitle todoTitleRow">
+              <div class="todoTitleText">
+                <span data-i18n="todo.title">ToDo</span>
+                <span class="todoTitleSub" id="todoTitleSub"></span>
+              </div>
+
+              <button type="button" class="todoAddBtn" id="todoAddBtn" aria-label="Dodaj ToDo">+</button>
+            </div>
+
+            <div class="panelBody">
+              <div id="todoEmpty" class="todoEmpty" data-i18n="todo.empty">Brak ToDo. Dwuklik w kalendarzu aby dodać.</div>
+              <div id="todoList" class="todoList"></div>
+            </div>
+          </div>
+
+          <aside class="box todoInsightCard">
+            <div class="panelTitle">Priorytety dnia</div>
+            <div class="panelBody">
+              <div class="todoInsightQuick">
+                Otwarte zadania: <b id="todoInsightOpen">0</b>
+              </div>
+
+              <div class="todoInsightGrid">
+                <div><span>Wysoki priorytet</span><b id="todoInsightHigh">0</b></div>
+                <div><span>Zamknięte</span><b id="todoInsightDone">0</b></div>
+              </div>
+
+              <div class="todoInsightBlock">
+                <div class="todoInsightLabel">Najbliższe terminy</div>
+                <div id="todoInsightNext" class="todoInsightList"></div>
+              </div>
+
+              <button class="calBtn" id="todoQuickAddBtn" type="button">Dodaj zadanie</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view viewExpenses" id="viewExpenses" data-view="expenses" aria-hidden="true">
+        <div class="sectionHero box">
+          <div class="sectionHeadText">
+            <div class="sectionTitle">Finanse i kontrola kosztów</div>
+            <div class="sectionSubtitle">Przejrzysty podział na wpisy, filtrowanie i szybki obraz budżetu.</div>
+          </div>
+          <div class="sectionKpiGrid">
+            <div class="sectionKpi"><span>Miesięcznie</span><b id="expKpiMonth">0,00 zł</b></div>
+            <div class="sectionKpi"><span>Tygodniowo</span><b id="expKpiWeek">0,00 zł</b></div>
+            <div class="sectionKpi"><span>Top kategoria</span><b id="expKpiTopCategory">-</b></div>
+          </div>
+        </div>
+
+        <div class="expensesSummaryStrip">
+          <article class="summaryCard box">
+            <span class="summaryLabel">Dziś</span>
+            <strong class="summaryValue" id="expStatDay">0,00 zł</strong>
+          </article>
+          <article class="summaryCard box">
+            <span class="summaryLabel">Tydzień</span>
+            <strong class="summaryValue" id="expStatWeek">0,00 zł</strong>
+          </article>
+          <article class="summaryCard box">
+            <span class="summaryLabel">Miesiąc</span>
+            <strong class="summaryValue" id="expStatMonth">0,00 zł</strong>
+          </article>
+        </div>
+
+        <div class="expensesModuleGrid">
+          <div class="expensesMainCol">
+            <div class="box expComposeCard">
+              <div class="panelTitle">Dodaj nowy koszt</div>
+              <div class="panelBody">
+                <div class="expForm expFormFull">
+                  <label class="expField" for="expAmount">
+                    <span>Kwota</span>
                     <input class="modalInput" id="expAmount" type="text" inputmode="numeric" placeholder="Kwota" data-i18n-placeholder="exp.amount" />
-                    <input class="modalInput" id="expWhat" type="text" placeholder="Co kupione" data-i18n-placeholder="exp.what">
+                  </label>
 
+                  <label class="expField" for="expCategory">
+                    <span>Kategoria</span>
                     <select class="modalInput" id="expCategory">
                       <option value="Jedzenie">Jedzenie</option>
                       <option value="Transport">Transport</option>
@@ -349,56 +602,133 @@ if (isset($_GET['register_err'])) {
                       <option value="Subskrypcje">Subskrypcje</option>
                       <option value="Inne">Inne</option>
                     </select>
+                  </label>
 
+                  <label class="expField expFieldWide" for="expWhat">
+                    <span>Co kupione</span>
+                    <input class="modalInput" id="expWhat" type="text" placeholder="Co kupione" data-i18n-placeholder="exp.what">
+                  </label>
+
+                  <label class="expField" for="expScore">
+                    <span>Ocena</span>
                     <select class="modalInput" id="expScore">
                       <option value="A">A — Wysoki priorytet</option>
                       <option value="B">B — Konieczny</option>
                       <option value="C">C — Opcjonalny</option>
                       <option value="D">D — Zbędny</option>
                     </select>
+                  </label>
 
+                  <label class="expField" for="expPeriod">
+                    <span>Okres</span>
                     <select class="modalInput" id="expPeriod">
                       <option value="once">Jednorazowe</option>
                       <option value="weekly">Tygodniowe</option>
                       <option value="monthly">Miesięczne</option>
                       <option value="yearly">Roczne</option>
                     </select>
+                  </label>
 
+                  <label class="expField" for="expDate">
+                    <span>Data</span>
                     <input class="modalInput" id="expDate" type="date">
+                  </label>
+
+                  <div class="expActionsRow">
                     <button class="habBtn" id="expAdd" type="button" data-i18n="common.add">Dodaj</button>
                   </div>
-
-                  <div class="expList" id="expList"></div>
-                </div>
-              </div>
-
-              <!-- WISHLIST -->
-              <div class="wishWrap">
-                <div class="panelTitle">Wishlist</div>
-                <div class="panelBody">
-                  <div class="wishForm">
-                    <input class="modalInput" id="wishName" type="text" placeholder="Co chcesz kupić" autocomplete="off">
-                    <input class="modalInput" id="wishPrice" type="text" inputmode="numeric" placeholder="Cena" autocomplete="off">
-                    <button class="habBtn" id="wishAdd" type="button">Dodaj</button>
-                  </div>
-
-                  <div class="wishHeader">
-                    <label class="modalLabel wishSortLabel" for="wishSort">Sortuj:</label>
-                    <select class="modalInput wishSortSelect" id="wishSort">
-                      <option value="date-desc">Data (najnowsze)</option>
-                      <option value="date-asc">Data (najstarsze)</option>
-                      <option value="price-asc">Cena (rosnąco)</option>
-                      <option value="price-desc">Cena (malejąco)</option>
-                      <option value="name-asc">Nazwa (A-Z)</option>
-                      <option value="name-desc">Nazwa (Z-A)</option>
-                    </select>
-                  </div>
-
-                  <div class="wishList" id="wishList"></div>
                 </div>
               </div>
             </div>
+
+            <div class="box expLedgerCard">
+              <div class="panelTitle" data-i18n="exp.title">Dziennik wydatków</div>
+              <div class="panelBody">
+                <div class="expHeader">
+                  <div class="expSummary" id="expSummary">Suma: 0,00 zł</div>
+                  <div class="expFilterRow">
+                    <label class="modalLabel expFilterLabel" for="expFilterCategory">Filtruj:</label>
+                    <select class="modalInput expFilterSelect" id="expFilterCategory">
+                      <option value="">Wszystkie</option>
+                      <option value="Jedzenie">Jedzenie</option>
+                      <option value="Transport">Transport</option>
+                      <option value="Rozrywka">Rozrywka</option>
+                      <option value="Zdrowie">Zdrowie</option>
+                      <option value="Edukacja">Edukacja</option>
+                      <option value="Sprzęt">Sprzęt</option>
+                      <option value="Subskrypcje">Subskrypcje</option>
+                      <option value="Inne">Inne</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="expList" id="expList"></div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="box expBreakdownCard">
+            <div class="panelTitle">Analityka wydatków</div>
+            <div class="panelBody">
+              <div class="expBreakdownStack">
+                <div class="expChartBox">
+                  <div class="expChartTitle">Udział kategorii</div>
+                  <canvas id="expCategoryChart" aria-label="Udział kategorii wydatków"></canvas>
+                </div>
+
+                <div class="expChartBox">
+                  <div class="expChartTitle">Trend 14 dni</div>
+                  <canvas id="expTrendChart" aria-label="Trend wydatków 14 dni"></canvas>
+                </div>
+
+                <div id="expCategoryList" class="expCategoryList"></div>
+              </div>
+            </div>
+          </aside>
         </div>
+      </section>
+
+      <section class="view viewWishlist" id="viewWishlist" data-view="wishlist" aria-hidden="true">
+        <div class="sectionHero box">
+          <div class="sectionHeadText">
+            <div class="sectionTitle">Lista życzeń i plan zakupów</div>
+            <div class="sectionSubtitle">Lista zakupów z kontrolą budżetu i prostym sortowaniem.</div>
+          </div>
+          <div class="sectionKpiGrid">
+            <div class="sectionKpi"><span>Pozycje</span><b id="wishKpiItems">0</b></div>
+            <div class="sectionKpi"><span>Budżet</span><b id="wishKpiBudget">0,00 zł</b></div>
+            <div class="sectionKpi"><span>Śr. cena</span><b id="wishKpiAvg">0,00 zł</b></div>
+          </div>
+        </div>
+
+        <div class="wishlistModuleGrid">
+          <div class="box wishComposeCard">
+            <div class="panelTitle">Lista zakupów</div>
+            <div class="panelBody">
+              <div class="wishForm">
+                <input class="modalInput" id="wishName" type="text" placeholder="Co chcesz kupić" autocomplete="off">
+                <input class="modalInput" id="wishPrice" type="text" inputmode="numeric" placeholder="Cena" autocomplete="off">
+                <button class="habBtn" id="wishAdd" type="button">Dodaj</button>
+              </div>
+
+              <div class="wishHeader">
+                <label class="modalLabel wishSortLabel" for="wishSort">Sortuj:</label>
+                <select class="modalInput wishSortSelect" id="wishSort">
+                  <option value="date-desc">Data (najnowsze)</option>
+                  <option value="date-asc">Data (najstarsze)</option>
+                  <option value="price-asc">Cena (rosnąco)</option>
+                  <option value="price-desc">Cena (malejąco)</option>
+                  <option value="name-asc">Nazwa (A-Z)</option>
+                  <option value="name-desc">Nazwa (Z-A)</option>
+                </select>
+              </div>
+
+              <div class="wishList" id="wishList"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
       </div>
     </div>
   <div class="modalOverlay" id="todoOverlay" aria-hidden="true">
@@ -520,7 +850,7 @@ if (isset($_GET['register_err'])) {
   <div class="modalOverlay" id="wishOverlay" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="wishModalTitle">
       <div class="modalTop">
-        <div class="modalTitle" id="wishModalTitle">Dodaj do wishlisty</div>
+        <div class="modalTitle" id="wishModalTitle">Dodaj do listy życzeń</div>
         <button class="modalClose" id="wishClose" type="button" aria-label="Zamknij">×</button>
       </div>
 
@@ -609,6 +939,9 @@ if (isset($_GET['register_err'])) {
     </div>
   </div>
 
+  <div class="toastStack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <script src="js/core/config.js"></script>
   <script src="js/core/dom.js"></script>
   <script src="js/core/utils.js"></script>

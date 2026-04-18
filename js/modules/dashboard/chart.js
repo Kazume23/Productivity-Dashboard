@@ -111,99 +111,279 @@ function computeChartStats() {
   return { start, end, daysCount, totalCells, done, fail, empty, coverage, donePerDay, failPerDay, perHabit };
 }
 
-function polarToCartesian(cx, cy, r, angleDeg) {
-  const a = (angleDeg - 90) * Math.PI / 180;
-  return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+let habitsBalanceChart = null;
+let habitsBarChart = null;
+let habitsCompareChart = null;
+
+function chartCssVar(name, fallback) {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return v || fallback;
 }
 
-function arcPath(cx, cy, r, startAngle, endAngle) {
-  const start = polarToCartesian(cx, cy, r, endAngle);
-  const end = polarToCartesian(cx, cy, r, startAngle);
-  const large = (endAngle - startAngle) <= 180 ? "0" : "1";
-  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${large} 0 ${end.x} ${end.y}`;
+function clearCanvas(canvas) {
+  const ctx = canvas?.getContext?.("2d");
+  if (!ctx) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-function renderDonut(done, fail, empty) {
-  const total = done + fail + empty;
+function destroyChartInstance(instance) {
+  if (!instance) return null;
+  instance.destroy();
+  return null;
+}
 
-  if (!chartSvg) return;
+function chartTooltipLabel(context) {
+  const value = Number(context.raw) || 0;
+  return `${context.dataset.label}: ${value}`;
+}
 
-  chartSvg.innerHTML = "";
+function statsForRange(start, end) {
+  const habits = state.habits || [];
+  const totalDays = Math.max(1, Math.floor((startOfDay(end) - startOfDay(start)) / 86400000) + 1);
+  const totalCells = habits.length * totalDays;
 
-  const cx = 110;
-  const cy = 110;
-  const r = 86;
+  let done = 0;
+  let fail = 0;
 
-  const ring = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  ring.setAttribute("cx", cx);
-  ring.setAttribute("cy", cy);
-  ring.setAttribute("r", r);
-  ring.setAttribute("fill", "none");
-  ring.setAttribute("stroke-width", "18");
-  ring.setAttribute("shape-rendering", "geometricPrecision");
-  ring.setAttribute("stroke-linecap", "butt");
-  ring.classList.add("chart-part", "empty");
-  chartSvg.appendChild(ring);
+  for (let i = 0; i < totalDays; i++) {
+    const iso = toISO(addDays(start, i));
+    for (const h of habits) {
+      const v = getEntryValue(h.id, iso);
+      if (v === 1) done += 1;
+      else if (v === -1) fail += 1;
+    }
+  }
 
-  if (total <= 0) {
-    const inner = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    inner.setAttribute("cx", cx);
-    inner.setAttribute("cy", cy);
-    inner.setAttribute("r", 58);
-    inner.classList.add("chart-inner");
-    chartSvg.appendChild(inner);
+  const empty = Math.max(0, totalCells - done - fail);
+  const decided = done + fail;
+  const rate = decided > 0 ? Math.round((done / decided) * 100) : 0;
 
-    const center = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    center.setAttribute("x", cx);
-    center.setAttribute("y", cy + 6);
-    center.setAttribute("text-anchor", "middle");
-    center.setAttribute("font-size", "16");
-    center.classList.add("chart-text");
-    center.textContent = "0%";
-    chartSvg.appendChild(center);
+  return { done, fail, empty, totalCells, decided, rate };
+}
 
+function getHabitPeriodComparisons() {
+  const selected = getSelectedDateObj();
+
+  const weekStart = startOfWeekMonday(selected);
+  const weekEnd = addDays(weekStart, 6);
+  const prevWeekStart = addDays(weekStart, -7);
+  const prevWeekEnd = addDays(weekStart, -1);
+
+  const monthStart = new Date(selected.getFullYear(), selected.getMonth(), 1);
+  const monthEnd = new Date(selected.getFullYear(), selected.getMonth() + 1, 0);
+  const prevMonthStart = new Date(selected.getFullYear(), selected.getMonth() - 1, 1);
+  const prevMonthEnd = new Date(selected.getFullYear(), selected.getMonth(), 0);
+
+  const weekCurrent = statsForRange(weekStart, weekEnd);
+  const weekPrevious = statsForRange(prevWeekStart, prevWeekEnd);
+  const monthCurrent = statsForRange(monthStart, monthEnd);
+  const monthPrevious = statsForRange(prevMonthStart, prevMonthEnd);
+
+  const weekDelta = weekCurrent.rate - weekPrevious.rate;
+  const monthDelta = monthCurrent.rate - monthPrevious.rate;
+
+  return {
+    weekCurrent,
+    weekPrevious,
+    monthCurrent,
+    monthPrevious,
+    weekDelta,
+    monthDelta
+  };
+}
+
+function renderBalanceChart(done, fail, empty) {
+  if (!chartCanvas || typeof Chart === "undefined") {
+    habitsBalanceChart = destroyChartInstance(habitsBalanceChart);
+    clearCanvas(chartCanvas);
     return;
   }
 
-  let angle = (empty / total) * 360;
+  const doneColor = chartCssVar("--habit-done", "#24b36b");
+  const failColor = chartCssVar("--habit-fail", "#ef3d63");
+  const emptyColor = chartCssVar("--chart-empty", "#c2c7d2");
 
-  const parts = [
-    { v: fail, cls: "fail" },
-    { v: done, cls: "done" }
-  ].filter(p => p.v > 0);
+  habitsBalanceChart = destroyChartInstance(habitsBalanceChart);
+  habitsBalanceChart = new Chart(chartCanvas, {
+    type: "doughnut",
+    data: {
+      labels: ["Wykonane", "Zawalone", "Puste"],
+      datasets: [{
+        label: "Bilans",
+        data: [done, fail, empty],
+        backgroundColor: [doneColor, failColor, emptyColor],
+        borderColor: chartCssVar("--bg-panel", "#ffffff"),
+        borderWidth: 2,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      resizeDelay: 120,
+      cutout: "70%",
+      animation: {
+        duration: 560,
+        easing: "easeOutQuart"
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: chartTooltipLabel }
+        }
+      }
+    }
+  });
 
-  for (const p of parts) {
-    const span = (p.v / total) * 360;
-    const startAngle = angle;
-    const endAngle = angle + span;
+  habitsBalanceChart.resize();
+}
 
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", arcPath(cx, cy, r, startAngle, endAngle));
-    path.setAttribute("fill", "none");
-    path.setAttribute("stroke-width", "18");
-    path.setAttribute("stroke-linecap", "round");
-    path.setAttribute("shape-rendering", "geometricPrecision");
-    path.classList.add("chart-part", p.cls);
-    chartSvg.appendChild(path);
-
-    angle = endAngle;
+function renderHabitBars(stats) {
+  if (!habitsBarChartCanvas || typeof Chart === "undefined") {
+    habitsBarChart = destroyChartInstance(habitsBarChart);
+    clearCanvas(habitsBarChartCanvas);
+    return;
   }
 
-  const inner = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  inner.setAttribute("cx", cx);
-  inner.setAttribute("cy", cy);
-  inner.setAttribute("r", 58);
-  inner.classList.add("chart-inner");
-  chartSvg.appendChild(inner);
+  const ranked = [...(stats.perHabit || [])]
+    .sort((a, b) => (b.done + b.fail) - (a.done + a.fail))
+    .slice(0, 6);
 
-  const center = document.createElementNS("http://www.w3.org/2000/svg", "text");
-  center.setAttribute("x", cx);
-  center.setAttribute("y", cy + 6);
-  center.setAttribute("text-anchor", "middle");
-  center.setAttribute("font-size", "16");
-  center.classList.add("chart-text");
-  center.textContent = `${Math.round((done / total) * 100)}%`;
-  chartSvg.appendChild(center);
+  const labels = ranked.map(h => h.name || "Nawyk");
+  if (!labels.length) {
+    habitsBarChart = destroyChartInstance(habitsBarChart);
+    clearCanvas(habitsBarChartCanvas);
+    return;
+  }
+
+  const doneSeries = ranked.map(h => h.donePct);
+  const failSeries = ranked.map(h => h.failPct);
+
+  habitsBarChart = destroyChartInstance(habitsBarChart);
+  habitsBarChart = new Chart(habitsBarChartCanvas, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Wykonane %",
+          data: doneSeries,
+          backgroundColor: chartCssVar("--habit-done", "#24b36b"),
+          borderRadius: 6,
+          borderSkipped: false
+        },
+        {
+          label: "Zawalone %",
+          data: failSeries,
+          backgroundColor: chartCssVar("--habit-fail", "#ef3d63"),
+          borderRadius: 6,
+          borderSkipped: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      resizeDelay: 120,
+      indexAxis: "y",
+      animation: {
+        duration: 420,
+        easing: "easeOutQuart"
+      },
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: { boxWidth: 10 }
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${ctx.raw}%`
+          }
+        }
+      },
+      scales: {
+        x: {
+          max: 100,
+          ticks: {
+            stepSize: 20,
+            callback: (v) => `${v}%`
+          },
+          grid: { color: chartCssVar("--glass-10", "rgba(0,0,0,0.08)") }
+        },
+        y: {
+          grid: { display: false }
+        }
+      }
+    }
+  });
+
+  habitsBarChart.resize();
+}
+
+function renderHabitCompareChart() {
+  if (!habitsCompareChartCanvas || typeof Chart === "undefined") {
+    habitsCompareChart = destroyChartInstance(habitsCompareChart);
+    clearCanvas(habitsCompareChartCanvas);
+    return;
+  }
+
+  const cmp = getHabitPeriodComparisons();
+  const current = [cmp.weekCurrent.rate, cmp.monthCurrent.rate];
+  const previous = [cmp.weekPrevious.rate, cmp.monthPrevious.rate];
+
+  habitsCompareChart = destroyChartInstance(habitsCompareChart);
+  habitsCompareChart = new Chart(habitsCompareChartCanvas, {
+    type: "bar",
+    data: {
+      labels: ["Tydzień", "Miesiąc"],
+      datasets: [
+        {
+          label: "Aktualny zakres",
+          data: current,
+          backgroundColor: chartCssVar("--accent", "#2f9dff"),
+          borderRadius: 8,
+          borderSkipped: false
+        },
+        {
+          label: "Poprzedni zakres",
+          data: previous,
+          backgroundColor: chartCssVar("--glass-10", "rgba(0,0,0,0.18)"),
+          borderRadius: 8,
+          borderSkipped: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      resizeDelay: 120,
+      animation: {
+        duration: 420,
+        easing: "easeOutQuart"
+      },
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: { boxWidth: 10 }
+        }
+      },
+      scales: {
+        y: {
+          min: 0,
+          max: 100,
+          ticks: {
+            callback: (v) => `${v}%`
+          },
+          grid: { color: chartCssVar("--glass-10", "rgba(0,0,0,0.08)") }
+        },
+        x: {
+          grid: { display: false }
+        }
+      }
+    }
+  });
+
+  habitsCompareChart.resize();
 }
 
 function syncChartTabs() {
@@ -227,7 +407,11 @@ function renderChart() {
   }
 
   syncChartTabs();
-  renderDonut(s.done, s.fail, s.empty);
+  renderBalanceChart(s.done, s.fail, s.empty);
+  renderHabitBars(s);
+  renderHabitCompareChart();
+
+  if (typeof renderOverviewPanels === "function") renderOverviewPanels();
 }
 
 function openChartModal() {
