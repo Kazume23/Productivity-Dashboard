@@ -61,10 +61,14 @@ if (isset($_GET['register_err'])) {
     (() => {
       const key = "edward_theme_v1";
       const themeIds = ["themeStyles", "themelight", "themepink"];
-      const saved = "themeStyles";
+      const fallback = "base";
+      let saved = fallback;
 
       try {
-        localStorage.setItem(key, saved);
+        const raw = localStorage.getItem(key);
+        if (raw === "base" || themeIds.includes(raw)) {
+          saved = raw;
+        }
       } catch (e) {}
 
       const base = document.getElementById("baseStyles");
@@ -172,8 +176,11 @@ if (isset($_GET['register_err'])) {
             <div class="title" id="pageTitle">Panel główny</div>
           </div>
         </div>
-          <div class="icons">
-            <button class="icon iconBtn" id="langBtn" type="button" title="Zmień język">
+          <div class="topbarRight">
+            <div class="syncBadge" id="syncBadge" role="status" aria-live="polite">Tryb lokalny</div>
+
+            <div class="icons">
+            <button class="icon iconBtn" id="langBtn" type="button" title="Zmień język" hidden aria-hidden="true">
               <svg class="iconSvg" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                 <path fill="currentColor"
                   d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2Zm7.93 9h-3.1a15.6 15.6 0 0 0-1.2-5.02A8.03 8.03 0 0 1 19.93 11ZM12 4c.88 1.22 1.57 3.07 1.9 5H10.1c.33-1.93 1.02-3.78 1.9-5Zm-1.9 7h3.8c.1.64.1 1.31.1 2s0 1.36-.1 2h-3.8c-.1-.64-.1-1.31-.1-2s0-1.36.1-2Zm-1.73-5.02A15.6 15.6 0 0 0 7.17 11H4.07a8.03 8.03 0 0 1 4.3-5.02ZM4.07 13h3.1c.19 1.74.62 3.44 1.2 5.02A8.03 8.03 0 0 1 4.07 13Zm7.93 7c-.88-1.22-1.57-3.07-1.9-5h3.8c-.33 1.93-1.02 3.78-1.9 5Zm3.63-1.98A15.6 15.6 0 0 0 16.83 13h3.1a8.03 8.03 0 0 1-4.3 5.02Z"/>
@@ -197,6 +204,7 @@ if (isset($_GET['register_err'])) {
                   d="M12 .5C5.73.5.5 5.74.5 12.02c0 5.11 3.29 9.43 7.86 10.96.58.11.79-.25.79-.56v-2.1c-3.2.7-3.87-1.38-3.87-1.38-.53-1.34-1.3-1.7-1.3-1.7-1.06-.73.08-.72.08-.72 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.73 1.27 3.4.97.1-.75.41-1.27.75-1.56-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.07 11.07 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.41-2.68 5.38-5.24 5.66.42.36.8 1.08.8 2.18v3.23c0 .31.21.67.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.74 18.27.5 12 .5z"/>
               </svg>
             </a>
+            </div>
           </div>
       </div>
     <div class="content" id="appContent">
@@ -930,6 +938,8 @@ if (isset($_GET['register_err'])) {
       </form>
     </div>
   </div>
+
+  <div class="toastStack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <script src="js/core/config.js"></script>

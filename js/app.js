@@ -37,6 +37,158 @@ const VALID_VIEWS = ["dashboard", "habits", "todo", "expenses", "wishlist"];
 let ignoreNextHashChange = false;
 let dashProductivityChart = null;
 let dashSpendTrendChart = null;
+let syncFeedbackBound = false;
+let syncErrorToastText = "";
+let syncErrorToastAt = 0;
+
+function showToast(text, type = "info", ttlMs = 3600) {
+  if (!toastStack) return;
+
+  const msg = String(text || "").trim();
+  if (!msg) return;
+
+  const item = document.createElement("div");
+  item.className = "toastItem";
+  if (type === "error") item.classList.add("isError");
+  if (type === "success") item.classList.add("isSuccess");
+  item.textContent = msg;
+
+  toastStack.appendChild(item);
+  requestAnimationFrame(() => {
+    item.classList.add("isVisible");
+  });
+
+  setTimeout(() => {
+    item.classList.remove("isVisible");
+    setTimeout(() => item.remove(), 220);
+  }, Math.max(1200, Number(ttlMs) || 3600));
+}
+
+function setSyncBadge(status, detail = {}) {
+  if (!syncBadge) return;
+
+  syncBadge.classList.remove("isBusy", "isError", "isOffline");
+
+  if (status === "queued" || status === "flushing" || status === "retrying") {
+    syncBadge.classList.add("isBusy");
+  }
+
+  if (status === "error") {
+    syncBadge.classList.add("isError");
+  }
+
+  if (status === "offline") {
+    syncBadge.classList.add("isOffline");
+  }
+
+  if (status === "local") {
+    syncBadge.textContent = "Tryb lokalny";
+    return;
+  }
+
+  if (status === "queued" || status === "flushing") {
+    syncBadge.textContent = "Synchronizacja...";
+    return;
+  }
+
+  if (status === "retrying") {
+    const sec = Math.max(1, Math.round((Number(detail.backoffMs) || 2000) / 1000));
+    syncBadge.textContent = `Ponawiam za ${sec}s`;
+    return;
+  }
+
+  if (status === "saved") {
+    syncBadge.textContent = "Zapisano";
+    return;
+  }
+
+  if (status === "conflict") {
+    syncBadge.textContent = "Odświeżono z serwera";
+    return;
+  }
+
+  if (status === "offline") {
+    syncBadge.textContent = "Offline";
+    return;
+  }
+
+  if (status === "error") {
+    syncBadge.textContent = "Błąd synchronizacji";
+    return;
+  }
+
+  syncBadge.textContent = "Synchronizacja";
+}
+
+function getSyncErrorToast(detail = {}) {
+  const msg = String(detail.message || "");
+  if (msg.includes("timeout")) {
+    return "Synchronizacja trwa zbyt długo. Spróbuję ponownie automatycznie.";
+  }
+  if (msg.includes("unauthorized") || msg.includes("session_expired") || msg.includes("csrf")) {
+    return "Sesja wygasła. Odśwież stronę i zaloguj się ponownie.";
+  }
+  if (msg.includes("offline_no_server")) {
+    return "Brak połączenia z serwerem. Zmiany są zapisane lokalnie.";
+  }
+  return "Nie udało się zsynchronizować zmian. Trwa ponawianie zapisu.";
+}
+
+function maybeShowSyncErrorToast(detail = {}) {
+  const text = getSyncErrorToast(detail);
+  const now = Date.now();
+
+  if (text === syncErrorToastText && (now - syncErrorToastAt) < 12000) {
+    return;
+  }
+
+  syncErrorToastText = text;
+  syncErrorToastAt = now;
+  showToast(text, "error", 4600);
+}
+
+function initSyncFeedback() {
+  if (syncFeedbackBound) return;
+  syncFeedbackBound = true;
+
+  if (!AUTH_USER) {
+    setSyncBadge("local");
+  } else {
+    setSyncBadge("saved");
+  }
+
+  document.addEventListener("edward:sync", (event) => {
+    const detail = event?.detail || {};
+    const status = String(detail.status || "queued");
+
+    setSyncBadge(status, detail);
+
+    if (status === "error") {
+      maybeShowSyncErrorToast(detail);
+      return;
+    }
+
+    if (status === "conflict") {
+      showToast("Wykryto konflikt wersji. Załadowano nowszy stan z serwera.", "info", 4000);
+    }
+  });
+
+  window.addEventListener("offline", () => {
+    setSyncBadge("offline");
+    if (AUTH_USER) {
+      showToast("Brak internetu. Zmiany będą tymczasowo zapisywane lokalnie.", "info", 4200);
+    }
+  });
+
+  window.addEventListener("online", () => {
+    if (AUTH_USER) {
+      setSyncBadge("queued");
+      showToast("Połączenie wróciło. Trwa synchronizacja.", "success", 2600);
+    } else {
+      setSyncBadge("local");
+    }
+  });
+}
 
 function syncPageHeader(navBtn) {
   const navId = navBtn?.id || "navDash";
@@ -1022,6 +1174,7 @@ if (navExpenses) navExpenses.addEventListener("dblclick", (e) => {
 
 initMobileDrawer();
 initOverviewActions();
+initSyncFeedback();
 
 initTheme();
 

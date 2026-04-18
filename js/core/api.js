@@ -123,10 +123,19 @@ let syncFlushTimer = null;
 let syncPending = false;
 let syncBackoffMs = 2000;
 
+function emitSyncStatus(status, detail = {}) {
+  try {
+    document.dispatchEvent(new CustomEvent("edward:sync", {
+      detail: { status, ...detail }
+    }));
+  } catch (e) {}
+}
+
 function queueServerSync(reason) {
   if (!AUTH_USER) return;
 
   syncPending = true;
+  emitSyncStatus("queued", { reason, backoffMs: syncBackoffMs });
 
   if (syncTimer) clearTimeout(syncTimer);
 
@@ -145,24 +154,32 @@ async function flushServerSync(reason) {
   }
 
   syncPending = false;
+  emitSyncStatus("flushing", { reason });
 
   try {
     await apiPutState(reason);
     syncBackoffMs = 2000;
+    emitSyncStatus("saved", { reason });
   } catch (e) {
     const message = String(e?.message || "");
     if (message.includes("apiPutState_failed:conflict")) {
       syncPending = false;
       syncBackoffMs = 2000;
+      emitSyncStatus("conflict", { reason, message });
       return;
     }
 
     console.warn("sync_failed", reason, e);
+    emitSyncStatus("error", { reason, message });
     syncPending = true;
 
-    if (document.hidden) return;
+    if (document.hidden) {
+      emitSyncStatus("queued", { reason, hidden: true });
+      return;
+    }
 
     syncBackoffMs = Math.min(30000, syncBackoffMs * 2);
+    emitSyncStatus("retrying", { reason, backoffMs: syncBackoffMs, message });
 
     syncFlushTimer = setTimeout(() => {
       flushServerSync("retry");
