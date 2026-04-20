@@ -1,78 +1,102 @@
 # Edward Tracker
 
-A full-stack personal productivity dashboard built with PHP, MySQL, and vanilla JavaScript.
+A full-stack personal productivity app built with PHP, MySQL, and vanilla JavaScript.
 
-This project combines habit tracking, daily planning, expense logging, and focus sessions in one app, with local-first state handling and server sync for authenticated users.
+Project scope (current): one interface for tasks, habits, finance tracking, wishlist, pomodoro, and dashboard analytics with local-first persistence plus server sync for authenticated users.
 
-## Project Highlights
+## Current Features
 
-- Multi-feature dashboard in one workflow:
-  - Habit tracker + balance chart
-  - Calendar + date-based TODOs
-  - Expense journal with categories and scoring
-  - Wishlist
-  - Pomodoro timer
-- Theme system with runtime switching and persisted user preference
-- Local-first UX with server synchronization for signed-in users
-- Optimistic state versioning to reduce accidental overwrites
+- Dashboard with daily summary cards, quick actions, trend charts, and recent activity
+- ToDo Pro with priorities, due dates, recurring tasks, checklist/subtasks, SLA badges, and Kanban lanes
+- Habits Pro with weekly tracker, period goals (week/month), streak freeze, templates, and habit analytics charts
+- Finance Pro with expense ledger, category budgets, recurring costs, savings goals, month-over-month comparison, and upcoming recurring costs
+- Import/Export for finance module:
+  - CSV + XLS/XLSX import
+  - finance JSON export
+  - expenses CSV export
+  - full state backup export/import JSON
+- Wishlist with sorting modes (date, price, name)
+- Pomodoro with focus/break/long modes, editable duration, and running-session restore
+- Browser reminders for overdue/open ToDo and habits:
+  - configurable start/end hours
+  - daily limit and cooldown anti-spam
+  - Notification API with toast fallback
+- Local-first state model:
+  - works in guest mode using localStorage
+  - optional server sync after login
 - Auth hardening:
   - CSRF protection
-  - Session timeout handling
-  - Login throttling
-  - Password strength policy
+  - session timeout
+  - login throttling
+  - password strength policy
 
 ## Tech Stack
 
-- Backend: PHP 8+, PDO, MySQL
+- Backend: PHP 8+, PDO, MySQL/MariaDB
 - Frontend: HTML, CSS, vanilla JavaScript (modular files, no framework)
+- Charts: Chart.js (CDN)
+- Spreadsheet import: SheetJS XLSX (CDN)
 - Runtime: XAMPP (Apache + MySQL)
-- Persistence:
-  - localStorage (guest and per-user local state)
-  - MySQL `user_state` table (JSON snapshot + version)
 
-## Architecture Overview
+## Project Structure
 
-### Frontend
+- `index.php` - app shell, views, modals, script/style loading, CSRF/data attributes
+- `config.php` - DB/session configuration, schema bootstrap, env overrides
+- `api/auth.php` - login/register/logout, password policy, throttling, CSRF checks
+- `api/state.php` - GET/POST state sync endpoint with version conflict detection
+- `js/core/config.js` - runtime config from DOM dataset (`AUTH_USER`, `CSRF_TOKEN`, API URL)
+- `js/core/storage.js` - localStorage strategy for guest and per-user keys
+- `js/core/state.js` - state defaults + sanitization + `saveState`
+- `js/core/api.js` - sync queue, retry/backoff, conflict handling
+- `js/core/elements.js` - centralized DOM references
+- `js/modules/theme.js` - theme cycle + persistence
+- `js/modules/auth.js` - login/register modal behavior
+- `js/modules/calendar.js` - calendar rendering + activity badges
+- `js/modules/habits.js` - habits tracker + Habits Pro logic
+- `js/modules/reminders.js` - reminder scheduler + Notification API fallback
+- `js/modules/dashboard/todo.js` - ToDo Pro and Kanban logic
+- `js/modules/dashboard/expenses.js` - Finance Pro logic
+- `js/modules/dashboard/chart.js` - habits charts and comparisons
+- `js/modules/dashboard/wishlist.js` - wishlist CRUD + sort
+- `js/modules/dashboard/pomodoro.js` - pomodoro timer logic
+- `js/app.js` - app bootstrap flow, view routing, dashboard aggregates
 
-- `js/core/`:
-  - config and constants
-  - DOM helpers
-  - local storage helpers
-  - shared state shape/sanitization
-  - API sync helpers
-- `js/modules/`:
-  - auth, calendar, habits, theme
-- `js/modules/dashboard/`:
-  - todo, expenses, chart, wishlist, pomodoro
-- `js/app.js`:
-  - orchestrates startup and module initialization
+## State and Sync Model
 
-### Backend
+- State is kept in one global object (`state`) in the frontend.
+- Local persistence:
+  - guest: `habit_app_anon_v1`
+  - authenticated user: `habit_app_user_<username>`
+- Server persistence:
+  - MySQL table `user_state` (JSON snapshot + `version`)
+- Conflict strategy:
+  - optimistic versioning on `api/state.php`
+  - if client version != server version, API returns conflict payload and frontend applies newer server state
+- Sync behavior:
+  - queued writes with retry/backoff
+  - sync status badge + toast notifications
 
-- `api/auth.php`:
-  - register/login/logout flow
-  - CSRF validation
-  - login throttling
-- `api/state.php`:
-  - GET/POST user state
-  - optimistic version checks
-  - conflict handling
-- `config.php`:
-  - DB/session config
-  - env-based overrides
-  - schema bootstrap
+## Security Baseline
+
+- CSRF token generated in session and validated in auth and state write endpoints
+- Session cookie hardened with `HttpOnly`, `SameSite`, and `secure` when HTTPS is detected
+- Idle session timeout (default 3600s, configurable)
+- Login throttling by user+IP window (5 attempts / 5 minutes)
+- Password policy:
+  - min 10 chars
+  - at least one lowercase letter
+  - at least one uppercase letter
+  - at least one digit
 
 ## Local Setup (XAMPP)
 
-1. Clone or copy the project into your XAMPP `htdocs` directory.
-2. Start Apache and MySQL from XAMPP.
-3. Open the app in the browser:
+1. Copy/clone repository to `C:\xampp\htdocs\Edward`
+2. Start Apache and MySQL in XAMPP Control Panel
+3. Open app in browser:
    - `http://localhost/Edward`
-4. On first run, the app creates the database and required tables automatically.
+4. On first run, database and tables are created automatically by backend bootstrap
 
-## Environment Variables (Optional)
-
-You can override local defaults via environment variables:
+## Optional Environment Variables
 
 - `EDWARD_DB_HOST`
 - `EDWARD_DB_USER`
@@ -82,30 +106,39 @@ You can override local defaults via environment variables:
 - `EDWARD_SESSION_IDLE_TIMEOUT_SEC`
 - `EDWARD_SESSION_SAMESITE`
 
-If variables are not provided, local defaults from `config.php` are used.
+If not provided, defaults from `config.php` are used.
 
-## Current Focus
+## Development Notes
 
-- UX polish for first paint and theme loading
-- CSS architecture cleanup (tokenized themes and deduplicated styles)
-- Better regression safety through smoke checks
+- No build step and no package manager pipeline required
+- Edit files directly and refresh browser
+- Frontend architecture is intentionally procedural (simple functions + shared state)
+- UI text is primarily Polish
+- There is no automated test suite yet (manual smoke testing recommended)
 
-## Roadmap
+## Practical Smoke Checklist
 
-- [x] Modularize dashboard logic into feature files
-- [x] Add optimistic state sync versioning
-- [x] Harden auth/session baseline
-- [x] Reduce theme CSS duplication with variable-based themes
-- [ ] Add lightweight smoke test checklist/script
-- [ ] Add export/reporting improvements
-- [ ] Improve mobile responsiveness and accessibility pass
+1. Register a new user and log in
+2. Add habit, toggle entries in weekly grid, switch chart week/month
+3. Add ToDo with recurrence + checklist, move card across Kanban lanes
+4. Add expenses, create budget + recurring cost + savings goal
+5. Import one CSV or XLSX file and verify summary/report
+6. Export finance JSON and full backup JSON
+7. Toggle theme and reload page
+8. Open second tab, edit data, verify sync/conflict behavior
 
-## Notes
+## Known Limitations
 
-- This repository is actively iterated.
-- Some features are intentionally simple by design to keep velocity high while improving reliability.
+- Chart.js and XLSX are loaded from CDN (offline-first for those features depends on cache/network)
+- No automated tests in repository
+- No dedicated background push (service worker); reminders are browser-session based
+- Full-state overwrite model on server sync (by design with optimistic conflict handling)
+
+## Project Status
+
+Active development. Current codebase reflects iterative releases with ToDo Pro, Habits Pro, Finance Pro, and browser reminders already integrated.
 
 ## License
 
 No license file has been added yet.
-If you plan to make this public for broader reuse, add a license (for example MIT).
+If you plan to open the project publicly, add a license (for example MIT).
