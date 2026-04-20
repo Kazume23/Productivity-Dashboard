@@ -78,7 +78,7 @@
 .habTable {
   width: 100%;
   border-collapse: collapse;
-  min-width: 640px;
+  min-width: 600px;
 }
 
 .habTable thead th {
@@ -183,7 +183,7 @@
   }
 
   .habTable {
-    min-width: 620px;
+    min-width: 580px;
   }
 }
 
@@ -204,6 +204,24 @@
 
   .habTableWrap {
     padding-bottom: 4px;
+  }
+
+  .habTable {
+    min-width: 560px;
+  }
+}
+
+@media (max-width: 760px) {
+  .habTable {
+    min-width: 500px;
+  }
+
+  .thHabit {
+    width: 200px;
+  }
+
+  .habitName {
+    min-width: 140px;
   }
 }
 
@@ -260,6 +278,16 @@ body[data-view="habits"] .habTable tbody tr:nth-child(even) td {
 
   body[data-view="habits"] .thHabit {
     width: 220px;
+  }
+}
+
+@media (max-width: 760px) {
+  body[data-view="habits"] .thHabit {
+    width: 200px;
+  }
+
+  body[data-view="habits"] .habitName {
+    min-width: 140px;
   }
 }
 

@@ -414,27 +414,6 @@ a.iconBtn{
   overflow: hidden;
 }
 
-.expList{
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: none;
-  overflow: visible;
-  padding-right: 0;
-  overscroll-behavior: auto;
-
-  scrollbar-width: auto;
-  -ms-overflow-style: auto;
-}
-.expList::-webkit-scrollbar{
-  width: 8px;
-  height: 8px;
-}
-
-.expList::-webkit-scrollbar-thumb{
-  background: var(--glass-10);
-  border-radius: 999px;
-}
-
 .wishWrap{
   min-height: 220px;
   margin-top: 0;    
@@ -988,10 +967,6 @@ a.iconBtn{
   .chartMeta{
     width:100%;
     padding-left:0;
-  }
-
-  .expList {
-    max-height: none;
   }
 
   .wishHeader{
