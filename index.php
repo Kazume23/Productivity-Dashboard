@@ -502,7 +502,7 @@ if (isset($_GET['register_err'])) {
         <div class="sectionHero box">
           <div class="sectionHeadText">
             <div class="sectionTitle">Plan dnia i backlog</div>
-            <div class="sectionSubtitle">Prosty widok pracy: lista zadań i najbliższe terminy.</div>
+            <div class="sectionSubtitle">Lista, checklista, SLA i Kanban dla zadań.</div>
           </div>
           <div class="sectionKpiGrid">
             <div class="sectionKpi"><span>Otwarte dziś</span><b id="todoKpiToday">0</b></div>
@@ -538,6 +538,8 @@ if (isset($_GET['register_err'])) {
               <div class="todoInsightGrid">
                 <div><span>Wysoki priorytet</span><b id="todoInsightHigh">0</b></div>
                 <div><span>Zamknięte</span><b id="todoInsightDone">0</b></div>
+                <div><span>SLA ryzyko</span><b id="todoInsightSlaRisk">0</b></div>
+                <div><span>SLA po terminie</span><b id="todoInsightSlaOverdue">0</b></div>
               </div>
 
               <div class="todoInsightBlock">
@@ -548,6 +550,16 @@ if (isset($_GET['register_err'])) {
               <button class="calBtn" id="todoQuickAddBtn" type="button">Dodaj zadanie</button>
             </div>
           </aside>
+        </div>
+
+        <div class="box todoKanbanCard">
+          <div class="panelTitle todoKanbanTitleRow">
+            <span>Kanban zadań</span>
+            <span class="todoKanbanSummary" id="todoKanbanSummary">Brak zadań.</span>
+          </div>
+          <div class="panelBody">
+            <div class="todoKanbanBoard" id="todoKanbanBoard"></div>
+          </div>
         </div>
       </section>
 
@@ -914,6 +926,18 @@ if (isset($_GET['register_err'])) {
           <option value="medium" selected>Średni</option>
           <option value="low">Niski</option>
         </select>
+
+        <label class="modalLabel" for="todoRecurrence">Cykliczność</label>
+        <select class="modalInput" id="todoRecurrence">
+          <option value="none" selected>Brak</option>
+          <option value="daily">Codziennie</option>
+          <option value="weekly">Co tydzień</option>
+          <option value="monthly">Co miesiąc</option>
+        </select>
+
+        <label class="modalLabel" for="todoChecklist">Checklista (opcjonalnie)</label>
+        <textarea class="modalTextarea todoChecklistInput" id="todoChecklist" placeholder="Każda linia to jeden subtask." rows="4"></textarea>
+        <div class="todoModalHint">Każda linia zostanie zapisana jako osobny element checklisty.</div>
 
         <div class="modalActions">
           <button class="calBtn" id="todoCancel" type="button">Anuluj</button>

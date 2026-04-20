@@ -440,8 +440,103 @@ select.customSelectNative {
 
 .todoTags {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   margin-top: 3px;
+}
+
+.todoRecurrenceTag {
+  border-color: color-mix(in srgb, var(--accent) 36%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-pill));
+}
+
+.todoLaneTag {
+  border-color: color-mix(in srgb, var(--text-muted) 34%, var(--border-base));
+}
+
+.todoSlaTag.isOk {
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border-base));
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-pill));
+}
+
+.todoSlaTag.isRisk {
+  border-color: color-mix(in srgb, #e5a100 40%, var(--border-base));
+  background: color-mix(in srgb, #e5a100 14%, var(--bg-pill));
+}
+
+.todoSlaTag.isOverdue {
+  border-color: color-mix(in srgb, var(--danger) 38%, var(--border-base));
+  background: color-mix(in srgb, var(--danger) 12%, var(--bg-pill));
+}
+
+.todoChecklistTag {
+  border-color: color-mix(in srgb, var(--habit-done) 38%, var(--border-base));
+  background: color-mix(in srgb, var(--habit-done) 11%, var(--bg-pill));
+}
+
+.todoChecklistToggle {
+  margin-top: 6px;
+  height: 27px;
+  border-radius: 8px;
+  border: 1px solid var(--border-base);
+  background: var(--bg-control);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 9px;
+  cursor: pointer;
+}
+
+.todoChecklistToggle:hover {
+  border-color: var(--accent);
+}
+
+.todoChecklistToggle.isComplete {
+  border-color: color-mix(in srgb, var(--habit-done) 40%, var(--border-base));
+  background: color-mix(in srgb, var(--habit-done) 10%, var(--bg-control));
+}
+
+.todoChecklistList {
+  margin-top: 6px;
+  display: grid;
+  gap: 5px;
+}
+
+.todoChecklistItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  border: 1px solid var(--border-base);
+  border-radius: 8px;
+  background: var(--bg-control);
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.todoChecklistItem.isDone {
+  opacity: 0.74;
+}
+
+.todoChecklistItem.isDone span {
+  text-decoration: line-through;
+}
+
+.todoChecklistCheck {
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
+  accent-color: var(--habit-done);
+}
+
+.todoChecklistInput {
+  min-height: 90px;
+}
+
+.todoModalHint {
+  margin-top: -2px;
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
 .habDel {
@@ -468,5 +563,191 @@ select.customSelectNative {
   color: var(--text-muted);
   opacity: 0.82;
   margin-top: 2px;
+}
+
+.todoKanbanCard {
+  margin-top: 12px;
+}
+
+.todoKanbanTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.todoKanbanSummary {
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.72;
+}
+
+.todoKanbanBoard {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.todoKanbanBoard::-webkit-scrollbar {
+  height: 7px;
+}
+
+.todoKanbanBoard::-webkit-scrollbar-thumb {
+  background: var(--glass-10);
+  border-radius: 999px;
+}
+
+.todoKanbanCol {
+  border: 1px solid var(--border-base);
+  border-radius: 10px;
+  background: var(--bg-control);
+  min-height: 168px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.todoKanbanCol.isDropZone {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-control));
+}
+
+.todoKanbanColHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-base);
+}
+
+.todoKanbanColHead strong {
+  font-size: 12px;
+}
+
+.todoKanbanColHead span {
+  min-width: 22px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid var(--border-base);
+  border-radius: 999px;
+  padding: 2px 7px;
+}
+
+.todoKanbanColBody {
+  padding: 8px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.todoKanbanEmpty {
+  border: 1px dashed var(--border-base);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.todoKanbanItem {
+  border: 1px solid var(--border-base);
+  border-radius: 9px;
+  background: var(--bg-panel);
+  padding: 8px;
+  display: grid;
+  gap: 6px;
+  cursor: grab;
+}
+
+.todoKanbanItem.isDragging {
+  opacity: 0.5;
+}
+
+.todoKanbanItem.isDone {
+  opacity: 0.76;
+}
+
+.todoKanbanItem.isRisk {
+  border-color: color-mix(in srgb, #e5a100 40%, var(--border-base));
+}
+
+.todoKanbanItem.isOverdue {
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--border-base));
+}
+
+.todoKanbanText {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.todoKanbanMeta {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.todoKanbanTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.todoKanbanTag {
+  font-size: 10px;
+  border: 1px solid var(--border-base);
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: var(--bg-control);
+}
+
+.todoKanbanTag.isOk {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border-base));
+}
+
+.todoKanbanTag.isRisk {
+  border-color: color-mix(in srgb, #e5a100 40%, var(--border-base));
+  background: color-mix(in srgb, #e5a100 12%, var(--bg-control));
+}
+
+.todoKanbanTag.isOverdue {
+  border-color: color-mix(in srgb, var(--danger) 38%, var(--border-base));
+  background: color-mix(in srgb, var(--danger) 10%, var(--bg-control));
+}
+
+.todoKanbanActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.todoKanbanMoveBtn {
+  height: 26px;
+  padding: 0 10px;
+  font-size: 11px;
+}
+
+@media (max-width: 1260px) {
+  .todoKanbanBoard {
+    grid-template-columns: repeat(4, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .todoKanbanBoard {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .todoKanbanSummary {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .todoKanbanBoard {
+    grid-template-columns: 1fr;
+  }
 }
 

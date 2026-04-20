@@ -259,6 +259,8 @@ function getTodoStats() {
   let openCount = 0;
   let doneCount = 0;
   let highOpen = 0;
+  let slaRisk = 0;
+  let slaOverdue = 0;
 
   const pending = [];
 
@@ -274,6 +276,12 @@ function getTodoStats() {
     if (it.dateISO === selectedISO) today += 1;
     else if (it.dateISO > selectedISO) upcoming += 1;
     else overdue += 1;
+
+    if (typeof getTodoSlaInfo === "function") {
+      const sla = getTodoSlaInfo(it);
+      if (sla.status === "overdue") slaOverdue += 1;
+      else if (sla.status === "risk") slaRisk += 1;
+    }
 
     pending.push(it);
   }
@@ -293,6 +301,8 @@ function getTodoStats() {
     openCount,
     doneCount,
     highOpen,
+    slaRisk,
+    slaOverdue,
     totalCount: openCount + doneCount,
     preview: pending.slice(0, 4),
     nextDeadlines: pending.slice(0, 3)
@@ -691,7 +701,10 @@ function renderDashboardTodoPreview(items) {
 
     const meta = document.createElement("div");
     meta.className = "todoPreviewMeta";
-    meta.textContent = `${fmtPL(fromISO(it.dateISO))} • ${todoPriorityLabel(it.priority || "medium")}`;
+    const recurrenceText = (it.recurrence && it.recurrence !== "none" && typeof todoRecurrenceLabel === "function")
+      ? ` • ${todoRecurrenceLabel(it.recurrence)}`
+      : "";
+    meta.textContent = `${fmtPL(fromISO(it.dateISO))} • ${todoPriorityLabel(it.priority || "medium")}${recurrenceText}`;
 
     main.appendChild(text);
     main.appendChild(meta);
@@ -898,11 +911,15 @@ function renderOverviewPanels() {
   const todoInsightOpen = $("todoInsightOpen");
   const todoInsightHigh = $("todoInsightHigh");
   const todoInsightDone = $("todoInsightDone");
+  const todoInsightSlaRisk = $("todoInsightSlaRisk");
+  const todoInsightSlaOverdue = $("todoInsightSlaOverdue");
   const todoInsightNext = $("todoInsightNext");
 
   if (todoInsightOpen) todoInsightOpen.textContent = String(todoStats.openCount);
   if (todoInsightHigh) todoInsightHigh.textContent = String(todoStats.highOpen);
   if (todoInsightDone) todoInsightDone.textContent = String(todoStats.doneCount);
+  if (todoInsightSlaRisk) todoInsightSlaRisk.textContent = String(todoStats.slaRisk);
+  if (todoInsightSlaOverdue) todoInsightSlaOverdue.textContent = String(todoStats.slaOverdue);
   if (todoInsightNext) {
     todoInsightNext.innerHTML = "";
     if (!todoStats.nextDeadlines.length) {

@@ -41,16 +41,63 @@ function sanitizeState(s) {
   } else {
     s.todos = s.todos
       .filter((it) => it && typeof it === "object")
-      .map((it) => ({
-        id: it.id || crypto.randomUUID(),
-        dateISO: it.dateISO || s.selectedDate || toISO(startOfDay(new Date())),
-        text: String(it.text || "").trim(),
-        priority: it.priority || "medium",
-        done: !!it.done,
-        doneAt: Number(it.doneAt) > 0 ? Number(it.doneAt) : 0,
-        createdAt: Number(it.createdAt) || Date.now()
-      }))
-      .filter((it) => it.text.length > 0);
+      .map((it) => {
+        const priorityRaw = String(it.priority || "medium").trim();
+        const priority = priorityRaw === "high" || priorityRaw === "low"
+          ? priorityRaw
+          : "medium";
+
+        const recurrenceRaw = String(it.recurrence || "none").trim();
+        const recurrence = recurrenceRaw === "daily" || recurrenceRaw === "weekly" || recurrenceRaw === "monthly"
+          ? recurrenceRaw
+          : "none";
+
+        const laneRaw = String(it.lane || "backlog").trim();
+        let lane = laneRaw === "progress" || laneRaw === "blocked" || laneRaw === "done"
+          ? laneRaw
+          : "backlog";
+
+        const lastLaneRaw = String(it.lastLaneBeforeDone || "backlog").trim();
+        const lastLaneBeforeDone = lastLaneRaw === "progress" || lastLaneRaw === "blocked"
+          ? lastLaneRaw
+          : "backlog";
+
+        const done = !!it.done || lane === "done";
+        if (done) lane = "done";
+
+        const subtasks = Array.isArray(it.subtasks)
+          ? it.subtasks
+            .filter((sub) => sub && typeof sub === "object")
+            .map((sub) => ({
+              id: String(sub.id || crypto.randomUUID()),
+              text: String(sub.text || "").trim(),
+              done: !!sub.done,
+              createdAt: Number(sub.createdAt) || Date.now()
+            }))
+            .filter((sub) => sub.text.length > 0)
+          : [];
+
+        const id = String(it.id || crypto.randomUUID());
+        const recurrenceSeriesId = recurrence === "none"
+          ? ""
+          : String(it.recurrenceSeriesId || it.seriesId || id);
+
+        return {
+          id,
+          dateISO: String(it.dateISO || s.selectedDate || toISO(startOfDay(new Date()))),
+          text: String(it.text || "").trim(),
+          priority,
+          done,
+          doneAt: done && Number(it.doneAt) > 0 ? Number(it.doneAt) : 0,
+          createdAt: Number(it.createdAt) || Date.now(),
+          recurrence,
+          recurrenceSeriesId,
+          lane,
+          lastLaneBeforeDone,
+          subtasks
+        };
+      })
+      .filter((it) => it.text.length > 0 && /^\d{4}-\d{2}-\d{2}$/.test(it.dateISO));
   }
   if (!Array.isArray(s.expenses)) {
     s.expenses = [];

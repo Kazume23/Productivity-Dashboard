@@ -6,9 +6,13 @@ const todoOverlay = $("todoOverlay");
 const todoDateInput = $("todoDate");
 const todoText = $("todoText");
 const todoPriority = $("todoPriority");
+const todoRecurrence = $("todoRecurrence");
+const todoChecklist = $("todoChecklist");
 const todoSave = $("todoSave");
 const todoClose = $("todoClose");
 const todoCancel = $("todoCancel");
+const todoKanbanBoard = $("todoKanbanBoard");
+const todoKanbanSummary = $("todoKanbanSummary");
 
 const calTitle = $("calTitle");
 const calGrid = $("calGrid");
