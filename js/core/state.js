@@ -52,7 +52,87 @@ function sanitizeState(s) {
       }))
       .filter((it) => it.text.length > 0);
   }
-  if (!Array.isArray(s.expenses)) s.expenses = [];
+  if (!Array.isArray(s.expenses)) {
+    s.expenses = [];
+  } else {
+    s.expenses = s.expenses
+      .filter((it) => it && typeof it === "object")
+      .map((it) => ({
+        id: String(it.id || crypto.randomUUID()),
+        dateISO: String(it.dateISO || s.selectedDate || toISO(startOfDay(new Date()))),
+        amount: Number(it.amount) || 0,
+        what: String(it.what || "").trim(),
+        category: String(it.category || "Inne").trim() || "Inne",
+        score: String(it.score || "B").trim() || "B",
+        period: String(it.period || "once").trim() || "once",
+        createdAt: Number(it.createdAt) || Date.now()
+      }))
+      .filter((it) => it.amount > 0 && it.what.length > 0 && /^\d{4}-\d{2}-\d{2}$/.test(it.dateISO));
+  }
+
+  if (!Array.isArray(s.expBudgets)) {
+    s.expBudgets = [];
+  } else {
+    s.expBudgets = s.expBudgets
+      .filter((it) => it && typeof it === "object")
+      .map((it) => ({
+        id: String(it.id || crypto.randomUUID()),
+        category: String(it.category || "Inne").trim() || "Inne",
+        limit: Number(it.limit) || 0,
+        alertPct: Math.min(100, Math.max(1, Math.round(Number(it.alertPct) || 80))),
+        createdAt: Number(it.createdAt) || Date.now()
+      }))
+      .filter((it) => it.limit > 0);
+  }
+
+  if (!Array.isArray(s.expRecurring)) {
+    s.expRecurring = [];
+  } else {
+    s.expRecurring = s.expRecurring
+      .filter((it) => it && typeof it === "object")
+      .map((it) => {
+        const periodRaw = String(it.period || "monthly").trim();
+        const period = periodRaw === "weekly" || periodRaw === "yearly" ? periodRaw : "monthly";
+        const nextDateRaw = String(it.nextDate || "").trim();
+        const nextDate = /^\d{4}-\d{2}-\d{2}$/.test(nextDateRaw)
+          ? nextDateRaw
+          : toISO(startOfDay(new Date()));
+
+        return {
+          id: String(it.id || crypto.randomUUID()),
+          name: String(it.name || "").trim(),
+          amount: Number(it.amount) || 0,
+          category: String(it.category || "Subskrypcje").trim() || "Subskrypcje",
+          period,
+          nextDate,
+          active: it.active !== false,
+          createdAt: Number(it.createdAt) || Date.now()
+        };
+      })
+      .filter((it) => it.name.length > 0 && it.amount > 0);
+  }
+
+  if (!Array.isArray(s.expSavingsGoals)) {
+    s.expSavingsGoals = [];
+  } else {
+    s.expSavingsGoals = s.expSavingsGoals
+      .filter((it) => it && typeof it === "object")
+      .map((it) => {
+        const deadlineRaw = String(it.deadlineISO || it.deadline || "").trim();
+        const deadlineISO = /^\d{4}-\d{2}-\d{2}$/.test(deadlineRaw) ? deadlineRaw : "";
+
+        return {
+          id: String(it.id || crypto.randomUUID()),
+          name: String(it.name || "").trim(),
+          target: Number(it.target) || 0,
+          current: Math.max(0, Number(it.current) || 0),
+          deadlineISO,
+          createdAt: Number(it.createdAt) || Date.now()
+        };
+      })
+      .filter((it) => it.name.length > 0 && it.target > 0);
+  }
+
   if (!Array.isArray(s.wishlist)) s.wishlist = [];
   if (!s.selectedDate) s.selectedDate = toISO(startOfDay(new Date()));
 
@@ -91,6 +171,9 @@ function getDefaultState() {
     entries: {},
     todos: [],
     expenses: [],
+    expBudgets: [],
+    expRecurring: [],
+    expSavingsGoals: [],
     wishlist: [],
     selectedDate: toISO(today),
     viewMonth: today.getMonth(),

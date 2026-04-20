@@ -215,12 +215,27 @@ function isSeededDefaultStateCandidate(obj) {
     !Array.isArray(obj.wishlist) ||
     obj.wishlist.length === 0;
 
+  const hasNoBudgets =
+    !Array.isArray(obj.expBudgets) ||
+    obj.expBudgets.length === 0;
+
+  const hasNoRecurring =
+    !Array.isArray(obj.expRecurring) ||
+    obj.expRecurring.length === 0;
+
+  const hasNoSavingsGoals =
+    !Array.isArray(obj.expSavingsGoals) ||
+    obj.expSavingsGoals.length === 0;
+
   return (
     hasDefaultHabits &&
     hasNoEntries &&
     hasNoTodos &&
     hasNoExpenses &&
-    hasNoWishlist
+    hasNoWishlist &&
+    hasNoBudgets &&
+    hasNoRecurring &&
+    hasNoSavingsGoals
   );
 }
 

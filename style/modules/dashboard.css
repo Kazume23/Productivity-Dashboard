@@ -1066,8 +1066,7 @@ a.iconBtn{
 .dashActivityItem,
 .todoPreviewItem,
 .todoInsightRow,
-.wishItem,
-.expCategoryItem {
+.wishItem {
   border-radius: var(--radius-sm);
 }
 

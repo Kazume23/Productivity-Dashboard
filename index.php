@@ -665,12 +665,175 @@ if (isset($_GET['register_err'])) {
                 <div class="expList" id="expList"></div>
               </div>
             </div>
+
+            <div class="box expBudgetsCard">
+              <div class="panelTitle">Budżety kategorii</div>
+              <div class="panelBody">
+                <div class="expBudgetForm">
+                  <label class="expField" for="expBudgetCategory">
+                    <span>Kategoria</span>
+                    <select class="modalInput" id="expBudgetCategory">
+                      <option value="Jedzenie">Jedzenie</option>
+                      <option value="Transport">Transport</option>
+                      <option value="Rozrywka">Rozrywka</option>
+                      <option value="Zdrowie">Zdrowie</option>
+                      <option value="Edukacja">Edukacja</option>
+                      <option value="Sprzęt">Sprzęt</option>
+                      <option value="Subskrypcje">Subskrypcje</option>
+                      <option value="Inne">Inne</option>
+                    </select>
+                  </label>
+
+                  <label class="expField" for="expBudgetLimit">
+                    <span>Limit miesięczny</span>
+                    <input class="modalInput" id="expBudgetLimit" type="text" inputmode="numeric" placeholder="Np. 1200,00">
+                  </label>
+
+                  <label class="expField" for="expBudgetAlertPct">
+                    <span>Alert (%)</span>
+                    <input class="modalInput" id="expBudgetAlertPct" type="number" min="1" max="100" step="1" value="80">
+                  </label>
+
+                  <div class="expActionsRow">
+                    <button class="habBtn" id="expBudgetSave" type="button">Zapisz budżet</button>
+                  </div>
+                </div>
+
+                <div class="expProHint" id="expBudgetSummary">Dodaj pierwszy budżet kategorii.</div>
+                <div class="expProList" id="expBudgetList"></div>
+              </div>
+            </div>
+
+            <div class="box expRecurringCard">
+              <div class="panelTitle">Subskrypcje i koszty cykliczne</div>
+              <div class="panelBody">
+                <div class="expRecurringForm">
+                  <label class="expField expFieldWide" for="expRecurringName">
+                    <span>Nazwa</span>
+                    <input class="modalInput" id="expRecurringName" type="text" placeholder="Np. Netflix" autocomplete="off">
+                  </label>
+
+                  <label class="expField" for="expRecurringAmount">
+                    <span>Kwota</span>
+                    <input class="modalInput" id="expRecurringAmount" type="text" inputmode="numeric" placeholder="Np. 49,99">
+                  </label>
+
+                  <label class="expField" for="expRecurringCategory">
+                    <span>Kategoria</span>
+                    <select class="modalInput" id="expRecurringCategory">
+                      <option value="Subskrypcje">Subskrypcje</option>
+                      <option value="Jedzenie">Jedzenie</option>
+                      <option value="Transport">Transport</option>
+                      <option value="Rozrywka">Rozrywka</option>
+                      <option value="Zdrowie">Zdrowie</option>
+                      <option value="Edukacja">Edukacja</option>
+                      <option value="Sprzęt">Sprzęt</option>
+                      <option value="Inne">Inne</option>
+                    </select>
+                  </label>
+
+                  <label class="expField" for="expRecurringPeriod">
+                    <span>Okres</span>
+                    <select class="modalInput" id="expRecurringPeriod">
+                      <option value="weekly">Tygodniowe</option>
+                      <option value="monthly" selected>Miesięczne</option>
+                      <option value="yearly">Roczne</option>
+                    </select>
+                  </label>
+
+                  <label class="expField" for="expRecurringNextDate">
+                    <span>Następna data</span>
+                    <input class="modalInput" id="expRecurringNextDate" type="date">
+                  </label>
+
+                  <label class="expRecurringToggle" for="expRecurringActive">
+                    <input id="expRecurringActive" type="checkbox" checked>
+                    <span>Aktywne</span>
+                  </label>
+
+                  <div class="expActionsRow">
+                    <button class="habBtn" id="expRecurringAdd" type="button">Dodaj koszt cykliczny</button>
+                  </div>
+                </div>
+
+                <div class="expProHint" id="expRecurringSummary">Brak kosztów cyklicznych.</div>
+                <div class="expProList" id="expRecurringList"></div>
+              </div>
+            </div>
+
+            <div class="box expGoalsCard">
+              <div class="panelTitle">Cele oszczędnościowe</div>
+              <div class="panelBody">
+                <div class="expGoalsForm">
+                  <label class="expField expFieldWide" for="expGoalName">
+                    <span>Nazwa celu</span>
+                    <input class="modalInput" id="expGoalName" type="text" placeholder="Np. Fundusz awaryjny" autocomplete="off">
+                  </label>
+
+                  <label class="expField" for="expGoalTarget">
+                    <span>Cel (kwota)</span>
+                    <input class="modalInput" id="expGoalTarget" type="text" inputmode="numeric" placeholder="Np. 5000">
+                  </label>
+
+                  <label class="expField" for="expGoalCurrent">
+                    <span>Aktualnie odłożone</span>
+                    <input class="modalInput" id="expGoalCurrent" type="text" inputmode="numeric" placeholder="Np. 1200">
+                  </label>
+
+                  <label class="expField" for="expGoalDeadline">
+                    <span>Deadline</span>
+                    <input class="modalInput" id="expGoalDeadline" type="date">
+                  </label>
+
+                  <div class="expActionsRow">
+                    <button class="habBtn" id="expGoalAdd" type="button">Dodaj cel</button>
+                  </div>
+                </div>
+
+                <div class="expProHint" id="expGoalSummary">Dodaj pierwszy cel oszczędnościowy.</div>
+                <div class="expProList" id="expGoalList"></div>
+              </div>
+            </div>
+
+            <div class="box expDataCard">
+              <div class="panelTitle">Import, eksport i backup</div>
+              <div class="panelBody">
+                <div class="expDataActions">
+                  <label class="calBtn expDataFileBtn" for="expImportFile">Import CSV / Excel</label>
+                  <input id="expImportFile" type="file" accept=".csv,.xlsx,.xls" hidden>
+
+                  <button class="calBtn" id="expExportFinanceJson" type="button">Eksport finansów JSON</button>
+                  <button class="calBtn" id="expExportExpensesCsv" type="button">Eksport wydatków CSV</button>
+                  <button class="calBtn" id="expExportFullBackup" type="button">Backup całości JSON</button>
+
+                  <label class="calBtn expDataFileBtn" for="expBackupImportFile">Przywróć backup JSON</label>
+                  <input id="expBackupImportFile" type="file" accept=".json,application/json" hidden>
+                </div>
+
+                <div class="expProHint" id="expImportReport">Import/eksport gotowy. Możesz pracować na danych finansowych i pełnym backupie.</div>
+              </div>
+            </div>
           </div>
 
           <aside class="box expBreakdownCard">
             <div class="panelTitle">Analityka wydatków</div>
             <div class="panelBody">
               <div class="expBreakdownStack">
+                <div class="expChartBox expCompareBox">
+                  <div class="expChartTitle">Porównanie miesiąc do miesiąca</div>
+                  <div class="expCompareRows">
+                    <div><span>Aktualny miesiąc</span><b id="expCompareCurrent">0,00 zł</b></div>
+                    <div><span>Poprzedni miesiąc</span><b id="expComparePrev">0,00 zł</b></div>
+                    <div><span>Różnica</span><b id="expCompareDelta">0,00 zł (0%)</b></div>
+                  </div>
+                  <div class="expCompareInsight" id="expCompareInsight">Dodaj wydatki, aby zobaczyć trend M/M.</div>
+                </div>
+
+                <div class="expChartBox expUpcomingBox">
+                  <div class="expChartTitle">Nadchodzące koszty (30 dni)</div>
+                  <div class="expUpcomingList" id="expUpcomingList"></div>
+                </div>
+
                 <div class="expChartBox">
                   <div class="expChartTitle">Udział kategorii</div>
                   <canvas id="expCategoryChart" aria-label="Udział kategorii wydatków"></canvas>
@@ -942,6 +1105,7 @@ if (isset($_GET['register_err'])) {
   <div class="toastStack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="js/core/config.js"></script>
   <script src="js/core/dom.js"></script>
   <script src="js/core/utils.js"></script>

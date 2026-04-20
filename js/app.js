@@ -403,10 +403,17 @@ function getExpenseStats() {
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value);
 
+  const recurringProjected =
+    typeof getRecurringProjectedTotalForMonth === "function"
+      ? Number(getRecurringProjectedTotalForMonth(year, month) || 0)
+      : 0;
+
   return {
     today,
     weekTotal,
     monthTotal,
+    recurringProjected,
+    monthTotalWithRecurring: monthTotal + recurringProjected,
     topCategory,
     topCategoryValue: topValue,
     categories
@@ -848,7 +855,7 @@ function renderOverviewPanels() {
   const dashExpenseWeek = $("dashExpenseWeek");
   const dashExpenseTopCategory = $("dashExpenseTopCategory");
 
-  if (dashExpenseMonth) dashExpenseMonth.textContent = moneyPL(expenseStats.monthTotal);
+  if (dashExpenseMonth) dashExpenseMonth.textContent = moneyPL(expenseStats.monthTotalWithRecurring);
   if (dashExpenseWeek) dashExpenseWeek.textContent = moneyPL(expenseStats.weekTotal);
   if (dashExpenseTopCategory) dashExpenseTopCategory.textContent = expenseStats.topCategory;
 
@@ -922,12 +929,12 @@ function renderOverviewPanels() {
   const expStatMonth = $("expStatMonth");
   const expCategoryList = $("expCategoryList");
 
-  if (expKpiMonth) expKpiMonth.textContent = moneyPL(expenseStats.monthTotal);
+  if (expKpiMonth) expKpiMonth.textContent = moneyPL(expenseStats.monthTotalWithRecurring);
   if (expKpiWeek) expKpiWeek.textContent = moneyPL(expenseStats.weekTotal);
   if (expKpiTopCategory) expKpiTopCategory.textContent = expenseStats.topCategory;
   if (expStatDay) expStatDay.textContent = moneyPL(expenseStats.today);
   if (expStatWeek) expStatWeek.textContent = moneyPL(expenseStats.weekTotal);
-  if (expStatMonth) expStatMonth.textContent = moneyPL(expenseStats.monthTotal);
+  if (expStatMonth) expStatMonth.textContent = moneyPL(expenseStats.monthTotalWithRecurring);
   if (expCategoryList) {
     expCategoryList.innerHTML = "";
     if (!expenseStats.categories.length) {

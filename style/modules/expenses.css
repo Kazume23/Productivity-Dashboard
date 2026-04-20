@@ -349,6 +349,305 @@
   transform: scale(0.93);
 }
 
+.expBudgetsCard .panelBody,
+.expRecurringCard .panelBody,
+.expGoalsCard .panelBody,
+.expDataCard .panelBody {
+  display: grid;
+  gap: 10px;
+}
+
+.expBudgetForm,
+.expRecurringForm,
+.expGoalsForm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+
+.expBudgetForm .expActionsRow,
+.expRecurringForm .expActionsRow,
+.expGoalsForm .expActionsRow {
+  justify-content: flex-start;
+}
+
+.expRecurringToggle {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.expRecurringToggle input {
+  accent-color: var(--accent);
+}
+
+.expProHint {
+  border: 1px solid var(--border-base);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-control);
+}
+
+.expProHint.isError {
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--border-base));
+  background: color-mix(in srgb, var(--danger) 10%, var(--bg-control));
+  color: color-mix(in srgb, var(--danger) 84%, var(--text-primary));
+}
+
+.expProHint.isSuccess {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border-base));
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-control));
+}
+
+.expProList {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+  max-height: 300px;
+  overflow: auto;
+  padding-right: 2px;
+  scrollbar-width: thin;
+}
+
+.expProList::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.expProList::-webkit-scrollbar-thumb {
+  background: var(--glass-10);
+  border-radius: 999px;
+}
+
+.expBudgetItem,
+.expRecurringItem,
+.expGoalItem {
+  border: 1px solid var(--border-base);
+  border-radius: 11px;
+  background: var(--bg-control);
+  padding: 9px 10px;
+}
+
+.expBudgetItem.isNear {
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--border-base));
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-control));
+}
+
+.expBudgetItem.isOver {
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--border-base));
+  background: color-mix(in srgb, var(--danger) 8%, var(--bg-control));
+}
+
+.expBudgetTop,
+.expGoalTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.expBudgetTop strong,
+.expGoalTop strong {
+  font-size: 13px;
+}
+
+.expBudgetTop span,
+.expGoalTop span {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.expBudgetBar,
+.expGoalBar {
+  width: 100%;
+  height: 7px;
+  border-radius: 999px;
+  margin-top: 8px;
+  overflow: hidden;
+  background: var(--glass-08);
+}
+
+.expBudgetFill,
+.expGoalFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  animation: barGrow var(--motion-slow) var(--motion-ease) both;
+}
+
+.expBudgetFill.isNear {
+  background: color-mix(in srgb, var(--accent) 70%, #e5a100);
+}
+
+.expBudgetFill.isOver {
+  background: var(--danger);
+}
+
+.expBudgetMeta,
+.expGoalMeta,
+.expRecurringMeta,
+.expUpcomingMeta,
+.expCompareInsight {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 7px;
+  line-height: 1.4;
+}
+
+.expBudgetActions,
+.expRecurringActions,
+.expGoalActions {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.expMiniBtn {
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--border-base);
+  background: var(--bg-control);
+  color: var(--text-primary);
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
+}
+
+.expMiniBtn:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.expMiniBtn.danger:hover {
+  border-color: var(--danger);
+}
+
+.expRecurringItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.expRecurringMain,
+.expUpcomingMain {
+  min-width: 0;
+}
+
+.expRecurringName,
+.expUpcomingName {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.expRecurringItem.isInactive {
+  opacity: 0.7;
+}
+
+.expGoalActions {
+  margin-top: 10px;
+}
+
+.expDataActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.expDataActions .calBtn {
+  justify-content: center;
+  text-align: center;
+}
+
+.expDataFileBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.expCompareRows {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.expCompareRows > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--border-base);
+  border-radius: 8px;
+  background: var(--bg-control);
+  padding: 6px 8px;
+}
+
+.expCompareRows span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.expCompareRows b {
+  font-size: 13px;
+}
+
+#expCompareDelta.isPositive {
+  color: color-mix(in srgb, var(--danger) 82%, var(--text-primary));
+}
+
+#expCompareDelta.isNegative {
+  color: color-mix(in srgb, var(--accent) 78%, var(--text-primary));
+}
+
+.expUpcomingList {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+  max-height: 240px;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.expUpcomingList::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.expUpcomingList::-webkit-scrollbar-thumb {
+  background: var(--glass-10);
+  border-radius: 999px;
+}
+
+.expUpcomingItem {
+  border: 1px solid var(--border-base);
+  border-radius: 10px;
+  background: var(--bg-control);
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.expUpcomingAmount {
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 @media (max-width: 1260px) {
   .expHeader {
     flex-wrap: wrap;
@@ -370,6 +669,10 @@
   .expItem {
     grid-template-columns: minmax(84px, 100px) minmax(0, 1fr) auto;
   }
+
+  .expDataActions {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 980px) {
@@ -390,6 +693,28 @@
   .expItem > :nth-child(3) {
     grid-column: 2;
     grid-row: 1 / span 2;
+  }
+
+  .expBudgetForm,
+  .expRecurringForm,
+  .expGoalsForm {
+    grid-template-columns: 1fr;
+  }
+
+  .expRecurringItem,
+  .expUpcomingItem {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .expRecurringActions,
+  .expGoalActions,
+  .expBudgetActions {
+    width: 100%;
+  }
+
+  .expMiniBtn {
+    flex: 1 1 auto;
   }
 }
 
