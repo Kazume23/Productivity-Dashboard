@@ -120,6 +120,5 @@ const sidebarCloseBtn = $("sidebarCloseBtn");
 const boxTopA = document.querySelector(".box.topA");
 const tableBox = document.querySelector(".tableBox");
 const bottomBox = document.querySelector(".bottomBox");
-const wishWrap = document.querySelector(".wishWrap");
 const todoBox = document.getElementById("todoBox");
 const todoPanel = document.querySelector(".box.todoBox");

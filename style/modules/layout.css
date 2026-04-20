@@ -637,14 +637,6 @@ body.isBooting .content {
   max-height: 560px;
 }
 
-.expensesViewBox,
-.wishlistViewBox {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-}
-
 .inlineForm {
   display: inline;
 }
