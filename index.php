@@ -419,6 +419,114 @@ if (isset($_GET['register_err'])) {
           </div>
         </div>
 
+        <div class="habitsProStrip">
+          <article class="box habitsProCard">
+            <div class="panelTitle">Szablony nawyków</div>
+            <div class="panelBody habitsProBody">
+              <div class="habitsProRow">
+                <select class="modalInput" id="habitTemplateSelect">
+                  <option value="morning" selected>Poranek i energia</option>
+                  <option value="work">Praca głęboka</option>
+                  <option value="health">Zdrowie i regeneracja</option>
+                </select>
+                <button class="habBtn" id="habitTemplateAdd" type="button">Dodaj szablon</button>
+              </div>
+              <div class="habitsProHint">Szablon dodaje gotowy zestaw bez duplikowania istniejących nazw.</div>
+            </div>
+          </article>
+
+          <article class="box habitsProCard">
+            <div class="panelTitle">Cele okresowe</div>
+            <div class="panelBody habitsProBody">
+              <div class="habitsProRow habitsProTwoCol">
+                <label class="habitsProField" for="habitGoalWeek">
+                  <span>Cel tygodniowy</span>
+                  <input class="modalInput" id="habitGoalWeek" type="number" min="1" max="200" step="1" value="12">
+                </label>
+                <label class="habitsProField" for="habitGoalMonth">
+                  <span>Cel miesięczny</span>
+                  <input class="modalInput" id="habitGoalMonth" type="number" min="1" max="1000" step="1" value="48">
+                </label>
+              </div>
+
+              <div class="habitsProStats">
+                <div><span>Tydzień</span><b id="habitGoalWeekProgress">0/12</b></div>
+                <div><span>Miesiąc</span><b id="habitGoalMonthProgress">0/48</b></div>
+              </div>
+
+              <div class="habitsProActions">
+                <button class="habBtn" id="habitGoalSave" type="button">Zapisz cele</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="box habitsProCard">
+            <div class="panelTitle">Streak freeze</div>
+            <div class="panelBody habitsProBody">
+              <div class="habitsProRow habitsProTwoCol">
+                <label class="habitsProField" for="habitFreezeHabit">
+                  <span>Nawyk</span>
+                  <select class="habInput habitsProSelect" id="habitFreezeHabit"></select>
+                </label>
+
+                <label class="habitsProField" for="habitFreezeLimit">
+                  <span>Limit / miesiąc</span>
+                  <input class="modalInput" id="habitFreezeLimit" type="number" min="1" max="10" step="1" value="2">
+                </label>
+              </div>
+
+              <div class="habitsProStats">
+                <div><span>Dostępne</span><b id="habitFreezeCredits">0</b></div>
+                <div><span>Status</span><b id="habitFreezeInfo">Brak użycia</b></div>
+              </div>
+
+              <div class="habitsProActions">
+                <button class="calBtn" id="habitFreezeSave" type="button">Zapisz limit</button>
+                <button class="habBtn" id="habitFreezeUse" type="button">Użyj freeze na wybrany dzień</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="box habitsProCard">
+            <div class="panelTitle">Przypomnienia</div>
+            <div class="panelBody habitsProBody">
+              <label class="habitsToggle" for="habitRemindersEnabled">
+                <input id="habitRemindersEnabled" type="checkbox">
+                <span>Włącz przypomnienia ToDo i nawyków</span>
+              </label>
+
+              <div class="habitsProRow habitsProFourCol">
+                <label class="habitsProField" for="habitReminderStartHour">
+                  <span>Od (h)</span>
+                  <input class="modalInput" id="habitReminderStartHour" type="number" min="0" max="23" step="1" value="9">
+                </label>
+
+                <label class="habitsProField" for="habitReminderEndHour">
+                  <span>Do (h)</span>
+                  <input class="modalInput" id="habitReminderEndHour" type="number" min="0" max="23" step="1" value="20">
+                </label>
+
+                <label class="habitsProField" for="habitReminderDailyLimit">
+                  <span>Limit/dzień</span>
+                  <input class="modalInput" id="habitReminderDailyLimit" type="number" min="1" max="20" step="1" value="2">
+                </label>
+
+                <label class="habitsProField" for="habitReminderCooldown">
+                  <span>Cooldown (min)</span>
+                  <input class="modalInput" id="habitReminderCooldown" type="number" min="15" max="1440" step="15" value="240">
+                </label>
+              </div>
+
+              <div class="habitsProActions">
+                <button class="calBtn" id="habitReminderPermission" type="button">Zgoda przeglądarki</button>
+                <button class="habBtn" id="habitReminderSave" type="button">Zapisz przypomnienia</button>
+              </div>
+
+              <div class="habitsProHint" id="habitReminderStatus">Przypomnienia są wyłączone.</div>
+            </div>
+          </article>
+        </div>
+
         <div class="sectionGrid habitsLayoutGrid">
           <div class="box topA">
             <div class="chartHeader">
@@ -502,7 +610,7 @@ if (isset($_GET['register_err'])) {
         <div class="sectionHero box">
           <div class="sectionHeadText">
             <div class="sectionTitle">Plan dnia i backlog</div>
-            <div class="sectionSubtitle">Prosty widok pracy: lista zadań i najbliższe terminy.</div>
+            <div class="sectionSubtitle">Lista, checklista, SLA i Kanban dla zadań.</div>
           </div>
           <div class="sectionKpiGrid">
             <div class="sectionKpi"><span>Otwarte dziś</span><b id="todoKpiToday">0</b></div>
@@ -538,6 +646,8 @@ if (isset($_GET['register_err'])) {
               <div class="todoInsightGrid">
                 <div><span>Wysoki priorytet</span><b id="todoInsightHigh">0</b></div>
                 <div><span>Zamknięte</span><b id="todoInsightDone">0</b></div>
+                <div><span>SLA ryzyko</span><b id="todoInsightSlaRisk">0</b></div>
+                <div><span>SLA po terminie</span><b id="todoInsightSlaOverdue">0</b></div>
               </div>
 
               <div class="todoInsightBlock">
@@ -548,6 +658,16 @@ if (isset($_GET['register_err'])) {
               <button class="calBtn" id="todoQuickAddBtn" type="button">Dodaj zadanie</button>
             </div>
           </aside>
+        </div>
+
+        <div class="box todoKanbanCard">
+          <div class="panelTitle todoKanbanTitleRow">
+            <span>Kanban zadań</span>
+            <span class="todoKanbanSummary" id="todoKanbanSummary">Brak zadań.</span>
+          </div>
+          <div class="panelBody">
+            <div class="todoKanbanBoard" id="todoKanbanBoard"></div>
+          </div>
         </div>
       </section>
 
@@ -665,12 +785,175 @@ if (isset($_GET['register_err'])) {
                 <div class="expList" id="expList"></div>
               </div>
             </div>
+
+            <div class="box expBudgetsCard">
+              <div class="panelTitle">Budżety kategorii</div>
+              <div class="panelBody">
+                <div class="expBudgetForm">
+                  <label class="expField" for="expBudgetCategory">
+                    <span>Kategoria</span>
+                    <select class="modalInput" id="expBudgetCategory">
+                      <option value="Jedzenie">Jedzenie</option>
+                      <option value="Transport">Transport</option>
+                      <option value="Rozrywka">Rozrywka</option>
+                      <option value="Zdrowie">Zdrowie</option>
+                      <option value="Edukacja">Edukacja</option>
+                      <option value="Sprzęt">Sprzęt</option>
+                      <option value="Subskrypcje">Subskrypcje</option>
+                      <option value="Inne">Inne</option>
+                    </select>
+                  </label>
+
+                  <label class="expField" for="expBudgetLimit">
+                    <span>Limit miesięczny</span>
+                    <input class="modalInput" id="expBudgetLimit" type="text" inputmode="numeric" placeholder="Np. 1200,00">
+                  </label>
+
+                  <label class="expField" for="expBudgetAlertPct">
+                    <span>Alert (%)</span>
+                    <input class="modalInput" id="expBudgetAlertPct" type="number" min="1" max="100" step="1" value="80">
+                  </label>
+
+                  <div class="expActionsRow">
+                    <button class="habBtn" id="expBudgetSave" type="button">Zapisz budżet</button>
+                  </div>
+                </div>
+
+                <div class="expProHint" id="expBudgetSummary">Dodaj pierwszy budżet kategorii.</div>
+                <div class="expProList" id="expBudgetList"></div>
+              </div>
+            </div>
+
+            <div class="box expRecurringCard">
+              <div class="panelTitle">Subskrypcje i koszty cykliczne</div>
+              <div class="panelBody">
+                <div class="expRecurringForm">
+                  <label class="expField expFieldWide" for="expRecurringName">
+                    <span>Nazwa</span>
+                    <input class="modalInput" id="expRecurringName" type="text" placeholder="Np. Netflix" autocomplete="off">
+                  </label>
+
+                  <label class="expField" for="expRecurringAmount">
+                    <span>Kwota</span>
+                    <input class="modalInput" id="expRecurringAmount" type="text" inputmode="numeric" placeholder="Np. 49,99">
+                  </label>
+
+                  <label class="expField" for="expRecurringCategory">
+                    <span>Kategoria</span>
+                    <select class="modalInput" id="expRecurringCategory">
+                      <option value="Subskrypcje">Subskrypcje</option>
+                      <option value="Jedzenie">Jedzenie</option>
+                      <option value="Transport">Transport</option>
+                      <option value="Rozrywka">Rozrywka</option>
+                      <option value="Zdrowie">Zdrowie</option>
+                      <option value="Edukacja">Edukacja</option>
+                      <option value="Sprzęt">Sprzęt</option>
+                      <option value="Inne">Inne</option>
+                    </select>
+                  </label>
+
+                  <label class="expField" for="expRecurringPeriod">
+                    <span>Okres</span>
+                    <select class="modalInput" id="expRecurringPeriod">
+                      <option value="weekly">Tygodniowe</option>
+                      <option value="monthly" selected>Miesięczne</option>
+                      <option value="yearly">Roczne</option>
+                    </select>
+                  </label>
+
+                  <label class="expField" for="expRecurringNextDate">
+                    <span>Następna data</span>
+                    <input class="modalInput" id="expRecurringNextDate" type="date">
+                  </label>
+
+                  <label class="expRecurringToggle" for="expRecurringActive">
+                    <input id="expRecurringActive" type="checkbox" checked>
+                    <span>Aktywne</span>
+                  </label>
+
+                  <div class="expActionsRow">
+                    <button class="habBtn" id="expRecurringAdd" type="button">Dodaj koszt cykliczny</button>
+                  </div>
+                </div>
+
+                <div class="expProHint" id="expRecurringSummary">Brak kosztów cyklicznych.</div>
+                <div class="expProList" id="expRecurringList"></div>
+              </div>
+            </div>
+
+            <div class="box expGoalsCard">
+              <div class="panelTitle">Cele oszczędnościowe</div>
+              <div class="panelBody">
+                <div class="expGoalsForm">
+                  <label class="expField expFieldWide" for="expGoalName">
+                    <span>Nazwa celu</span>
+                    <input class="modalInput" id="expGoalName" type="text" placeholder="Np. Fundusz awaryjny" autocomplete="off">
+                  </label>
+
+                  <label class="expField" for="expGoalTarget">
+                    <span>Cel (kwota)</span>
+                    <input class="modalInput" id="expGoalTarget" type="text" inputmode="numeric" placeholder="Np. 5000">
+                  </label>
+
+                  <label class="expField" for="expGoalCurrent">
+                    <span>Aktualnie odłożone</span>
+                    <input class="modalInput" id="expGoalCurrent" type="text" inputmode="numeric" placeholder="Np. 1200">
+                  </label>
+
+                  <label class="expField" for="expGoalDeadline">
+                    <span>Deadline</span>
+                    <input class="modalInput" id="expGoalDeadline" type="date">
+                  </label>
+
+                  <div class="expActionsRow">
+                    <button class="habBtn" id="expGoalAdd" type="button">Dodaj cel</button>
+                  </div>
+                </div>
+
+                <div class="expProHint" id="expGoalSummary">Dodaj pierwszy cel oszczędnościowy.</div>
+                <div class="expProList" id="expGoalList"></div>
+              </div>
+            </div>
+
+            <div class="box expDataCard">
+              <div class="panelTitle">Import, eksport i backup</div>
+              <div class="panelBody">
+                <div class="expDataActions">
+                  <label class="calBtn expDataFileBtn" for="expImportFile">Import CSV / Excel</label>
+                  <input id="expImportFile" type="file" accept=".csv,.xlsx,.xls" hidden>
+
+                  <button class="calBtn" id="expExportFinanceJson" type="button">Eksport finansów JSON</button>
+                  <button class="calBtn" id="expExportExpensesCsv" type="button">Eksport wydatków CSV</button>
+                  <button class="calBtn" id="expExportFullBackup" type="button">Backup całości JSON</button>
+
+                  <label class="calBtn expDataFileBtn" for="expBackupImportFile">Przywróć backup JSON</label>
+                  <input id="expBackupImportFile" type="file" accept=".json,application/json" hidden>
+                </div>
+
+                <div class="expProHint" id="expImportReport">Import/eksport gotowy. Możesz pracować na danych finansowych i pełnym backupie.</div>
+              </div>
+            </div>
           </div>
 
           <aside class="box expBreakdownCard">
             <div class="panelTitle">Analityka wydatków</div>
             <div class="panelBody">
               <div class="expBreakdownStack">
+                <div class="expChartBox expCompareBox">
+                  <div class="expChartTitle">Porównanie miesiąc do miesiąca</div>
+                  <div class="expCompareRows">
+                    <div><span>Aktualny miesiąc</span><b id="expCompareCurrent">0,00 zł</b></div>
+                    <div><span>Poprzedni miesiąc</span><b id="expComparePrev">0,00 zł</b></div>
+                    <div><span>Różnica</span><b id="expCompareDelta">0,00 zł (0%)</b></div>
+                  </div>
+                  <div class="expCompareInsight" id="expCompareInsight">Dodaj wydatki, aby zobaczyć trend M/M.</div>
+                </div>
+
+                <div class="expChartBox expUpcomingBox">
+                  <div class="expChartTitle">Nadchodzące koszty (30 dni)</div>
+                  <div class="expUpcomingList" id="expUpcomingList"></div>
+                </div>
+
                 <div class="expChartBox">
                   <div class="expChartTitle">Udział kategorii</div>
                   <canvas id="expCategoryChart" aria-label="Udział kategorii wydatków"></canvas>
@@ -751,6 +1034,18 @@ if (isset($_GET['register_err'])) {
           <option value="medium" selected>Średni</option>
           <option value="low">Niski</option>
         </select>
+
+        <label class="modalLabel" for="todoRecurrence">Cykliczność</label>
+        <select class="modalInput" id="todoRecurrence">
+          <option value="none" selected>Brak</option>
+          <option value="daily">Codziennie</option>
+          <option value="weekly">Co tydzień</option>
+          <option value="monthly">Co miesiąc</option>
+        </select>
+
+        <label class="modalLabel" for="todoChecklist">Checklista (opcjonalnie)</label>
+        <textarea class="modalTextarea todoChecklistInput" id="todoChecklist" placeholder="Każda linia to jeden subtask." rows="4"></textarea>
+        <div class="todoModalHint">Każda linia zostanie zapisana jako osobny element checklisty.</div>
 
         <div class="modalActions">
           <button class="calBtn" id="todoCancel" type="button">Anuluj</button>
@@ -942,6 +1237,7 @@ if (isset($_GET['register_err'])) {
   <div class="toastStack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="js/core/config.js"></script>
   <script src="js/core/dom.js"></script>
   <script src="js/core/utils.js"></script>
@@ -958,6 +1254,7 @@ if (isset($_GET['register_err'])) {
   <script src="js/modules/dashboard/chart.js"></script>
   <script src="js/modules/dashboard/wishlist.js"></script>
   <script src="js/modules/dashboard/pomodoro.js"></script>
+  <script src="js/modules/reminders.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

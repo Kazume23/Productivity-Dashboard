@@ -259,6 +259,8 @@ function getTodoStats() {
   let openCount = 0;
   let doneCount = 0;
   let highOpen = 0;
+  let slaRisk = 0;
+  let slaOverdue = 0;
 
   const pending = [];
 
@@ -274,6 +276,12 @@ function getTodoStats() {
     if (it.dateISO === selectedISO) today += 1;
     else if (it.dateISO > selectedISO) upcoming += 1;
     else overdue += 1;
+
+    if (typeof getTodoSlaInfo === "function") {
+      const sla = getTodoSlaInfo(it);
+      if (sla.status === "overdue") slaOverdue += 1;
+      else if (sla.status === "risk") slaRisk += 1;
+    }
 
     pending.push(it);
   }
@@ -293,6 +301,8 @@ function getTodoStats() {
     openCount,
     doneCount,
     highOpen,
+    slaRisk,
+    slaOverdue,
     totalCount: openCount + doneCount,
     preview: pending.slice(0, 4),
     nextDeadlines: pending.slice(0, 3)
@@ -341,13 +351,17 @@ function getBestCurrentHabitStreakInfo() {
 
   for (const h of habits) {
     let streak = 0;
-    let d = startOfDay(selected);
 
-    for (let guard = 0; guard < 3650; guard++) {
-      const key = `${h.id}|${toISO(d)}`;
-      if ((state.entries?.[key] ?? 0) !== 1) break;
-      streak += 1;
-      d = addDays(d, -1);
+    if (typeof getHabitCurrentStreak === "function") {
+      streak = getHabitCurrentStreak(h.id, selected);
+    } else {
+      let d = startOfDay(selected);
+      for (let guard = 0; guard < 3650; guard++) {
+        const key = `${h.id}|${toISO(d)}`;
+        if ((state.entries?.[key] ?? 0) !== 1) break;
+        streak += 1;
+        d = addDays(d, -1);
+      }
     }
 
     if (streak > bestStreak) {
@@ -403,10 +417,17 @@ function getExpenseStats() {
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value);
 
+  const recurringProjected =
+    typeof getRecurringProjectedTotalForMonth === "function"
+      ? Number(getRecurringProjectedTotalForMonth(year, month) || 0)
+      : 0;
+
   return {
     today,
     weekTotal,
     monthTotal,
+    recurringProjected,
+    monthTotalWithRecurring: monthTotal + recurringProjected,
     topCategory,
     topCategoryValue: topValue,
     categories
@@ -684,7 +705,10 @@ function renderDashboardTodoPreview(items) {
 
     const meta = document.createElement("div");
     meta.className = "todoPreviewMeta";
-    meta.textContent = `${fmtPL(fromISO(it.dateISO))} • ${todoPriorityLabel(it.priority || "medium")}`;
+    const recurrenceText = (it.recurrence && it.recurrence !== "none" && typeof todoRecurrenceLabel === "function")
+      ? ` • ${todoRecurrenceLabel(it.recurrence)}`
+      : "";
+    meta.textContent = `${fmtPL(fromISO(it.dateISO))} • ${todoPriorityLabel(it.priority || "medium")}${recurrenceText}`;
 
     main.appendChild(text);
     main.appendChild(meta);
@@ -848,7 +872,7 @@ function renderOverviewPanels() {
   const dashExpenseWeek = $("dashExpenseWeek");
   const dashExpenseTopCategory = $("dashExpenseTopCategory");
 
-  if (dashExpenseMonth) dashExpenseMonth.textContent = moneyPL(expenseStats.monthTotal);
+  if (dashExpenseMonth) dashExpenseMonth.textContent = moneyPL(expenseStats.monthTotalWithRecurring);
   if (dashExpenseWeek) dashExpenseWeek.textContent = moneyPL(expenseStats.weekTotal);
   if (dashExpenseTopCategory) dashExpenseTopCategory.textContent = expenseStats.topCategory;
 
@@ -891,11 +915,15 @@ function renderOverviewPanels() {
   const todoInsightOpen = $("todoInsightOpen");
   const todoInsightHigh = $("todoInsightHigh");
   const todoInsightDone = $("todoInsightDone");
+  const todoInsightSlaRisk = $("todoInsightSlaRisk");
+  const todoInsightSlaOverdue = $("todoInsightSlaOverdue");
   const todoInsightNext = $("todoInsightNext");
 
   if (todoInsightOpen) todoInsightOpen.textContent = String(todoStats.openCount);
   if (todoInsightHigh) todoInsightHigh.textContent = String(todoStats.highOpen);
   if (todoInsightDone) todoInsightDone.textContent = String(todoStats.doneCount);
+  if (todoInsightSlaRisk) todoInsightSlaRisk.textContent = String(todoStats.slaRisk);
+  if (todoInsightSlaOverdue) todoInsightSlaOverdue.textContent = String(todoStats.slaOverdue);
   if (todoInsightNext) {
     todoInsightNext.innerHTML = "";
     if (!todoStats.nextDeadlines.length) {
@@ -922,12 +950,12 @@ function renderOverviewPanels() {
   const expStatMonth = $("expStatMonth");
   const expCategoryList = $("expCategoryList");
 
-  if (expKpiMonth) expKpiMonth.textContent = moneyPL(expenseStats.monthTotal);
+  if (expKpiMonth) expKpiMonth.textContent = moneyPL(expenseStats.monthTotalWithRecurring);
   if (expKpiWeek) expKpiWeek.textContent = moneyPL(expenseStats.weekTotal);
   if (expKpiTopCategory) expKpiTopCategory.textContent = expenseStats.topCategory;
   if (expStatDay) expStatDay.textContent = moneyPL(expenseStats.today);
   if (expStatWeek) expStatWeek.textContent = moneyPL(expenseStats.weekTotal);
-  if (expStatMonth) expStatMonth.textContent = moneyPL(expenseStats.monthTotal);
+  if (expStatMonth) expStatMonth.textContent = moneyPL(expenseStats.monthTotalWithRecurring);
   if (expCategoryList) {
     expCategoryList.innerHTML = "";
     if (!expenseStats.categories.length) {
@@ -1214,6 +1242,7 @@ setView(initialView, { updateHash: false, skipRender: true });
     initChart();
     initWishlist();
     initPomodoro();
+    if (typeof initReminders === "function") initReminders();
 
     initCustomSelects();
 
