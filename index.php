@@ -419,6 +419,114 @@ if (isset($_GET['register_err'])) {
           </div>
         </div>
 
+        <div class="habitsProStrip">
+          <article class="box habitsProCard">
+            <div class="panelTitle">Szablony nawyków</div>
+            <div class="panelBody habitsProBody">
+              <div class="habitsProRow">
+                <select class="modalInput" id="habitTemplateSelect">
+                  <option value="morning" selected>Poranek i energia</option>
+                  <option value="work">Praca głęboka</option>
+                  <option value="health">Zdrowie i regeneracja</option>
+                </select>
+                <button class="habBtn" id="habitTemplateAdd" type="button">Dodaj szablon</button>
+              </div>
+              <div class="habitsProHint">Szablon dodaje gotowy zestaw bez duplikowania istniejących nazw.</div>
+            </div>
+          </article>
+
+          <article class="box habitsProCard">
+            <div class="panelTitle">Cele okresowe</div>
+            <div class="panelBody habitsProBody">
+              <div class="habitsProRow habitsProTwoCol">
+                <label class="habitsProField" for="habitGoalWeek">
+                  <span>Cel tygodniowy</span>
+                  <input class="modalInput" id="habitGoalWeek" type="number" min="1" max="200" step="1" value="12">
+                </label>
+                <label class="habitsProField" for="habitGoalMonth">
+                  <span>Cel miesięczny</span>
+                  <input class="modalInput" id="habitGoalMonth" type="number" min="1" max="1000" step="1" value="48">
+                </label>
+              </div>
+
+              <div class="habitsProStats">
+                <div><span>Tydzień</span><b id="habitGoalWeekProgress">0/12</b></div>
+                <div><span>Miesiąc</span><b id="habitGoalMonthProgress">0/48</b></div>
+              </div>
+
+              <div class="habitsProActions">
+                <button class="habBtn" id="habitGoalSave" type="button">Zapisz cele</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="box habitsProCard">
+            <div class="panelTitle">Streak freeze</div>
+            <div class="panelBody habitsProBody">
+              <div class="habitsProRow habitsProTwoCol">
+                <label class="habitsProField" for="habitFreezeHabit">
+                  <span>Nawyk</span>
+                  <select class="habInput habitsProSelect" id="habitFreezeHabit"></select>
+                </label>
+
+                <label class="habitsProField" for="habitFreezeLimit">
+                  <span>Limit / miesiąc</span>
+                  <input class="modalInput" id="habitFreezeLimit" type="number" min="1" max="10" step="1" value="2">
+                </label>
+              </div>
+
+              <div class="habitsProStats">
+                <div><span>Dostępne</span><b id="habitFreezeCredits">0</b></div>
+                <div><span>Status</span><b id="habitFreezeInfo">Brak użycia</b></div>
+              </div>
+
+              <div class="habitsProActions">
+                <button class="calBtn" id="habitFreezeSave" type="button">Zapisz limit</button>
+                <button class="habBtn" id="habitFreezeUse" type="button">Użyj freeze na wybrany dzień</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="box habitsProCard">
+            <div class="panelTitle">Przypomnienia</div>
+            <div class="panelBody habitsProBody">
+              <label class="habitsToggle" for="habitRemindersEnabled">
+                <input id="habitRemindersEnabled" type="checkbox">
+                <span>Włącz przypomnienia ToDo i nawyków</span>
+              </label>
+
+              <div class="habitsProRow habitsProFourCol">
+                <label class="habitsProField" for="habitReminderStartHour">
+                  <span>Od (h)</span>
+                  <input class="modalInput" id="habitReminderStartHour" type="number" min="0" max="23" step="1" value="9">
+                </label>
+
+                <label class="habitsProField" for="habitReminderEndHour">
+                  <span>Do (h)</span>
+                  <input class="modalInput" id="habitReminderEndHour" type="number" min="0" max="23" step="1" value="20">
+                </label>
+
+                <label class="habitsProField" for="habitReminderDailyLimit">
+                  <span>Limit/dzień</span>
+                  <input class="modalInput" id="habitReminderDailyLimit" type="number" min="1" max="20" step="1" value="2">
+                </label>
+
+                <label class="habitsProField" for="habitReminderCooldown">
+                  <span>Cooldown (min)</span>
+                  <input class="modalInput" id="habitReminderCooldown" type="number" min="15" max="1440" step="15" value="240">
+                </label>
+              </div>
+
+              <div class="habitsProActions">
+                <button class="calBtn" id="habitReminderPermission" type="button">Zgoda przeglądarki</button>
+                <button class="habBtn" id="habitReminderSave" type="button">Zapisz przypomnienia</button>
+              </div>
+
+              <div class="habitsProHint" id="habitReminderStatus">Przypomnienia są wyłączone.</div>
+            </div>
+          </article>
+        </div>
+
         <div class="sectionGrid habitsLayoutGrid">
           <div class="box topA">
             <div class="chartHeader">
@@ -1146,6 +1254,7 @@ if (isset($_GET['register_err'])) {
   <script src="js/modules/dashboard/chart.js"></script>
   <script src="js/modules/dashboard/wishlist.js"></script>
   <script src="js/modules/dashboard/pomodoro.js"></script>
+  <script src="js/modules/reminders.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

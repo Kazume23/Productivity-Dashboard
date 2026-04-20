@@ -37,6 +37,92 @@ function sanitizeState(s) {
   s.entries = normalizedEntries;
 
   if (!Array.isArray(s.todos)) {
+
+  if (!s.habitGoals || typeof s.habitGoals !== "object" || Array.isArray(s.habitGoals)) {
+    s.habitGoals = {};
+  }
+
+  s.habitGoals = {
+    weekTarget: Math.min(200, Math.max(1, Math.round(Number(s.habitGoals.weekTarget) || 12))),
+    monthTarget: Math.min(1000, Math.max(1, Math.round(Number(s.habitGoals.monthTarget) || 48)))
+  };
+
+  if (!s.habitFreeze || typeof s.habitFreeze !== "object" || Array.isArray(s.habitFreeze)) {
+    s.habitFreeze = {};
+  }
+
+  if (!s.habitFreeze.used || typeof s.habitFreeze.used !== "object" || Array.isArray(s.habitFreeze.used)) {
+    s.habitFreeze.used = {};
+  }
+
+  const freezeUsed = {};
+  for (const [key, rawVal] of Object.entries(s.habitFreeze.used)) {
+    if (!key.includes("|")) continue;
+    if (!rawVal) continue;
+    freezeUsed[key] = true;
+  }
+
+  s.habitFreeze = {
+    monthlyLimit: Math.min(10, Math.max(1, Math.round(Number(s.habitFreeze.monthlyLimit) || 2))),
+    used: freezeUsed
+  };
+
+  if (!s.reminders || typeof s.reminders !== "object" || Array.isArray(s.reminders)) {
+    s.reminders = {};
+  }
+
+  const remindersRaw = s.reminders;
+
+  const normalizeHour = (n, fallback) => {
+    const value = Math.round(Number(n));
+    if (!Number.isFinite(value)) return fallback;
+    return Math.max(0, Math.min(23, value));
+  };
+
+  let startHour = normalizeHour(remindersRaw.startHour, 9);
+  let endHour = normalizeHour(remindersRaw.endHour, 20);
+  if (endHour < startHour) {
+    const temp = startHour;
+    startHour = endHour;
+    endHour = temp;
+  }
+
+  const lastSentAtByKey = {};
+  if (remindersRaw.lastSentAtByKey && typeof remindersRaw.lastSentAtByKey === "object" && !Array.isArray(remindersRaw.lastSentAtByKey)) {
+    for (const [key, rawVal] of Object.entries(remindersRaw.lastSentAtByKey)) {
+      const ts = Number(rawVal);
+      if (!Number.isFinite(ts) || ts <= 0) continue;
+      lastSentAtByKey[String(key)] = ts;
+    }
+  }
+
+  const sentCountByDate = {};
+  if (remindersRaw.sentCountByDate && typeof remindersRaw.sentCountByDate === "object" && !Array.isArray(remindersRaw.sentCountByDate)) {
+    for (const [key, rawVal] of Object.entries(remindersRaw.sentCountByDate)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(key))) continue;
+      const count = Math.max(0, Math.round(Number(rawVal) || 0));
+      if (count <= 0) continue;
+      sentCountByDate[String(key)] = count;
+    }
+  }
+
+  const permissionRaw = String(remindersRaw.permission || "default").trim();
+  const permission = permissionRaw === "granted" || permissionRaw === "denied"
+    ? permissionRaw
+    : "default";
+
+  s.reminders = {
+    enabled: !!remindersRaw.enabled,
+    startHour,
+    endHour,
+    dailyLimit: Math.min(20, Math.max(1, Math.round(Number(remindersRaw.dailyLimit) || 2))),
+    cooldownMin: Math.min(1440, Math.max(15, Math.round(Number(remindersRaw.cooldownMin) || 240))),
+    permission,
+    lastSentAtByKey,
+    sentCountByDate,
+    lastFallbackAt: Number(remindersRaw.lastFallbackAt) > 0 ? Number(remindersRaw.lastFallbackAt) : 0
+  };
+
     s.todos = [];
   } else {
     s.todos = s.todos
@@ -216,6 +302,25 @@ function getDefaultState() {
       { id: crypto.randomUUID(), name: "Czytanie" }
     ],
     entries: {},
+    habitGoals: {
+      weekTarget: 12,
+      monthTarget: 48
+    },
+    habitFreeze: {
+      monthlyLimit: 2,
+      used: {}
+    },
+    reminders: {
+      enabled: false,
+      startHour: 9,
+      endHour: 20,
+      dailyLimit: 2,
+      cooldownMin: 240,
+      permission: "default",
+      lastSentAtByKey: {},
+      sentCountByDate: {},
+      lastFallbackAt: 0
+    },
     todos: [],
     expenses: [],
     expBudgets: [],

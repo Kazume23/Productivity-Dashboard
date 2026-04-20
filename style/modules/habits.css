@@ -66,6 +66,99 @@
   border-color: var(--border-hover);
 }
 
+.habitsProStrip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.habitsProCard {
+  min-height: 0;
+}
+
+.habitsProBody {
+  display: grid;
+  gap: 10px;
+}
+
+.habitsProRow {
+  display: grid;
+  gap: 8px;
+  align-items: end;
+}
+
+.habitsProTwoCol {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.habitsProFourCol {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.habitsProField {
+  display: grid;
+  gap: 5px;
+}
+
+.habitsProField span {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.habitsProField .habInput,
+.habitsProField .habitsProSelect {
+  width: 100%;
+}
+
+.habitsProStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.habitsProStats > div {
+  border: 1px solid var(--border-base);
+  border-radius: 10px;
+  background: var(--bg-control);
+  padding: 7px 9px;
+  display: grid;
+  gap: 2px;
+}
+
+.habitsProStats span {
+  font-size: 11px;
+  opacity: 0.74;
+}
+
+.habitsProStats b {
+  font-size: 14px;
+}
+
+.habitsProActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.habitsProHint {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.habitsToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.habitsToggle input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent);
+}
+
 .habTableWrap {
   flex: 1;
   min-height: 0;
@@ -169,7 +262,28 @@
   border-color: var(--habit-fail);
 }
 
+.cellFreeze {
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--border-cell));
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-control));
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cellFreeze:hover {
+  border-color: color-mix(in srgb, var(--accent) 54%, var(--border-cell));
+}
+
 @media (max-width: 1260px) {
+  .habitsProStrip {
+    grid-template-columns: 1fr;
+  }
+
+  .habitsProFourCol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .thHabit {
     width: 240px;
   }
@@ -188,6 +302,21 @@
 }
 
 @media (max-width: 980px) {
+  .habitsProTwoCol,
+  .habitsProFourCol,
+  .habitsProStats {
+    grid-template-columns: 1fr;
+  }
+
+  .habitsProActions {
+    flex-direction: column;
+  }
+
+  .habitsProActions .calBtn,
+  .habitsProActions .habBtn {
+    width: 100%;
+  }
+
   .habHeader {
     grid-template-columns: 1fr;
     align-items: stretch;

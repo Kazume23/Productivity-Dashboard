@@ -351,13 +351,17 @@ function getBestCurrentHabitStreakInfo() {
 
   for (const h of habits) {
     let streak = 0;
-    let d = startOfDay(selected);
 
-    for (let guard = 0; guard < 3650; guard++) {
-      const key = `${h.id}|${toISO(d)}`;
-      if ((state.entries?.[key] ?? 0) !== 1) break;
-      streak += 1;
-      d = addDays(d, -1);
+    if (typeof getHabitCurrentStreak === "function") {
+      streak = getHabitCurrentStreak(h.id, selected);
+    } else {
+      let d = startOfDay(selected);
+      for (let guard = 0; guard < 3650; guard++) {
+        const key = `${h.id}|${toISO(d)}`;
+        if ((state.entries?.[key] ?? 0) !== 1) break;
+        streak += 1;
+        d = addDays(d, -1);
+      }
     }
 
     if (streak > bestStreak) {
@@ -1238,6 +1242,7 @@ setView(initialView, { updateHash: false, skipRender: true });
     initChart();
     initWishlist();
     initPomodoro();
+    if (typeof initReminders === "function") initReminders();
 
     initCustomSelects();
 

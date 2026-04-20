@@ -355,7 +355,6 @@ function toggleTodoSubtask(todoId, subtaskId) {
       markTodoDoneState(todo, true);
     } else if (todo.done) {
       markTodoDoneState(todo, false, { keepFollowUp: false });
-      todo.lane = "progress";
     }
   }
 
